@@ -1,17 +1,22 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersController } from './users/users.controller';
-import { UsersService } from './users/users.service';
-import { UsersRepository } from './users/users.repository';
+import { Users1Controller } from './cats,users,from lesson/users1.controller';
+import { Users1Service } from './cats,users,from lesson/users1.service';
+import { Users1Repository } from './cats,users,from lesson/users1.repository';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Cat, CatSchema } from './cats/cats-schema';
-import { CatsRepository } from './cats/cats.repository';
-import { Blog, BlogSchema } from './blogs/blogs-schema';
+import { Cat, CatSchema } from './cats,users,from lesson/cats-schema';
+import { CatsRepository } from './cats,users,from lesson/cats.repository';
+import { Blog, BlogSchema } from './blogs/db/blogs-schema';
 import { BlogsService } from './blogs/blogs.service';
-import { BlogsDbRepository } from './blogs/blogs.db.repository';
+import { BlogsDbRepository } from './blogs/repositories/blogs.db.repository';
 import { BlogsController } from './blogs/blogs.controller';
-import { BlogsQueryRepository } from './blogs/blogs.query.repository';
+import { BlogsQueryRepository } from './blogs/repositories/blogs.query.repository';
+import { Post, PostSchema } from './posts/posts-schema';
+import { PostsController } from './posts/posts-controller';
+import { PostsService } from './posts/posts-service';
+import { PostsQueryRepository } from './posts/posts-query-repository';
+import { PostsDbRepository } from './posts/posts-db-repository';
 
 @Module({
   imports: [
@@ -27,17 +32,29 @@ import { BlogsQueryRepository } from './blogs/blogs.query.repository';
         name: Blog.name,
         schema: BlogSchema,
       },
+      {
+        name: Post.name,
+        schema: PostSchema,
+      },
     ]),
   ],
-  controllers: [AppController, UsersController, BlogsController],
+  controllers: [
+    AppController,
+    Users1Controller,
+    BlogsController,
+    PostsController,
+  ],
   providers: [
     AppService,
     CatsRepository,
-    UsersService,
-    UsersRepository,
+    Users1Service,
+    Users1Repository,
     BlogsService,
     BlogsDbRepository,
     BlogsQueryRepository,
+    PostsService,
+    PostsQueryRepository,
+    PostsDbRepository,
   ],
 })
 export class AppModule {}

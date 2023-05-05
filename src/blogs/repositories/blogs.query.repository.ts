@@ -1,9 +1,9 @@
-import { Model } from 'mongoose';
-import { BlogsWithPagination, BlogViewType } from './types';
+import mongoose, { Model } from 'mongoose';
+import { BlogsWithPagination, BlogViewType } from '../types';
 import { InjectModel } from '@nestjs/mongoose';
-import { Blog, BlogDocument } from './blogs-schema';
-import { getPagination } from './pagination';
-import { QueryPaginationType } from './blogs.controller';
+import { Blog, BlogDocument } from '../db/blogs-schema';
+import { getPagination } from '../functions/pagination';
+import { QueryPaginationType } from '../blogs.controller';
 
 export class BlogsQueryRepository {
   constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
@@ -35,20 +35,8 @@ export class BlogsQueryRepository {
     };
   }
 
-  async findBlogById(blogId: string): Promise<BlogViewType | null> {
-    const blog: BlogViewType | null = await this.blogModel
-      .findOne({ id: blogId }, { projection: { _id: 0 } })
-      .lean();
-
-    if (blog) {
-      return blog;
-    } else {
-      return null;
-    }
-  }
-
   async findBlogByIdViewModel(blogId: string): Promise<BlogViewType | null> {
-    const blog = await this.blogModel.findOne({ _id: blogId }).lean();
+    const blog = await this.blogModel.findById(blogId).lean();
 
     if (blog) {
       return {
@@ -66,7 +54,7 @@ export class BlogsQueryRepository {
 
   async findBlogName(blogId: string): Promise<BlogViewType | null> {
     const foundBlogName: BlogViewType | null = await this.blogModel
-      .findOne({ id: blogId }, { _id: 0 })
+      .findOne({ _id: blogId }, { _id: 0 })
       .lean();
     return foundBlogName || null;
   }
