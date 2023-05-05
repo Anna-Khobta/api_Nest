@@ -11,6 +11,7 @@ import { Blog, BlogSchema } from './blogs/blogs-schema';
 import { BlogsService } from './blogs/blogs.service';
 import { BlogsDbRepository } from './blogs/blogs.db.repository';
 import { BlogsController } from './blogs/blogs.controller';
+import { BlogsQueryRepository } from './blogs/blogs.query.repository';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { BlogsController } from './blogs/blogs.controller';
     UsersRepository,
     BlogsService,
     BlogsDbRepository,
+    BlogsQueryRepository,
   ],
 })
 export class AppModule {}
