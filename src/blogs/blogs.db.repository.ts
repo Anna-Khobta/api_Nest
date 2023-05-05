@@ -1,7 +1,9 @@
-import { HydratedDocument } from 'mongoose';
-import { BlogDocument } from './blogs-schema';
+import { HydratedDocument, Model } from 'mongoose';
+import { Blog, BlogDocument } from './blogs-schema';
+import { InjectModel } from '@nestjs/mongoose';
 
 export class BlogsDbRepository {
+  constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
   async save(blogInstance: BlogDocument): Promise<boolean> {
     try {
       await blogInstance.save();
