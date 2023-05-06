@@ -86,28 +86,32 @@ export class UsersQueryRepository {
     const searchLoginTerm = myPagination.searchLoginTerm;
     const searchEmailTerm = myPagination.searchEmailTerm;
 
-    const filter = {
-      $or: [
-        {
-          'accountData.login': {
-            $regex: searchLoginTerm,
-            $options: 'i',
+    let filter = {};
+
+    if (searchLoginTerm || searchEmailTerm) {
+      filter = {
+        $or: [
+          {
+            'accountData.login': {
+              $regex: searchLoginTerm,
+              $options: 'i',
+            },
           },
-        },
-        {
-          'accountData.email': {
-            $regex: searchEmailTerm,
-            $options: 'i',
+          {
+            'accountData.email': {
+              $regex: searchEmailTerm,
+              $options: 'i',
+            },
           },
-        },
-      ],
-    };
+        ],
+      };
+    }
 
     const findUsers = await this.userModel
       .find(filter, { __v: 0 })
       .skip(myPagination.skip)
       .limit(myPagination.limit)
-      .sort({ sortBy: myPagination.sortDirection })
+      .sort({ [myPagination.sortBy]: myPagination.sortDirection })
       .lean();
 
     const items: UserViewType[] = findUsers.map((user) => ({
@@ -117,7 +121,7 @@ export class UsersQueryRepository {
       createdAt: user.accountData.createdAt,
     }));
 
-    const total = await this.postModel.countDocuments(filter);
+    const total = await this.userModel.countDocuments(filter);
     const pagesCount = Math.ceil(total / myPagination.limit);
 
     return {

@@ -12,16 +12,18 @@ export class BlogsQueryRepository {
   ): Promise<BlogsWithPagination> {
     const myPagination = getPagination(queryPagination);
 
-    const filter: any = {};
-    /*filter = {
-      name: { $regex: myPagination.searchNameTerm, $options: 'i' },
-    };
-*/
+    let filter: any = {};
+    if (myPagination.searchNameTerm) {
+      filter = {
+        name: { $regex: myPagination.searchNameTerm, $options: 'i' },
+      };
+    }
+
     const findBlogs = await this.blogModel
       .find(filter, { __v: 0 })
       .skip(myPagination.skip)
       .limit(myPagination.limit)
-      .sort({ sortBy: myPagination.sortDirection })
+      .sort({ [myPagination.sortBy]: myPagination.sortDirection })
       .lean();
 
     const items: BlogViewType[] = findBlogs.map((blog) => ({

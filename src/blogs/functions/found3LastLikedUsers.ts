@@ -4,8 +4,10 @@ import { Post, PostDocument } from '../../posts/posts-schema';
 import { User, UserDocument } from '../../users/users-schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog, BlogDocument } from '../db/blogs-schema';
+import { Injectable } from '@nestjs/common';
 
-export class last3UsersLikes2 {
+@Injectable()
+export class Last3UsersLikesRepository {
   constructor(
     @InjectModel(Post.name) private postModel: Model<PostDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,

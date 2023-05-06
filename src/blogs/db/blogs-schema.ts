@@ -5,12 +5,6 @@ export type BlogDocument = HydratedDocument<Blog>;
 
 @Schema()
 export class Blog {
-  /*  @Prop({
-    required: true,
-    type: mongoose.Schema.Types.ObjectId,
-  })
-  _id: Types.ObjectId;*/
-
   @Prop({
     required: true,
   })

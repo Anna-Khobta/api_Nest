@@ -21,11 +21,17 @@ import { DeleteAllController } from './delete-all/delete-all.controller';
 import { DeleteAllService } from './delete-all/delete-all.service';
 import { DeleteAllRepository } from './delete-all/delete-all.repository';
 
+export const mongoUri = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017';
+console.log(mongoUri);
+console.log(process.env);
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://0.0.0.0:27017', {
-      dbName: 'nest-test',
-    }),
+    MongooseModule.forRoot(
+      'mongodb+srv://AnnaKh:MJV7zwCjuKhpMOHg@cluster0.26ojfvx.mongodb.net/blogs-api?retryWrites=true&w=majority',
+      {
+        dbName: 'nest-test',
+      },
+    ),
     MongooseModule.forFeature([
       {
         name: Blog.name,
