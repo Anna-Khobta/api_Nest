@@ -17,6 +17,7 @@ import { PostsController } from './posts/posts-controller';
 import { PostsService } from './posts/posts-service';
 import { PostsQueryRepository } from './posts/posts-query-repository';
 import { PostsDbRepository } from './posts/posts-db-repository';
+import { User, UserSchema } from './users/users-schema';
 
 @Module({
   imports: [
@@ -35,6 +36,10 @@ import { PostsDbRepository } from './posts/posts-db-repository';
       {
         name: Post.name,
         schema: PostSchema,
+      },
+      {
+        name: User.name,
+        schema: UserSchema,
       },
     ]),
   ],
