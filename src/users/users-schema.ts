@@ -43,13 +43,9 @@ export class EmailConfirmationClass {
 
 @Schema()
 export class PasswordRecoveryClass {
-  @Prop({
-    required: true,
-  })
+  @Prop()
   recoveryCode: string;
-  @Prop({
-    required: true,
-  })
+  @Prop()
   exp: Date;
 }
 

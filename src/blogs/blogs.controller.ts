@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   HttpStatus,
   Param,
   Post,
@@ -13,12 +14,17 @@ import { BlogsService } from './blogs.service';
 import { BlogsQueryRepository } from './repositories/blogs.query.repository';
 import { CustomException } from './functions/custom-exception';
 import { isValid } from './functions/isValid-Id';
+import { PostsService } from '../posts/posts.service';
+import { CreatePostInputModelType } from '../posts/posts.controller';
+import { PostsQueryRepository } from '../posts/posts.query.repository';
 
 @Controller('blogs')
 export class BlogsController {
   constructor(
     protected blogsService: BlogsService,
     protected blogsQueryRepository: BlogsQueryRepository,
+    protected postsService: PostsService,
+    protected postsQueryRepository: PostsQueryRepository,
   ) {}
 
   @Post()
@@ -57,6 +63,7 @@ export class BlogsController {
     }
   }
   @Put(':id')
+  @HttpCode(204)
   async updateBlogById(
     @Param('id') blogId: string,
     @Body() inputModel: CreateBlogInputModelType,
@@ -83,6 +90,7 @@ export class BlogsController {
   }
 
   @Delete(':id')
+  @HttpCode(204)
   async deleteBlogById(@Param('id') blogId: string) {
     isValid(blogId);
     const isDeleted = await this.blogsService.deleteBlog(blogId);
@@ -91,49 +99,62 @@ export class BlogsController {
     }
     return;
   }
+
+  @Post(':blogId/posts')
+  @HttpCode(201)
+  async createPostForBlog(
+    @Param('blogId') blogId: string,
+    @Body() inputModel: CreatePostInputModelType,
+  ) {
+    isValid(blogId);
+
+    const blogById = await this.blogsQueryRepository.findBlogByIdViewModel(
+      blogId,
+    );
+    if (!blogById) {
+      throw new CustomException('Blog not found', HttpStatus.NOT_FOUND);
+    }
+
+    const createdPostId = await this.postsService.createPost(
+      inputModel.title,
+      inputModel.shortDescription,
+      inputModel.content,
+      blogId,
+    );
+
+    if (!createdPostId) {
+      throw new CustomException('Blog not found', HttpStatus.NOT_FOUND);
+    }
+
+    const postView = await this.postsQueryRepository.findPostById(
+      createdPostId,
+    );
+    return postView;
+  }
+
+  @Get(':blogId/posts')
+  async getAllPostsForBlog(
+    @Param('blogId') blogId: string,
+    @Query() queryPagination: QueryPaginationType,
+  ) {
+    isValid(blogId);
+
+    const blogById = await this.blogsQueryRepository.findBlogByIdViewModel(
+      blogId,
+    );
+    if (!blogById) {
+      throw new CustomException('Blog not found', HttpStatus.NOT_FOUND);
+    }
+
+    const foundPosts = await this.postsQueryRepository.findPosts(
+      blogId,
+      queryPagination,
+    );
+    return foundPosts;
+  }
 }
 
 /*
-
-      //create new post for special blog
-      .post('/blogs/:blogId/posts',
-        authorizationMiddleware,
-        titleValidation,
-        shortDescriptionValidation,
-        contentValidation,
-        inputValidationMiddleware,
-        async (req: Request, res: Response) => {
-
-            const createdPostId = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, req.params.blogId)
-
-            if (!createdPostId) {
-                return res.sendStatus(404)
-            }
-
-            const postView = await postQueryRepository.findPostById(createdPostId)
-
-            res.status(201).send(postView)
-
-        })
-
-
-      .get("/blogs/:blogId/posts",
-        authBearerFindUser,
-        async (req: Request, res: Response) => {
-
-            const userInfo = req.user
-
-            const {page, limit, sortDirection, sortBy, skip} = getPagination(req.query)
-
-            const blogId = req.params.blogId
-
-            let checkBlogByID = await blogsQueryRepository.findBlogByblogId(req.params.blogId)
-
-            if (!checkBlogByID) {
-                return res.send(404)
-            }
-
-            if (!userInfo) {
 
                 const foundPostsWithoutUser = await postQueryRepository.findPosts(blogId, page, limit, sortDirection, sortBy, skip)
                 res.status(200).send(foundPostsWithoutUser)

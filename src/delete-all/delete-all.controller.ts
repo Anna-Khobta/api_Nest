@@ -1,4 +1,4 @@
-import { Controller, Delete } from '@nestjs/common';
+import { Controller, Delete, HttpCode } from '@nestjs/common';
 
 import { DeleteAllService } from './delete-all.service';
 
@@ -6,6 +6,7 @@ import { DeleteAllService } from './delete-all.service';
 export class DeleteAllController {
   constructor(protected deleteAllService: DeleteAllService) {}
   @Delete()
+  @HttpCode(204)
   async deleteAll() {
     return await this.deleteAllService.deleteAll();
   }
