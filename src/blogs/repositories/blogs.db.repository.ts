@@ -27,6 +27,7 @@ export class BlogsDbRepository {
     );
     return result.matchedCount === 1;
   }
+
   async deleteBlog(id: string): Promise<boolean> {
     const result = await this.blogModel.findOneAndDelete({ _id: id });
     return result !== null;

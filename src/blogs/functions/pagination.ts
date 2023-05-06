@@ -5,8 +5,7 @@ export const getPagination = (query: any) => {
   const limit: number = Number(query.pageSize) || 10;
   const sortDirection: SortOrder = query.sortDirection === 'asc' ? 1 : -1;
   const sortBy: string = query.sortBy || 'createdAt';
-  // Calculate skip values based on the page and pageSize
-  const skip: number = (page - 1) * limit;
+  const skip: number = (page - 1) * limit; // Calculate skip values based on the page and pageSize
 
   const searchNameTerm: string = query.searchNameTerm || '';
   const searchLoginTerm: string = query.searchLoginTerm || '';

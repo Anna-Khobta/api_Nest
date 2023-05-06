@@ -30,8 +30,8 @@ export class Blog {
   })
   isMembership: boolean;
 
-  setName(newName: string) {
-    this.name = newName;
+  setName(newName1: string) {
+    this.name = newName1;
   }
 }
 

@@ -2,8 +2,8 @@ import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './users-schema';
-
 import * as bcrypt from 'bcrypt';
+
 const salt = bcrypt.genSaltSync(5);
 
 @Injectable()

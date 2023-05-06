@@ -138,7 +138,6 @@ export class PostsService {
             break;
         }
       }
-
       if (checkIfUserHaveAlreadyPutLike === 'Dislike') {
         switch (likeStatus) {
           case 'Like':

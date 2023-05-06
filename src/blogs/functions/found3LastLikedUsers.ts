@@ -1,3 +1,4 @@
+/*
 import { LikeStatusesEnum, NewestLikesType } from '../types';
 import { Model } from 'mongoose';
 import { Post, PostDocument } from '../../posts/posts-schema';
@@ -53,3 +54,4 @@ export class Last3UsersLikesRepository {
     }
   }
 }
+*/

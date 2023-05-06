@@ -67,7 +67,7 @@ export type NewestLikesType = {
   login: string;
 };
 
-export type CommentWithMongoId = CommentDBType & { _id: ObjectId };
+//export type CommentWithMongoId = CommentDBType & { _id: ObjectId };
 
 export enum LikeStatusesEnum {
   Like = 'Like',

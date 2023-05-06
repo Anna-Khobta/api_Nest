@@ -38,7 +38,6 @@ export class Post {
   likesCount: number;
   @Prop()
   dislikesCount: number;
-  f;
   @Prop()
   usersEngagement: UserLikeInfo[];
 }

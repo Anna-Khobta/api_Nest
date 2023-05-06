@@ -36,6 +36,7 @@ export class BlogsQueryRepository {
     }));
 
     const total = await this.blogModel.countDocuments(filter);
+
     const pagesCount = Math.ceil(total / myPagination.limit);
     return {
       pagesCount: pagesCount,

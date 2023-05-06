@@ -22,8 +22,7 @@ import { DeleteAllService } from './delete-all/delete-all.service';
 import { DeleteAllRepository } from './delete-all/delete-all.repository';
 
 export const mongoUri = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017';
-console.log(mongoUri);
-console.log(process.env);
+
 @Module({
   imports: [
     MongooseModule.forRoot(

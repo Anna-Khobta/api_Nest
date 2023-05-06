@@ -25,3 +25,5 @@ export class DeleteAllRepository {
     return result !== null;
   }
 }
+
+// n

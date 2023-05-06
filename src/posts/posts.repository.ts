@@ -77,7 +77,6 @@ export class PostsRepository {
 
     try {
       const postInstance = await this.postModel.findOne({ _id: postId });
-
       if (!postInstance) {
         return false;
       }

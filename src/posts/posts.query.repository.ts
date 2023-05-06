@@ -176,7 +176,6 @@ export class PostsQueryRepository {
     }
 
     let myStatus;
-
     const userLikeInfo = postInstance.usersEngagement.find(
       (user) => user.userId === userId,
     );

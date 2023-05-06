@@ -133,6 +133,7 @@ export class UsersQueryRepository {
     };
   }
 
+  /*
   async findUserInfoForEmailSend(
     userId: string,
   ): Promise<UserInfoForEmail | null> {
@@ -148,6 +149,7 @@ export class UsersQueryRepository {
       confirmationCode: user.emailConfirmation.confirmationCode,
     };
   }
+*/
 
   async findUserByConfirmationCode(
     code: string,
