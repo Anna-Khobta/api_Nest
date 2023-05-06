@@ -1,12 +1,12 @@
 import { Post, PostDocument } from './posts-schema';
 import { Model } from 'mongoose';
 import { PostClassDbType } from './posts-class';
-import { PostsDbRepository } from './posts-db-repository';
-import { PostsQueryRepository } from './posts-query-repository';
+import { PostsRepository } from './posts.repository';
+import { PostsQueryRepository } from './posts.query.repository';
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { BlogsQueryRepository } from '../blogs/repositories/blogs.query.repository';
-import { CreatePostInputModelType } from './posts-controller';
+import { CreatePostInputModelType } from './posts.controller';
 import {
   LikeStatusesEnum,
   PostViewType,
@@ -19,8 +19,8 @@ export class PostsService {
   constructor(
     @Inject(PostsQueryRepository)
     protected postQueryRepository: PostsQueryRepository,
-    @Inject(PostsDbRepository)
-    protected postsDbRepository: PostsDbRepository,
+    @Inject(PostsRepository)
+    protected postsDbRepository: PostsRepository,
     protected blogsQueryRepository: BlogsQueryRepository,
     @InjectModel(Post.name) protected postModel: Model<PostDocument>,
   ) {}

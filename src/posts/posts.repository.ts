@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { LikeStatusesEnum, UserLikeInfo } from '../blogs/types';
 
 @Injectable()
-export class PostsDbRepository {
+export class PostsRepository {
   constructor(@InjectModel(Post.name) private postModel: Model<PostDocument>) {}
   async save(postInstance: PostDocument): Promise<boolean> {
     try {
@@ -136,7 +136,7 @@ export class PostsDbRepository {
   }
 }
 
-//export const postsRepositories = new PostsDbRepository()
+//export const postsRepositories = new PostsRepository()
 
 /*
 export const postsRepositories = {

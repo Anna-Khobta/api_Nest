@@ -10,8 +10,8 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { PostsService } from './posts-service';
-import { PostsQueryRepository } from './posts-query-repository';
+import { PostsService } from './posts.service';
+import { PostsQueryRepository } from './posts.query.repository';
 import { CustomException } from '../blogs/functions/custom-exception';
 import { isValid } from '../blogs/functions/isValid-Id';
 import { QueryPaginationType } from '../blogs/blogs.controller';
