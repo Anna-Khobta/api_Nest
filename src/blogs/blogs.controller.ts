@@ -1,15 +1,18 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
-  Res,
 } from '@nestjs/common';
 import { BlogsService } from './blogs.service';
-import { BlogsQueryRepository } from './blogs.query.repository';
+import { BlogsQueryRepository } from './repositories/blogs.query.repository';
+import { CustomException } from './functions/custom-exception';
+import { isValid } from './functions/isValid-Id';
 
 @Controller('blogs')
 export class BlogsController {
@@ -26,13 +29,9 @@ export class BlogsController {
       inputModel.websiteUrl,
     );
 
-    //console.log(blogIdIsCreated, 'blogIdIsCreated');
-
     const blogById = await this.blogsQueryRepository.findBlogByIdViewModel(
       blogIdIsCreated,
     );
-
-    //console.log(blogById, 'blogById');
 
     return blogById;
   }
@@ -46,46 +45,55 @@ export class BlogsController {
   }
 
   @Get(':id')
-  async getBlogById(@Param('id') blogId: string, @Res() res) {
-    const blogById = await this.blogsQueryRepository.findBlogById(blogId);
+  async getBlogById(@Param('id') blogId: string) {
+    isValid(blogId);
+    const blogById = await this.blogsQueryRepository.findBlogByIdViewModel(
+      blogId,
+    );
     if (blogById) {
-      return res.status(HttpStatus.OK).json(blogById);
+      return blogById;
     } else {
-      return res.status(HttpStatus.NOT_FOUND).send();
+      throw new CustomException('Blog not found', HttpStatus.NOT_FOUND);
     }
+  }
+  @Put(':id')
+  async updateBlogById(
+    @Param('id') blogId: string,
+    @Body() inputModel: CreateBlogInputModelType,
+  ) {
+    isValid(blogId);
+    const foundBlogById = await this.blogsQueryRepository.findBlogByIdViewModel(
+      blogId,
+    );
+
+    if (!foundBlogById) {
+      throw new CustomException('Blog not found', HttpStatus.NOT_FOUND);
+    }
+
+    const isUpdated = await this.blogsService.updateBlog(
+      blogId,
+      inputModel.name,
+      inputModel.description,
+      inputModel.websiteUrl,
+    );
+    if (!isUpdated) {
+      throw new CustomException('Blog not found', HttpStatus.NOT_FOUND);
+    }
+    return;
+  }
+
+  @Delete(':id')
+  async deleteBlogById(@Param('id') blogId: string) {
+    isValid(blogId);
+    const isDeleted = await this.blogsService.deleteBlog(blogId);
+    if (!isDeleted) {
+      throw new CustomException('Blog not found', HttpStatus.NOT_FOUND);
+    }
+    return;
   }
 }
 
 /*
-      .put('/blogs/:id',
-        authorizationMiddleware,
-        nameValidation,
-        descriptionValidation,
-        websiteUrlValidation,
-        inputValidationMiddleware,
-        async (req: Request, res: Response) => {
-
-            const isUpdated = await blogsService.updateBlog(((+req.params.id).toString()), req.body.name, req.body.description, req.body.websiteUrl)
-            if (isUpdated) {
-                // const blog = await blogsRepository.findBlogById(req.params.id)
-                res.sendStatus(204)
-            } else {
-                res.sendStatus(404)
-            }
-        })
-
-      .delete('/blogs/:id',
-        authorizationMiddleware,
-        async (req: Request, res: Response) => {
-
-            const isDeleted = await blogsService.deleteBlog(req.params.id)
-
-            if (isDeleted) {
-                res.sendStatus(204)
-            } else {
-                res.sendStatus(404)
-            }
-        })
 
       //create new post for special blog
       .post('/blogs/:blogId/posts',

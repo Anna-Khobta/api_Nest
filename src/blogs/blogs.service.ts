@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { BlogsDbRepository } from './blogs.db.repository';
-import { BlogClassDbType } from './blogs-class';
+import { BlogsDbRepository } from './repositories/blogs.db.repository';
+import { BlogClassDbType } from './db/blogs-class';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Blog, BlogDocument } from './blogs-schema';
+import { Blog, BlogDocument } from './db/blogs-schema';
 import { BlogViewType } from './types';
 
 @Injectable()
@@ -32,20 +32,31 @@ export class BlogsService {
 
     return blogInstance._id.toString();
   }
+
+  async updateBlog(
+    id: string,
+    name: string,
+    description: string,
+    websiteUrl: string,
+  ): Promise<boolean> {
+    return await this.blogsDbRepository.updateBlog(
+      id,
+      name,
+      description,
+      websiteUrl,
+    );
+  }
+  async deleteBlog(id: string): Promise<boolean> {
+    return await this.blogsDbRepository.deleteBlog(id);
+  }
 }
 
 /*
 
-    async updateBlog(id: string, name: string, description: string, websiteUrl: string ): Promise<boolean> {
-
-        return await blogsRepository.updateBlog(id, name, description, websiteUrl)
-    },
 
 
-    async deleteBlog(id: string): Promise<boolean> {
 
-        return await blogsRepository.deleteBlog(id)
-    },
+
 
 
     async deleteAllBlogs(): Promise<number> {

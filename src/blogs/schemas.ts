@@ -1,76 +1,82 @@
-import mongoose, {Schema} from "mongoose";
-import {LikeStatusesEnum, PostDbType, UserDbType} from "./types";
+import mongoose, { Schema } from 'mongoose';
+import { LikeStatusesEnum, UserDbType } from './types';
 
-export const blogSchema = new mongoose.Schema({
+/*export const blogSchema = new mongoose.Schema({
     id: String,
     name: {type: String, require: true},
     description: String,
     websiteUrl: String,
     createdAt: String,
     isMembership: Boolean
-});
+});*/
 
 export const userSchema = new mongoose.Schema<UserDbType>({
-    //id: string,
-    accountData: {
+  //id: string,
+  accountData: {
     login: String,
-        email: String,
-        hashPassword: String,
-        createdAt: String
-},
-emailConfirmation: {
+    email: String,
+    hashPassword: String,
+    createdAt: String,
+  },
+  emailConfirmation: {
     confirmationCode: String,
-        expirationDate: Date,
-        isConfirmed: Boolean
-},
-passwordRecovery: {
+    expirationDate: Date,
+    isConfirmed: Boolean,
+  },
+  passwordRecovery: {
     recoveryCode: String || null,
-        exp: Date || null
-    }
-})
+    exp: Date || null,
+  },
+});
 
-export const commentSchema = new Schema ({
-    //id: String,
-    postId: String,
-    content: String,
-    createdAt: String,
-    commentatorInfo: {
-        userId: String,
-        userLogin: String
+export const commentSchema = new Schema({
+  //id: String,
+  postId: String,
+  content: String,
+  createdAt: String,
+  commentatorInfo: {
+    userId: String,
+    userLogin: String,
+  },
+  likesCount: Number,
+  dislikesCount: Number,
+  usersEngagement: [
+    {
+      userId: String,
+      createdAt: String,
+      userStatus: {
+        type: String,
+        enum: Object.values(LikeStatusesEnum),
+        default: LikeStatusesEnum.None,
+      },
     },
-    likesCount: Number,
-    dislikesCount: Number,
-    usersEngagement:
-        [{ userId: String,
-            createdAt: String,
-            userStatus: {
-                type: String,
-                enum: Object.values(LikeStatusesEnum),
-                default: LikeStatusesEnum.None
-            }}]
-    });
+  ],
+});
+/*
 
-
-export const postSchema = new mongoose.Schema<PostDbType>( {
-    //_id: ObjectId,
-    title: String,
-    shortDescription: String,
-    content: String,
-    blogId: String,
-    blogName: String,
-    createdAt: String,
-    likesCount: Number,
-    dislikesCount: Number,
-    usersEngagement:
-        [{ userId: String,
-            createdAt: String,
-            userStatus: {
-                type: String,
-                enum: Object.values(LikeStatusesEnum),
-                default: LikeStatusesEnum.None
-            }}]
-})
-
+export const postSchema = new mongoose.Schema<PostDbType>({
+  //_id: ObjectId,
+  title: String,
+  shortDescription: String,
+  content: String,
+  blogId: String,
+  blogName: String,
+  createdAt: String,
+  likesCount: Number,
+  dislikesCount: Number,
+  usersEngagement: [
+    {
+      userId: String,
+      createdAt: String,
+      userStatus: {
+        type: String,
+        enum: Object.values(LikeStatusesEnum),
+        default: LikeStatusesEnum.None,
+      },
+    },
+  ],
+});
+*/
 
 /*
 postSchema.methods.updatePost = function(title: string, shortDescription:string, content: string) {
