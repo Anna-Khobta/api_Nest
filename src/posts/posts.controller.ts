@@ -20,7 +20,7 @@ import { QueryPaginationType } from '../blogs/blogs.controller';
 export class PostsController {
   constructor(
     protected postsService: PostsService,
-    protected postsQueryRepositories: PostsQueryRepository,
+    protected postsQueryRepository: PostsQueryRepository,
   ) {}
 
   @Post()
@@ -37,12 +37,12 @@ export class PostsController {
       throw new CustomException('Post cant be created', HttpStatus.NOT_FOUND);
     }
 
-    return await this.postsQueryRepositories.findPostById(createdPostId);
+    return await this.postsQueryRepository.findPostById(createdPostId);
   }
 
   @Get()
   async getAllPosts(@Query() queryPagination: QueryPaginationType) {
-    const foundPosts = await this.postsQueryRepositories.findPosts(
+    const foundPosts = await this.postsQueryRepository.findPosts(
       null,
       queryPagination,
     );
@@ -51,12 +51,9 @@ export class PostsController {
 
   @Get(':id')
   async getPostById(@Param('id') id: string) {
-    console.log(id, 'id ');
     isValid(id);
     const findPostWithoutUserInfo =
-      await this.postsQueryRepositories.findPostByIdWithoutUser(id);
-
-    console.log(findPostWithoutUserInfo, 'findPostWithoutUserInfo');
+      await this.postsQueryRepository.findPostByIdWithoutUser(id);
 
     if (!findPostWithoutUserInfo) {
       throw new CustomException('Post not found', HttpStatus.NOT_FOUND);
@@ -65,6 +62,7 @@ export class PostsController {
   }
 
   @Put(':id')
+  @HttpCode(204)
   async updatePostById(
     @Param('id') postId: string,
     @Body() inputModel: CreatePostInputModelType,
@@ -81,6 +79,7 @@ export class PostsController {
   }
 
   @Delete(':id')
+  @HttpCode(204)
   async deletePostById(@Param('id') postId: string) {
     isValid(postId);
     const isDeleted = await this.postsService.deletePost(postId);

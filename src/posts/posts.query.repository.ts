@@ -58,7 +58,7 @@ export class PostsQueryRepository {
       }),
     );
 
-    const total = await this.postModel.countDocuments();
+    const total = await this.postModel.countDocuments(filter);
     const pagesCount = Math.ceil(total / myPagination.limit);
 
     return {
@@ -137,8 +137,6 @@ export class PostsQueryRepository {
       if (!post) {
         return null;
       }
-
-      console.log(post, 'post');
 
       const likers = await this.last3UsersLikes(post._id.toString());
 
@@ -253,8 +251,6 @@ export class PostsQueryRepository {
       const userLikeInfo = postInstance.usersEngagement.find(
         (user) => user.userId === userId,
       );
-
-      //console.log(userLikeInfo, 'userLikeInfo')
 
       if (!userLikeInfo) {
         return null;

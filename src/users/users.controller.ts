@@ -3,54 +3,73 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
-  Put,
   Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { UsersQueryRepository } from './users.query.repository';
+import { CustomException } from '../blogs/functions/custom-exception';
+import { QueryPaginationType } from '../blogs/blogs.controller';
+import { isValid } from '../blogs/functions/isValid-Id';
 
 @Controller('users')
 export class UsersController {
-  constructor(protected usersService: UsersService) {}
-
-  @Get()
-  getUsers(@Query('term') term: string) {
-    return this.usersService.findUsers(term);
-  }
-
-  @Get(':id')
-  getUser(@Param('id') userId: string) {
-    return [{ id: 1 }, { id: 2 }].find((u) => u.id === +userId);
-  }
-
+  constructor(
+    protected usersService: UsersService,
+    protected usersQueryRepository: UsersQueryRepository,
+  ) {}
   @Post()
-  createUser(@Body() inputModel: CreateUserInputModelType) {
-    return {
-      id: 12,
-      name: inputModel.name,
-      childrenCount: inputModel.childrenCount,
-    };
+  @HttpCode(201)
+  async createUser(@Body() inputModel: CreateUserInputModelType) {
+    const isUserRegisteredInDb =
+      await this.usersQueryRepository.findUserByLoginOrEmail(
+        inputModel.login,
+        inputModel.email,
+      );
+
+    if (isUserRegisteredInDb) {
+      throw new CustomException('user cant be created', HttpStatus.BAD_REQUEST);
+    }
+
+    const createdUserId = await this.usersService.createUser(inputModel, true);
+
+    if (!createdUserId) {
+      throw new CustomException('user cant be created', HttpStatus.BAD_REQUEST);
+    }
+
+    const userView = await this.usersQueryRepository.findUserById(
+      createdUserId,
+    );
+    return userView;
+  }
+  @Get()
+  async getALLUsers(@Query() queryPagination: QueryPaginationType) {
+    const foundUsers = await this.usersQueryRepository.findUsers(
+      queryPagination,
+    );
+    if (!foundUsers) {
+      throw new CustomException('Somethig went wrong', HttpStatus.BAD_REQUEST);
+    }
+    return foundUsers;
   }
 
   @Delete(':id')
-  deleteUser(@Param('id') userId: string) {
+  @HttpCode(204)
+  async deleteUserById(@Param('id') id: string) {
+    isValid(id);
+    const isDeleted = await this.usersService.deleteUser(id);
+    if (!isDeleted) {
+      throw new CustomException('User not found', HttpStatus.NOT_FOUND);
+    }
     return;
-  }
-
-  @Put(':id')
-  updateUser(
-    @Param('id') userId: string,
-    @Body() model: CreateUserInputModelType,
-  ) {
-    return {
-      id: userId,
-      model: model,
-    };
   }
 }
 
-type CreateUserInputModelType = {
-  name: string;
-  childrenCount: number;
+export type CreateUserInputModelType = {
+  login: string;
+  password: string;
+  email: string;
 };

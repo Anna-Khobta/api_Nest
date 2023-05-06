@@ -20,15 +20,9 @@ export class BlogsService {
   ): Promise<string | null> {
     const newBlog = new BlogClassDbType(name, description, websiteUrl);
 
-    //console.log(newBlog, 'newBlog');
-
     const blogInstance: BlogDocument = new this.blogModel(newBlog);
 
-    //console.log(blogInstance, 'blogInstance');
-
     const result = await this.blogsDbRepository.save(blogInstance);
-
-    //console.log(result, 'result');
 
     return blogInstance._id.toString();
   }
