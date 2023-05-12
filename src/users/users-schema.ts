@@ -12,7 +12,7 @@ export class AccountDataSchema {
   login: string;
   @Prop({
     required: true,
-    unique: true,
+    //unique: true,
   })
   email: string;
   @Prop({

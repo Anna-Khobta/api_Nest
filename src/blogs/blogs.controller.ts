@@ -38,7 +38,6 @@ export class BlogsController {
     const blogById = await this.blogsQueryRepository.findBlogByIdViewModel(
       blogIdIsCreated,
     );
-
     return blogById;
   }
 

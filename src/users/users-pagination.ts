@@ -1,10 +1,22 @@
 import { SortOrder } from 'mongoose';
 
-export const getPagination = (query: any) => {
+export const getUsersPagination = (query: any) => {
   const page: number = Number(query.pageNumber) || 1;
   const limit: number = Number(query.pageSize) || 10;
   const sortDirection: SortOrder = query.sortDirection === 'asc' ? 1 : -1;
-  const sortBy: string = query.sortBy || 'createdAt';
+
+  let sortBy: string = query.sortBy || 'accountData.createdAt';
+
+  if (sortBy === 'login') {
+    sortBy = 'accountData.login';
+  }
+  if (sortBy === 'email') {
+    sortBy = 'accountData.email';
+  }
+  if (sortBy === 'createdAt') {
+    sortBy = 'accountData.createdAt';
+  }
+
   const skip: number = (page - 1) * limit; // Calculate skip values based on the page and pageSize
 
   const searchNameTerm: string = query.searchNameTerm || '';
@@ -21,16 +33,4 @@ export const getPagination = (query: any) => {
     searchLoginTerm,
     searchEmailTerm,
   };
-};
-
-export type PaginationType = {
-  page: number;
-  limit: number;
-  sortDirection: SortOrder;
-  sortBy: string;
-
-  skip: number;
-  searchNameTerm: string;
-  searchLoginTerm: string;
-  searchEmailTerm: string;
 };

@@ -9,7 +9,6 @@ import { CreateUserInputModelType } from './users.controller';
 import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
 
-//const bcrypt = require('bcryptjs');
 const salt = bcrypt.genSaltSync(5);
 @Injectable()
 export class UsersService {

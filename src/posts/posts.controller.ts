@@ -36,7 +36,6 @@ export class PostsController {
     if (!createdPostId) {
       throw new CustomException('Post cant be created', HttpStatus.NOT_FOUND);
     }
-
     return await this.postsQueryRepository.findPostById(createdPostId);
   }
 

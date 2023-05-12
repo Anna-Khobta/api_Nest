@@ -4,14 +4,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './users-schema';
 import {
   UserDbType,
-  UserInfoForEmail,
   UsersWithPagination,
   UserViewType,
   UserWithMongoId,
 } from '../blogs/types';
 import { Post, PostDocument } from '../posts/posts-schema';
 import { QueryPaginationType } from '../blogs/blogs.controller';
-import { getPagination } from '../blogs/functions/pagination';
+import { getUsersPagination } from './users-pagination';
 
 @Injectable()
 export class UsersQueryRepository {
@@ -81,7 +80,9 @@ export class UsersQueryRepository {
   async findUsers(
     queryPagination: QueryPaginationType,
   ): Promise<UsersWithPagination> {
-    const myPagination = getPagination(queryPagination);
+    const myPagination = getUsersPagination(queryPagination);
+
+    console.log(myPagination, 'myPagination');
 
     const searchLoginTerm = myPagination.searchLoginTerm;
     const searchEmailTerm = myPagination.searchEmailTerm;
@@ -109,9 +110,9 @@ export class UsersQueryRepository {
 
     const findUsers = await this.userModel
       .find(filter, { __v: 0 })
+      .sort({ [myPagination.sortBy]: myPagination.sortDirection })
       .skip(myPagination.skip)
       .limit(myPagination.limit)
-      .sort({ [myPagination.sortBy]: myPagination.sortDirection })
       .lean();
 
     const items: UserViewType[] = findUsers.map((user) => ({
@@ -133,6 +134,7 @@ export class UsersQueryRepository {
     };
   }
 
+  /*
   async findUserInfoForEmailSend(
     userId: string,
   ): Promise<UserInfoForEmail | null> {
@@ -148,6 +150,7 @@ export class UsersQueryRepository {
       confirmationCode: user.emailConfirmation.confirmationCode,
     };
   }
+*/
 
   async findUserByConfirmationCode(
     code: string,

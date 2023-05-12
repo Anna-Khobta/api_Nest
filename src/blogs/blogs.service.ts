@@ -4,8 +4,6 @@ import { BlogClassDbType } from './db/blogs-class';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Blog, BlogDocument } from './db/blogs-schema';
-import { BlogViewType } from './types';
-
 @Injectable()
 export class BlogsService {
   constructor(

@@ -20,18 +20,18 @@ import { AppController } from './app.controller';
 import { DeleteAllController } from './delete-all/delete-all.controller';
 import { DeleteAllService } from './delete-all/delete-all.service';
 import { DeleteAllRepository } from './delete-all/delete-all.repository';
+import { ConfigModule } from '@nestjs/config';
+import * as process from 'process';
+export const configModule = ConfigModule.forRoot();
 
-export const mongoUri = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017';
-console.log(mongoUri);
-console.log(process.env);
+//export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017' ;
+
 @Module({
   imports: [
-    MongooseModule.forRoot(
-      'mongodb+srv://AnnaKh:MJV7zwCjuKhpMOHg@cluster0.26ojfvx.mongodb.net/blogs-api?retryWrites=true&w=majority',
-      {
-        dbName: 'nest-test',
-      },
-    ),
+    configModule,
+    MongooseModule.forRoot(process.env.MONGO_URL, {
+      dbName: 'nest-test',
+    }),
     MongooseModule.forFeature([
       {
         name: Blog.name,

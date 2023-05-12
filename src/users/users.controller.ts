@@ -40,10 +40,7 @@ export class UsersController {
       throw new CustomException('user cant be created', HttpStatus.BAD_REQUEST);
     }
 
-    const userView = await this.usersQueryRepository.findUserById(
-      createdUserId,
-    );
-    return userView;
+    return await this.usersQueryRepository.findUserById(createdUserId);
   }
   @Get()
   async getALLUsers(@Query() queryPagination: QueryPaginationType) {
@@ -51,7 +48,7 @@ export class UsersController {
       queryPagination,
     );
     if (!foundUsers) {
-      throw new CustomException('Somethig went wrong', HttpStatus.BAD_REQUEST);
+      throw new CustomException('Something went wrong', HttpStatus.BAD_REQUEST);
     }
     return foundUsers;
   }
@@ -73,3 +70,5 @@ export type CreateUserInputModelType = {
   password: string;
   email: string;
 };
+
+// n
