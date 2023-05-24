@@ -24,7 +24,7 @@ import { ConfigModule } from '@nestjs/config';
 import * as process from 'process';
 export const configModule = ConfigModule.forRoot();
 
-//export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017' ;
+export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
 
 @Module({
   imports: [
