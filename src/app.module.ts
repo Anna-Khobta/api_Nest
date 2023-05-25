@@ -22,9 +22,14 @@ import { DeleteAllService } from './delete-all/delete-all.service';
 import { DeleteAllRepository } from './delete-all/delete-all.repository';
 import { ConfigModule } from '@nestjs/config';
 import * as process from 'process';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+import { AuthService } from './auth/auth.service';
+import { LocalStrategy } from './auth/local.strategy';
+import { JwtStrategy } from './auth/jwt.strategy';
 export const configModule = ConfigModule.forRoot();
 
-//export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017' ;
+export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
 
 @Module({
   imports: [
@@ -46,6 +51,11 @@ export const configModule = ConfigModule.forRoot();
         schema: UserSchema,
       },
     ]),
+    PassportModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '10m' },
+    }),
   ],
   controllers: [
     AppController,
@@ -68,6 +78,9 @@ export const configModule = ConfigModule.forRoot();
     UsersRepository,
     DeleteAllService,
     DeleteAllRepository,
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
   ],
 })
 export class AppModule {}
