@@ -24,9 +24,10 @@ import { ConfigModule } from '@nestjs/config';
 import * as process from 'process';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { AuthService } from './auth/auth.service';
-import { LocalStrategy } from './auth/local.strategy';
-import { JwtStrategy } from './auth/jwt.strategy';
+import { AuthService } from './auth-guards/auth.service';
+import { LocalStrategy } from './auth-guards/local.strategy';
+import { JwtStrategy } from './auth-guards/jwt.strategy';
+import { BasicStrategy } from './auth-guards/basic.strategy';
 export const configModule = ConfigModule.forRoot();
 
 export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
@@ -81,6 +82,7 @@ export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
     AuthService,
     LocalStrategy,
     JwtStrategy,
+    BasicStrategy,
   ],
 })
 export class AppModule {}
