@@ -1,22 +1,21 @@
 import {
   Body,
   Controller,
-  createParamDecorator,
-  ExecutionContext,
   Get,
   HttpStatus,
+  Ip,
   Post,
-  Res,
   UseGuards,
+  Headers,
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { UsersQueryRepository } from '../users/users.query.repository';
 import { CustomException } from '../blogs/functions/custom-exception';
 import { AuthService } from './auth.service';
 import { TokenService } from '../token/token.service';
-import { Response } from 'express';
 import { CurrentUserId } from '../decorators/current-user-id.param.decorator';
 import { JwtAuthGuard } from '../auth-guards/jwt-auth.guard';
+import { Request, response } from 'express';
 
 export type LoginUserInputModelType = {
   loginOrEmail: string;
@@ -34,22 +33,11 @@ export class AuthController {
 
   @Post('login')
   async loginUser(
+    @Headers('user-agent') deviceTitle: string,
     @Body() inputModel: LoginUserInputModelType,
-    @Res({ passthrough: true }) response: Response,
+    @Ip() ip: string,
   ) {
-    let ip;
-    let deviceTitle;
-
-    const IpUserAgent = createParamDecorator(
-      (data: unknown, context: ExecutionContext) => {
-        const request = context.switchToHttp().getRequest();
-        ip = request.ip;
-        deviceTitle = request.headers['user-agent'] || 'defaultDevice';
-        return { ip, deviceTitle };
-      },
-    );
-
-    console.log(ip, deviceTitle);
+    console.log(ip, deviceTitle, 'ip ');
 
     const foundUserInDb =
       await this.usersQueryRepository.findUserByLoginOrEmail(
