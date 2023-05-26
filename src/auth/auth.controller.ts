@@ -7,6 +7,7 @@ import {
   Post,
   UseGuards,
   Headers,
+  Res,
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { UsersQueryRepository } from '../users/users.query.repository';
@@ -15,7 +16,7 @@ import { AuthService } from './auth.service';
 import { TokenService } from '../token/token.service';
 import { CurrentUserId } from '../decorators/current-user-id.param.decorator';
 import { JwtAuthGuard } from '../auth-guards/jwt-auth.guard';
-import { Request, response } from 'express';
+import { Response } from 'express';
 
 export type LoginUserInputModelType = {
   loginOrEmail: string;
@@ -36,9 +37,8 @@ export class AuthController {
     @Headers('user-agent') deviceTitle: string,
     @Body() inputModel: LoginUserInputModelType,
     @Ip() ip: string,
+    @Res({ passthrough: true }) response: Response,
   ) {
-    console.log(ip, deviceTitle, 'ip ');
-
     const foundUserInDb =
       await this.usersQueryRepository.findUserByLoginOrEmail(
         inputModel.loginOrEmail,
