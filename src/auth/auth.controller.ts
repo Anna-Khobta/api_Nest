@@ -15,7 +15,7 @@ import { CustomException } from '../blogs/functions/custom-exception';
 import { AuthService } from './auth.service';
 import { TokenService } from '../token/token.service';
 import { CurrentUserId } from '../decorators/current-user-id.param.decorator';
-import { JwtAuthGuard } from '../auth-guards/jwt-auth.guard';
+import { JwtAccessGuard } from '../auth-guards/jwt-access.guard';
 import { Response } from 'express';
 
 export type LoginUserInputModelType = {
@@ -61,7 +61,7 @@ export class AuthController {
       );
     }
 
-    const loginUser = await this.authService.login(
+    const loginUser = await this.authService.getTokens(
       foundUserInDb._id.toString(),
     );
 
@@ -76,7 +76,7 @@ export class AuthController {
   }
 
   @Get('me')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAccessGuard)
   async getInfoAboutMeUser(@CurrentUserId() currentUserId: string) {
     const meUser = await this.usersQueryRepository.findUserById(currentUserId);
 
