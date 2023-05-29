@@ -24,10 +24,17 @@ import { ConfigModule } from '@nestjs/config';
 import * as process from 'process';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { AuthService } from './auth-guards/auth.service';
+import { AuthService } from './auth/auth.service';
 import { LocalStrategy } from './auth-guards/local.strategy';
-import { JwtStrategy } from './auth-guards/jwt.strategy';
+import { JwtAccessStrategy } from './auth-guards/jwt-access.strategy';
 import { BasicStrategy } from './auth-guards/basic.strategy';
+import { AuthController } from './auth/auth.controller';
+import { TokenService } from './token/token.service';
+import { TokenRepository } from './token/token.repository';
+import { Token, TokenSchema } from './token/token-schema';
+import { JwtRefreshStrategy } from './auth-guards/jwt-refresh.strategy';
+import { jwtConstants } from './auth-guards/constants';
+import { EmailsManager } from './managers/emails-manager';
 export const configModule = ConfigModule.forRoot();
 
 export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
@@ -51,11 +58,16 @@ export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
         name: User.name,
         schema: UserSchema,
       },
+      {
+        name: Token.name,
+        schema: TokenSchema,
+      },
     ]),
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '10m' },
+      global: true,
+      secret: jwtConstants.secret,
+      signOptions: { expiresIn: '60m' },
     }),
   ],
   controllers: [
@@ -64,6 +76,7 @@ export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
     PostsController,
     UsersController,
     DeleteAllController,
+    AuthController,
   ],
 
   providers: [
@@ -80,9 +93,13 @@ export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
     DeleteAllService,
     DeleteAllRepository,
     AuthService,
-    LocalStrategy,
-    JwtStrategy,
     BasicStrategy,
+    TokenService,
+    TokenRepository,
+    LocalStrategy,
+    JwtAccessStrategy,
+    JwtRefreshStrategy,
+    EmailsManager,
   ],
 })
 export class AppModule {}
