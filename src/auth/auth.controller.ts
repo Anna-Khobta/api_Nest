@@ -22,6 +22,7 @@ import { CreateUserInputModelType } from '../users/users.controller';
 import { EmailsManager } from '../managers/emails-manager';
 import { JwtPayload } from '../decorators/current-cookies.param.decorator';
 import { JwtRefreshGuard } from '../auth-guards/jwt-refresh.guard';
+import { RecoveryCodeGuard } from '../auth-guards/recoveryCode.guard';
 
 export type LoginUserInputModelType = {
   loginOrEmail: string;
@@ -213,6 +214,7 @@ export class AuthController {
     }
   }
   @Post('new-password')
+  @UseGuards(RecoveryCodeGuard)
   async createNewPassword(@Body() inputModel: CreateNewPassInputModel) {
     const result = await this.authService.updatePassword(
       inputModel.newPassword,
