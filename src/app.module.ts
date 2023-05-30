@@ -29,13 +29,14 @@ import { LocalStrategy } from './auth-guards/local.strategy';
 import { JwtAccessStrategy } from './auth-guards/jwt-access.strategy';
 import { BasicStrategy } from './auth-guards/basic.strategy';
 import { AuthController } from './auth/auth.controller';
-import { TokenService } from './token/token.service';
-import { TokenRepository } from './token/token.repository';
-import { Token, TokenSchema } from './token/token-schema';
+import { DeviceService } from './token/device.service';
+import { DeviceRepository } from './token/device.repository';
+import { DeviceDb, DeviceSchema } from './token/device-schema';
 import { JwtRefreshStrategy } from './auth-guards/jwt-refresh.strategy';
 import { jwtConstants } from './auth-guards/constants';
 import { EmailsManager } from './managers/emails-manager';
-export const configModule = ConfigModule.forRoot();
+import { RecoveryCodeGuard } from './auth-guards/recoveryCode.guard';
+export const configModule = ConfigModule.forRoot({ isGlobal: true });
 
 export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
 
@@ -59,8 +60,8 @@ export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
         schema: UserSchema,
       },
       {
-        name: Token.name,
-        schema: TokenSchema,
+        name: DeviceDb.name,
+        schema: DeviceSchema,
       },
     ]),
     PassportModule,
@@ -94,12 +95,13 @@ export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
     DeleteAllRepository,
     AuthService,
     BasicStrategy,
-    TokenService,
-    TokenRepository,
+    DeviceService,
+    DeviceRepository,
     LocalStrategy,
     JwtAccessStrategy,
     JwtRefreshStrategy,
     EmailsManager,
+    RecoveryCodeGuard,
   ],
 })
 export class AppModule {}
