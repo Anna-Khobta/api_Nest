@@ -12,12 +12,15 @@ import {
 } from '@nestjs/common';
 import { BlogsService } from './blogs.service';
 import { BlogsQueryRepository } from './repositories/blogs.query.repository';
-import { CustomException } from './functions/custom-exception';
-import { isValid } from './functions/isValid-Id';
+import { CustomException } from '../functions/custom-exception';
+import { isValid } from '../functions/isValid-Id';
 import { PostsService } from '../posts/posts.service';
-import { CreatePostInputModelType } from '../posts/posts.controller';
 import { PostsQueryRepository } from '../posts/posts.query.repository';
-
+import {
+  CreateBlogInputModelClass,
+  QueryPaginationInputModelClass,
+} from './db/blogs-input-classes';
+import { CreatePostInputModelClass } from '../posts/post-input-model-class';
 @Controller('blogs')
 export class BlogsController {
   constructor(
@@ -28,7 +31,7 @@ export class BlogsController {
   ) {}
 
   @Post()
-  async createBlog(@Body() inputModel: CreateBlogInputModelType) {
+  async createBlog(@Body() inputModel: CreateBlogInputModelClass) {
     const blogIdIsCreated = await this.blogsService.createBlog(
       inputModel.name,
       inputModel.description,
@@ -42,7 +45,7 @@ export class BlogsController {
   }
 
   @Get()
-  async getAllBlogs(@Query() queryPagination: QueryPaginationType) {
+  async getAllBlogs(@Query() queryPagination: QueryPaginationInputModelClass) {
     const foundBlogs = await this.blogsQueryRepository.findBlogs(
       queryPagination,
     );
@@ -65,7 +68,7 @@ export class BlogsController {
   @HttpCode(204)
   async updateBlogById(
     @Param('id') blogId: string,
-    @Body() inputModel: CreateBlogInputModelType,
+    @Body() inputModel: CreateBlogInputModelClass,
   ) {
     isValid(blogId);
     const foundBlogById = await this.blogsQueryRepository.findBlogByIdViewModel(
@@ -103,7 +106,7 @@ export class BlogsController {
   @HttpCode(201)
   async createPostForBlog(
     @Param('blogId') blogId: string,
-    @Body() inputModel: CreatePostInputModelType,
+    @Body() inputModel: CreatePostInputModelClass,
   ) {
     isValid(blogId);
 
@@ -134,7 +137,7 @@ export class BlogsController {
   @Get(':blogId/posts')
   async getAllPostsForBlog(
     @Param('blogId') blogId: string,
-    @Query() queryPagination: QueryPaginationType,
+    @Query() queryPagination: QueryPaginationInputModelClass,
   ) {
     isValid(blogId);
 
@@ -167,17 +170,3 @@ export class BlogsController {
 
         })
     }*/
-
-export type CreateBlogInputModelType = {
-  name: string;
-  description: string;
-  websiteUrl: string;
-};
-
-export type QueryPaginationType = {
-  searchNameTerm: string;
-  sortBy: string;
-  sortDirection: string;
-  pageNumber: string;
-  pageSize: string;
-};
