@@ -4,8 +4,8 @@ import { JwtService } from '@nestjs/jwt';
 import { v4 as uuidv4 } from 'uuid';
 import add from 'date-fns/add';
 import { EmailsManager } from '../managers/emails-manager';
-import { UsersRepository } from '../users/users.repository';
-import { UsersQueryRepository } from '../users/users.query.repository';
+import { UsersRepository } from '../users/users-repositories/users.repository';
+import { UsersQueryRepository } from '../users/users-repositories/users.query.repository';
 import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class AuthService {

@@ -2,14 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from './users-schema';
-import { UsersRepository } from './users.repository';
+import { UsersRepository } from './users-repositories/users.repository';
 import { UserTypeWiithoutIds, UserViewType } from '../blogs/types';
-import { UsersQueryRepository } from './users.query.repository';
-import { CreateUserInputModelType } from './users.controller';
+import { UsersQueryRepository } from './users-repositories/users.query.repository';
 import { v4 as uuidv4 } from 'uuid';
-import * as bcrypt from 'bcrypt';
+import { CreateUserInputModelClass } from './users-input-model-class';
 
-const salt = bcrypt.genSaltSync(5);
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const bcrypt = require('bcrypt');
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -19,9 +20,11 @@ export class UsersService {
   ) {}
 
   async createUser(
-    inputModel: CreateUserInputModelType,
+    inputModel: CreateUserInputModelClass,
     isConfirmed: boolean,
   ): Promise<string | null> {
+    const salt = await bcrypt.genSalt(5);
+
     const hashPassword = await bcrypt.hash(inputModel.password, salt);
 
     const newUser: UserTypeWiithoutIds = {
@@ -43,8 +46,11 @@ export class UsersService {
     };
 
     const userInstance = new this.userModel(newUser);
-    await this.usersRepository.save(userInstance);
+    const saveUser = await this.usersRepository.save(userInstance);
 
+    if (!saveUser) {
+      return null;
+    }
     return userInstance._id.toString();
   }
 

@@ -1,16 +1,17 @@
 import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from './users-schema';
+import { User, UserDocument } from '../users-schema';
 import {
   UserDbType,
+  UserInfoForEmail,
   UsersWithPagination,
   UserViewType,
   UserWithMongoId,
-} from '../blogs/types';
-import { Post, PostDocument } from '../posts/posts-schema';
-import { QueryPaginationType } from '../blogs/blogs.controller';
-import { getUsersPagination } from './users-pagination';
+} from '../../blogs/types';
+import { Post, PostDocument } from '../../posts/posts-schema';
+import { getUsersPagination } from '../users-pagination';
+import { QueryPaginationInputModelClass } from '../../blogs/db/blogs-input-classes';
 
 @Injectable()
 export class UsersQueryRepository {
@@ -78,11 +79,9 @@ export class UsersQueryRepository {
   }
 
   async findUsers(
-    queryPagination: QueryPaginationType,
+    queryPagination: QueryPaginationInputModelClass,
   ): Promise<UsersWithPagination> {
     const myPagination = getUsersPagination(queryPagination);
-
-    console.log(myPagination, 'myPagination');
 
     const searchLoginTerm = myPagination.searchLoginTerm;
     const searchEmailTerm = myPagination.searchEmailTerm;
@@ -134,7 +133,6 @@ export class UsersQueryRepository {
     };
   }
 
-  /*
   async findUserInfoForEmailSend(
     userId: string,
   ): Promise<UserInfoForEmail | null> {
@@ -150,7 +148,6 @@ export class UsersQueryRepository {
       confirmationCode: user.emailConfirmation.confirmationCode,
     };
   }
-*/
 
   async findUserByConfirmationCode(
     code: string,

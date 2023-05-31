@@ -12,7 +12,7 @@ export class AccountDataSchema {
   login: string;
   @Prop({
     required: true,
-    //unique: true,
+    unique: true,
   })
   email: string;
   @Prop({
@@ -51,19 +51,13 @@ export class PasswordRecoveryClass {
 
 @Schema()
 export class User {
-  @Prop({
-    required: true,
-  })
+  @Prop()
   accountData: AccountDataSchema;
 
-  @Prop({
-    required: true,
-  })
+  @Prop()
   emailConfirmation: EmailConfirmationClass;
 
-  @Prop({
-    required: true,
-  })
+  @Prop()
   passwordRecovery: PasswordRecoveryClass;
 
   @Prop()

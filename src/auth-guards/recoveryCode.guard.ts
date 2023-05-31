@@ -1,5 +1,5 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { UsersQueryRepository } from '../users/users.query.repository';
+import { UsersQueryRepository } from '../users/users-repositories/users.query.repository';
 
 @Injectable()
 export class RecoveryCodeGuard implements CanActivate {

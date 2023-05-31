@@ -9,20 +9,22 @@ import {
   Headers,
   Res,
   HttpCode,
+  BadRequestException,
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
-import { UsersQueryRepository } from '../users/users.query.repository';
-import { CustomException } from '../blogs/functions/custom-exception';
+import { UsersQueryRepository } from '../users/users-repositories/users.query.repository';
+import { CustomException } from '../functions/custom-exception';
 import { AuthService } from './auth.service';
-import { DeviceService } from '../token/device.service';
+import { DeviceService } from '../devices/device.service';
 import { CurrentUserId } from '../decorators/current-user-id.param.decorator';
 import { JwtAccessGuard } from '../auth-guards/jwt-access.guard';
 import { Response } from 'express';
-import { CreateUserInputModelType } from '../users/users.controller';
 import { EmailsManager } from '../managers/emails-manager';
 import { JwtPayload } from '../decorators/current-cookies.param.decorator';
 import { JwtRefreshGuard } from '../auth-guards/jwt-refresh.guard';
 import { RecoveryCodeGuard } from '../auth-guards/recoveryCode.guard';
+import { CreateNewPassInputModel, JwtPayloadClass } from './auth-input-classes';
+import { CreateUserInputModelClass } from '../users/users-input-model-class';
 
 export type LoginUserInputModelType = {
   loginOrEmail: string;
@@ -40,6 +42,7 @@ export class AuthController {
   ) {}
 
   @Post('login')
+  @HttpCode(200)
   async loginUser(
     @Headers('user-agent') deviceTitle: string,
     @Body() inputModel: LoginUserInputModelType,
@@ -96,14 +99,20 @@ export class AuthController {
 
   @Post('registration')
   @HttpCode(204)
-  async registerUser(@Body() inputModel: CreateUserInputModelType) {
+  async registerUser(@Body() inputModel: CreateUserInputModelClass) {
     const newUserId = await this.usersService.createUser(inputModel, false);
+
+    if (!newUserId) {
+      throw new BadRequestException([
+        { message: 'This login or email is already exist', field: 'email' },
+      ]);
+    }
 
     const userConfirmationCode =
       await this.usersQueryRepository.findUserInfoForEmailSend(newUserId);
 
     try {
-      const sendEmail = await this.emailsManager.sendEmailConfirmationMessage(
+      await this.emailsManager.sendEmailConfirmationMessage(
         userConfirmationCode!.id,
         userConfirmationCode!.email,
         userConfirmationCode!.confirmationCode,
@@ -111,10 +120,9 @@ export class AuthController {
       return true;
     } catch (error) {
       console.log(error);
-      throw new CustomException(
-        'Something went wrong with sending a email',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException([
+        { message: 'Something went wrong with email sending', field: 'email' },
+      ]);
     }
   }
 
@@ -172,12 +180,12 @@ export class AuthController {
     return true;
   }
 
-  @Post('refresh-token')
+  @Post('refresh-devices')
   @HttpCode(200)
   @UseGuards(JwtRefreshGuard)
   async createNewTokens(
     @Ip() ip: string,
-    @JwtPayload() jwtPayload: JwtPayloadType,
+    @JwtPayload() jwtPayload: JwtPayloadClass,
     @Res({ passthrough: true }) response: Response,
   ) {
     const createNewTokens = await this.authService.createNewAccessRefreshTokens(
@@ -196,7 +204,10 @@ export class AuthController {
   @Post('logout')
   @HttpCode(204)
   @UseGuards(JwtRefreshGuard)
-  async logoutUser(@Ip() ip: string, @JwtPayload() jwtPayload: JwtPayloadType) {
+  async logoutUser(
+    @Ip() ip: string,
+    @JwtPayload() jwtPayload: JwtPayloadClass,
+  ) {
     const isTokenDeleted = await this.deviceService.deleteDeviceInfo(
       jwtPayload,
     );
@@ -238,15 +249,3 @@ export class AuthController {
     }
   }
 }
-
-export type JwtPayloadType = {
-  iat: number;
-  exp: number;
-  deviceId: string;
-  userId: string;
-};
-
-export type CreateNewPassInputModel = {
-  newPassword: string;
-  recoveryCode: string;
-};

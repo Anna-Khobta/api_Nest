@@ -152,7 +152,7 @@ export type UserInfoForEmail = {
   confirmationCode: string;
 };
 
-export type TokenDBType = {
+export type DeviceDBType = {
   iat: number;
   exp: number;
   deviceId: string;
