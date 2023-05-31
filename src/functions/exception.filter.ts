@@ -5,7 +5,6 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { el } from 'date-fns/locale';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
