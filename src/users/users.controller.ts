@@ -8,12 +8,15 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UsersQueryRepository } from './users.query.repository';
-import { CustomException } from '../blogs/functions/custom-exception';
-import { QueryPaginationType } from '../blogs/blogs.controller';
-import { isValid } from '../blogs/functions/isValid-Id';
+import { UsersQueryRepository } from './users-repositories/users.query.repository';
+import { CustomException } from '../functions/custom-exception';
+import { isValid } from '../functions/isValid-Id';
+import { BasicAuthGuard } from '../auth-guards/basic-auth.guard';
+import { CreateUserInputModelClass } from './users-input-model-class';
+import { QueryPaginationInputModelClass } from '../blogs/db/blogs-input-classes';
 
 @Controller('users')
 export class UsersController {
@@ -23,7 +26,8 @@ export class UsersController {
   ) {}
   @Post()
   @HttpCode(201)
-  async createUser(@Body() inputModel: CreateUserInputModelType) {
+  @UseGuards(BasicAuthGuard)
+  async createUser(@Body() inputModel: CreateUserInputModelClass) {
     const isUserRegisteredInDb =
       await this.usersQueryRepository.findUserByLoginOrEmail(
         inputModel.login,
@@ -43,7 +47,8 @@ export class UsersController {
     return await this.usersQueryRepository.findUserById(createdUserId);
   }
   @Get()
-  async getALLUsers(@Query() queryPagination: QueryPaginationType) {
+  @UseGuards(BasicAuthGuard)
+  async getALLUsers(@Query() queryPagination: QueryPaginationInputModelClass) {
     const foundUsers = await this.usersQueryRepository.findUsers(
       queryPagination,
     );
@@ -55,6 +60,7 @@ export class UsersController {
 
   @Delete(':id')
   @HttpCode(204)
+  @UseGuards(BasicAuthGuard)
   async deleteUserById(@Param('id') id: string) {
     isValid(id);
     const isDeleted = await this.usersService.deleteUser(id);
@@ -64,11 +70,3 @@ export class UsersController {
     return;
   }
 }
-
-export type CreateUserInputModelType = {
-  login: string;
-  password: string;
-  email: string;
-};
-
-// n
