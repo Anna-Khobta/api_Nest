@@ -86,7 +86,10 @@ export class AuthController {
       deviceTitle,
     );
 
-    response.cookie('refreshToken', loginUser.refreshToken);
+    response.cookie('refreshToken', loginUser.refreshToken, {
+      httpOnly: true,
+      secure: true,
+    });
     return { accessToken: loginUser.accessToken };
   }
 
