@@ -55,7 +55,8 @@ export class AuthService {
 
     if (
       foundUserByCode.emailConfirmation.confirmationCode === code &&
-      foundUserByCode.emailConfirmation.expirationDate > new Date()
+      foundUserByCode.emailConfirmation.expirationDate > new Date() &&
+      foundUserByCode.emailConfirmation.isConfirmed === false
     ) {
       await this.usersRepository.updateConfirmation(
         foundUserByCode._id.toString(),
