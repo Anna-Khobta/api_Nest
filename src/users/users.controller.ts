@@ -35,13 +35,49 @@ export class UsersController {
       );
 
     if (isUserRegisteredInDb) {
-      throw new CustomException('user cant be created', HttpStatus.BAD_REQUEST);
+      if (isUserRegisteredInDb.accountData.login === inputModel.login) {
+        throw new CustomException(
+          {
+            errorsMessages: [
+              {
+                message: 'This login or email is already exist ',
+                field: 'login',
+              },
+            ],
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      if (isUserRegisteredInDb.accountData.email === inputModel.email) {
+        throw new CustomException(
+          {
+            errorsMessages: [
+              {
+                message: 'This login or email is already exist ',
+                field: 'email',
+              },
+            ],
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
     }
 
     const createdUserId = await this.usersService.createUser(inputModel, true);
 
     if (!createdUserId) {
-      throw new CustomException('user cant be created', HttpStatus.BAD_REQUEST);
+      throw new CustomException(
+        {
+          errorsMessages: [
+            {
+              message: 'This login or email is already exist ',
+              field: 'login',
+            },
+          ],
+        },
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     return await this.usersQueryRepository.findUserById(createdUserId);

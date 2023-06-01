@@ -12,10 +12,10 @@ import {
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { PostsQueryRepository } from './posts.query.repository';
-import { CustomException } from '../blogs/functions/custom-exception';
-import { isValid } from '../blogs/functions/isValid-Id';
-import { QueryPaginationType } from '../blogs/blogs.controller';
-
+import { CustomException } from '../functions/custom-exception';
+import { isValid } from '../functions/isValid-Id';
+import { QueryPaginationInputModelClass } from '../blogs/db/blogs-input-classes';
+import { CreatePostInputModelClass } from './post-input-model-class';
 @Controller('posts')
 export class PostsController {
   constructor(
@@ -25,7 +25,7 @@ export class PostsController {
 
   @Post()
   @HttpCode(201)
-  async createPost(@Body() inputModel: CreatePostInputModelType) {
+  async createPost(@Body() inputModel: CreatePostInputModelClass) {
     const createdPostId = await this.postsService.createPost(
       inputModel.title,
       inputModel.shortDescription,
@@ -40,7 +40,7 @@ export class PostsController {
   }
 
   @Get()
-  async getAllPosts(@Query() queryPagination: QueryPaginationType) {
+  async getAllPosts(@Query() queryPagination: QueryPaginationInputModelClass) {
     const foundPosts = await this.postsQueryRepository.findPosts(
       null,
       queryPagination,
@@ -64,7 +64,7 @@ export class PostsController {
   @HttpCode(204)
   async updatePostById(
     @Param('id') postId: string,
-    @Body() inputModel: CreatePostInputModelType,
+    @Body() inputModel: CreatePostInputModelClass,
   ) {
     isValid(postId);
     const updatedPostId = await this.postsService.updatePost(
@@ -88,10 +88,3 @@ export class PostsController {
     return;
   }
 }
-
-export type CreatePostInputModelType = {
-  title: string;
-  shortDescription: string;
-  content: string;
-  blogId: string;
-};

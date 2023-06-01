@@ -9,8 +9,8 @@ import {
   PostViewType,
 } from '../blogs/types';
 import { User, UserDocument } from '../users/users-schema';
-import { QueryPaginationType } from '../blogs/blogs.controller';
-import { getPagination } from '../blogs/functions/pagination';
+import { getPagination } from '../functions/pagination';
+import { QueryPaginationInputModelClass } from '../blogs/db/blogs-input-classes';
 
 @Injectable()
 export class PostsQueryRepository {
@@ -20,7 +20,7 @@ export class PostsQueryRepository {
   ) {}
   async findPosts(
     blogId: string | null,
-    queryPagination: QueryPaginationType,
+    queryPagination: QueryPaginationInputModelClass,
   ): Promise<PostsWithPagination> {
     const myPagination = getPagination(queryPagination);
 

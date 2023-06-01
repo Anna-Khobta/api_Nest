@@ -6,13 +6,14 @@ import { PostsQueryRepository } from './posts.query.repository';
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { BlogsQueryRepository } from '../blogs/repositories/blogs.query.repository';
-import { CreatePostInputModelType } from './posts.controller';
+
 import {
   LikeStatusesEnum,
   PostViewType,
   UserLikeInfo,
   UserViewType,
 } from '../blogs/types';
+import { CreatePostInputModelClass } from './post-input-model-class';
 
 @Injectable()
 export class PostsService {
@@ -52,7 +53,7 @@ export class PostsService {
   }
   async updatePost(
     postId: string,
-    inputModel: CreatePostInputModelType,
+    inputModel: CreatePostInputModelClass,
   ): Promise<string | null> {
     const foundPostId = await this.postQueryRepository.findPostById(postId);
     const foundBlogName = await this.blogsQueryRepository.findBlogName(

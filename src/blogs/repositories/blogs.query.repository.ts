@@ -2,13 +2,13 @@ import { Model } from 'mongoose';
 import { BlogsWithPagination, BlogViewType } from '../types';
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog, BlogDocument } from '../db/blogs-schema';
-import { getPagination } from '../functions/pagination';
-import { QueryPaginationType } from '../blogs.controller';
+import { getPagination } from '../../functions/pagination';
+import { QueryPaginationInputModelClass } from '../db/blogs-input-classes';
 
 export class BlogsQueryRepository {
   constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
   async findBlogs(
-    queryPagination: QueryPaginationType,
+    queryPagination: QueryPaginationInputModelClass,
   ): Promise<BlogsWithPagination> {
     const myPagination = getPagination(queryPagination);
 

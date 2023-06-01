@@ -9,20 +9,27 @@ import {
   Headers,
   Res,
   HttpCode,
+  BadRequestException,
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
-import { UsersQueryRepository } from '../users/users.query.repository';
-import { CustomException } from '../blogs/functions/custom-exception';
+import { UsersQueryRepository } from '../users/users-repositories/users.query.repository';
+import { CustomException } from '../functions/custom-exception';
 import { AuthService } from './auth.service';
-import { DeviceService } from '../token/device.service';
+import { DeviceService } from '../devices/device.service';
 import { CurrentUserId } from '../decorators/current-user-id.param.decorator';
 import { JwtAccessGuard } from '../auth-guards/jwt-access.guard';
 import { Response } from 'express';
-import { CreateUserInputModelType } from '../users/users.controller';
 import { EmailsManager } from '../managers/emails-manager';
 import { JwtPayload } from '../decorators/current-cookies.param.decorator';
 import { JwtRefreshGuard } from '../auth-guards/jwt-refresh.guard';
 import { RecoveryCodeGuard } from '../auth-guards/recoveryCode.guard';
+import {
+  CreateNewPassInputModel,
+  inputCodeType,
+  inputModelEmail,
+  JwtPayloadClass,
+} from './auth-input-classes';
+import { CreateUserInputModelClass } from '../users/users-input-model-class';
 
 export type LoginUserInputModelType = {
   loginOrEmail: string;
@@ -40,6 +47,7 @@ export class AuthController {
   ) {}
 
   @Post('login')
+  @HttpCode(200)
   async loginUser(
     @Headers('user-agent') deviceTitle: string,
     @Body() inputModel: LoginUserInputModelType,
@@ -78,7 +86,10 @@ export class AuthController {
       deviceTitle,
     );
 
-    response.cookie('refreshToken', loginUser.refreshToken);
+    response.cookie('refreshToken', loginUser.refreshToken, {
+      httpOnly: true,
+      secure: true,
+    });
     return { accessToken: loginUser.accessToken };
   }
 
@@ -96,14 +107,44 @@ export class AuthController {
 
   @Post('registration')
   @HttpCode(204)
-  async registerUser(@Body() inputModel: CreateUserInputModelType) {
+  async registerUser(@Body() inputModel: CreateUserInputModelClass) {
     const newUserId = await this.usersService.createUser(inputModel, false);
+
+    if (newUserId === 'login') {
+      throw new CustomException(
+        {
+          errorsMessages: [
+            {
+              message: 'This login is already exist ',
+              field: 'login',
+            },
+          ],
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (newUserId === 'email') {
+      {
+        throw new CustomException(
+          {
+            errorsMessages: [
+              {
+                message: 'This email is already exist ',
+                field: 'email',
+              },
+            ],
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
 
     const userConfirmationCode =
       await this.usersQueryRepository.findUserInfoForEmailSend(newUserId);
 
     try {
-      const sendEmail = await this.emailsManager.sendEmailConfirmationMessage(
+      await this.emailsManager.sendEmailConfirmationMessage(
         userConfirmationCode!.id,
         userConfirmationCode!.email,
         userConfirmationCode!.confirmationCode,
@@ -111,17 +152,19 @@ export class AuthController {
       return true;
     } catch (error) {
       console.log(error);
-      throw new CustomException(
-        'Something went wrong with sending a email',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException([
+        { message: 'Something went wrong with email sending', field: 'email' },
+      ]);
     }
   }
 
   @Post('registration-confirmation')
   @HttpCode(204)
-  async confirmRegistration(@Body() inputCode: string) {
-    const isEmailConfirmed = await this.authService.confirmEmail(inputCode);
+  async confirmRegistration(@Body() inputCode: inputCodeType) {
+    const isEmailConfirmed = await this.authService.confirmEmail(
+      inputCode.code,
+    );
+
     if (!isEmailConfirmed) {
       throw new CustomException(
         {
@@ -138,24 +181,33 @@ export class AuthController {
 
   @Post('registration-email-resending')
   @HttpCode(204)
-  async resendEmail(@Body() email: string) {
+  async resendEmail(@Body() email: inputModelEmail) {
+    // TODO проверку перенести в сервис  ?
     const foundUserByEmail =
-      await this.usersQueryRepository.findUserByLoginOrEmail(null, email);
+      await this.usersQueryRepository.findUserByLoginOrEmail(null, email.email);
 
     if (!foundUserByEmail) {
       throw new CustomException(
         {
           errorsMessages: [
-            {
-              errorsMessages: [
-                { message: 'Your email was already confirmed', field: 'email' },
-              ],
-            },
+            { message: "Such email doesn't exist", field: 'email' },
           ],
         },
         HttpStatus.BAD_REQUEST,
       );
     }
+
+    if (foundUserByEmail.emailConfirmation.isConfirmed === true) {
+      throw new CustomException(
+        {
+          errorsMessages: [
+            { message: 'This email was already confirmed', field: 'email' },
+          ],
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const resendEmail = await this.emailsManager.resendEmailConfirmationMessage(
       foundUserByEmail,
     );
@@ -172,12 +224,12 @@ export class AuthController {
     return true;
   }
 
-  @Post('refresh-token')
+  @Post('refresh-devices')
   @HttpCode(200)
   @UseGuards(JwtRefreshGuard)
   async createNewTokens(
     @Ip() ip: string,
-    @JwtPayload() jwtPayload: JwtPayloadType,
+    @JwtPayload() jwtPayload: JwtPayloadClass,
     @Res({ passthrough: true }) response: Response,
   ) {
     const createNewTokens = await this.authService.createNewAccessRefreshTokens(
@@ -196,7 +248,10 @@ export class AuthController {
   @Post('logout')
   @HttpCode(204)
   @UseGuards(JwtRefreshGuard)
-  async logoutUser(@Ip() ip: string, @JwtPayload() jwtPayload: JwtPayloadType) {
+  async logoutUser(
+    @Ip() ip: string,
+    @JwtPayload() jwtPayload: JwtPayloadClass,
+  ) {
     const isTokenDeleted = await this.deviceService.deleteDeviceInfo(
       jwtPayload,
     );
@@ -238,15 +293,3 @@ export class AuthController {
     }
   }
 }
-
-export type JwtPayloadType = {
-  iat: number;
-  exp: number;
-  deviceId: string;
-  userId: string;
-};
-
-export type CreateNewPassInputModel = {
-  newPassword: string;
-  recoveryCode: string;
-};
