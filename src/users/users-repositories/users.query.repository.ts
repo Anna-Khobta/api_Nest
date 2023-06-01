@@ -24,13 +24,18 @@ export class UsersQueryRepository {
     login: string | null,
     email: string | null,
   ): Promise<UserWithMongoId | null> {
-    const foundUser = await this.userModel
-      .findOne({
-        $or: [{ 'accountData.login': login }, { 'accountData.email': email }],
-      })
-      .lean();
+    try {
+      const foundUser = await this.userModel
+        .findOne({
+          $or: [{ 'accountData.login': login }, { 'accountData.email': email }],
+        })
+        .lean();
 
-    return foundUser;
+      return foundUser;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
   }
 
   async findUserById(userId: string): Promise<UserViewType | null> {
@@ -156,6 +161,7 @@ export class UsersQueryRepository {
       { 'emailConfirmation.confirmationCode': code },
       { __v: 0 },
     );
+
     return foundUser || null;
   }
 }
