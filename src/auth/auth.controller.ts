@@ -23,7 +23,12 @@ import { EmailsManager } from '../managers/emails-manager';
 import { JwtPayload } from '../decorators/current-cookies.param.decorator';
 import { JwtRefreshGuard } from '../auth-guards/jwt-refresh.guard';
 import { RecoveryCodeGuard } from '../auth-guards/recoveryCode.guard';
-import { CreateNewPassInputModel, JwtPayloadClass } from './auth-input-classes';
+import {
+  CreateNewPassInputModel,
+  inputCodeType,
+  inputModelEmail,
+  JwtPayloadClass,
+} from './auth-input-classes';
 import { CreateUserInputModelClass } from '../users/users-input-model-class';
 
 export type LoginUserInputModelType = {
@@ -102,10 +107,34 @@ export class AuthController {
   async registerUser(@Body() inputModel: CreateUserInputModelClass) {
     const newUserId = await this.usersService.createUser(inputModel, false);
 
-    if (!newUserId) {
-      throw new BadRequestException([
-        { message: 'This login or email is already exist', field: 'email' },
-      ]);
+    if (newUserId === 'login') {
+      throw new CustomException(
+        {
+          errorsMessages: [
+            {
+              message: 'This login is already exist ',
+              field: 'login',
+            },
+          ],
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (newUserId === 'email') {
+      {
+        throw new CustomException(
+          {
+            errorsMessages: [
+              {
+                message: 'This email is already exist ',
+                field: 'email',
+              },
+            ],
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
     }
 
     const userConfirmationCode =
@@ -128,8 +157,11 @@ export class AuthController {
 
   @Post('registration-confirmation')
   @HttpCode(204)
-  async confirmRegistration(@Body() inputCode: string) {
-    const isEmailConfirmed = await this.authService.confirmEmail(inputCode);
+  async confirmRegistration(@Body() inputCode: inputCodeType) {
+    const isEmailConfirmed = await this.authService.confirmEmail(
+      inputCode.code,
+    );
+
     if (!isEmailConfirmed) {
       throw new CustomException(
         {
@@ -146,24 +178,33 @@ export class AuthController {
 
   @Post('registration-email-resending')
   @HttpCode(204)
-  async resendEmail(@Body() email: string) {
+  async resendEmail(@Body() email: inputModelEmail) {
+    // TODO проверку перенести в сервис  ?
     const foundUserByEmail =
-      await this.usersQueryRepository.findUserByLoginOrEmail(null, email);
+      await this.usersQueryRepository.findUserByLoginOrEmail(null, email.email);
 
     if (!foundUserByEmail) {
       throw new CustomException(
         {
           errorsMessages: [
-            {
-              errorsMessages: [
-                { message: 'Your email was already confirmed', field: 'email' },
-              ],
-            },
+            { message: "Such email doesn't exist", field: 'email' },
           ],
         },
         HttpStatus.BAD_REQUEST,
       );
     }
+
+    if (foundUserByEmail.emailConfirmation.isConfirmed === true) {
+      throw new CustomException(
+        {
+          errorsMessages: [
+            { message: 'This email was already confirmed', field: 'email' },
+          ],
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const resendEmail = await this.emailsManager.resendEmailConfirmationMessage(
       foundUserByEmail,
     );
