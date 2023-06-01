@@ -23,6 +23,25 @@ export class UsersService {
     inputModel: CreateUserInputModelClass,
     isConfirmed: boolean,
   ): Promise<string | null> {
+    const checkIsLoginOrEmailAlreadyUsed =
+      await this.usersQueryRepository.findUserByLoginOrEmail(
+        inputModel.login,
+        inputModel.email,
+      );
+
+    if (checkIsLoginOrEmailAlreadyUsed) {
+      if (
+        checkIsLoginOrEmailAlreadyUsed.accountData.login === inputModel.login
+      ) {
+        return 'login';
+      }
+      if (
+        checkIsLoginOrEmailAlreadyUsed.accountData.email === inputModel.email
+      ) {
+        return 'email';
+      }
+    }
+
     const salt = await bcrypt.genSalt(5);
 
     const hashPassword = await bcrypt.hash(inputModel.password, salt);
@@ -36,7 +55,7 @@ export class UsersService {
       },
       emailConfirmation: {
         confirmationCode: uuidv4(),
-        expirationDate: new Date(),
+        expirationDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
         isConfirmed: isConfirmed,
       },
       passwordRecovery: {
