@@ -9,18 +9,27 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { PostsQueryRepository } from './posts.query.repository';
 import { CustomException } from '../functions/custom-exception';
 import { isValid } from '../functions/isValid-Id';
 import { QueryPaginationInputModelClass } from '../blogs/db/blogs-input-classes';
-import { CreatePostInputModelClass } from './post-input-model-class';
+import {
+  CreateCommentInputModelClass,
+  CreatePostInputModelClass,
+} from './post-input-model-class';
+import { CurrentUserId } from '../decorators/current-user-id.param.decorator';
+import { CommentsService } from '../comments/comments.service';
+import { JwtRefreshGuard } from '../auth-guards/jwt-refresh.guard';
+
 @Controller('posts')
 export class PostsController {
   constructor(
     protected postsService: PostsService,
     protected postsQueryRepository: PostsQueryRepository,
+    protected commentsService: CommentsService,
   ) {}
 
   @Post()
@@ -41,11 +50,7 @@ export class PostsController {
 
   @Get()
   async getAllPosts(@Query() queryPagination: QueryPaginationInputModelClass) {
-    const foundPosts = await this.postsQueryRepository.findPosts(
-      null,
-      queryPagination,
-    );
-    return foundPosts;
+    return await this.postsQueryRepository.findPosts(null, queryPagination);
   }
 
   @Get(':id')
@@ -87,4 +92,42 @@ export class PostsController {
     }
     return;
   }
+
+  @Post(':postId/comments')
+  @HttpCode(201)
+  @UseGuards(JwtRefreshGuard)
+  async createCommentForPost(
+    @Param('postId') postId: string,
+    @Body() inputModel: CreateCommentInputModelClass,
+    @CurrentUserId() currentUserId: string,
+  ) {
+    const post = await this.postsQueryRepository.findPostById(postId);
+
+    if (!post) {
+      throw new CustomException('Post not found', HttpStatus.NOT_FOUND);
+    }
+
+    const newComment = await this.commentsService.createComment(
+      postId,
+      inputModel.content,
+      currentUserId,
+    );
+
+    return newComment;
+  }
 }
+
+/*  @Get(':postId/comments')
+  @HttpCode(200)
+  //@UseGuards(JwtRefreshGuard)
+  async getCommentsForPost(
+    @Param('postId') postId: string,
+    //@CurrentUserId() currentUserId: string,
+    @Query() queryPagination: QueryPaginationInputModelClass,
+  ) {
+    const post = await this.postsQueryRepository.findPostById(postId);
+    if (!post) {
+      throw new CustomException('Post not found', HttpStatus.NOT_FOUND);
+    }
+  }
+}*/
