@@ -3,7 +3,7 @@ import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Blog, BlogSchema } from './blogs/db/blogs-schema';
 import { BlogsService } from './blogs/blogs.service';
-import { BlogsDbRepository } from './blogs/repositories/blogs.db.repository';
+import { BlogsRepository } from './blogs/repositories/blogs.repository';
 import { BlogsController } from './blogs/blogs.controller';
 import { BlogsQueryRepository } from './blogs/repositories/blogs.query.repository';
 import { Post, PostSchema } from './posts/posts-schema';
@@ -36,6 +36,10 @@ import { JwtRefreshStrategy } from './auth-guards/jwt-refresh.strategy';
 import { jwtConstants } from './auth-guards/constants';
 import { EmailsManager } from './managers/emails-manager';
 import { RecoveryCodeGuard } from './auth-guards/recoveryCode.guard';
+import { Comment, CommentSchema } from './comments/comments-schema';
+import { CommentsService } from './comments/comments.service';
+import { CommentsRepository } from './comments/comments.repository';
+import { CommentsQueryRepository } from './comments/comments.query.repository';
 export const configModule = ConfigModule.forRoot({ isGlobal: true });
 
 export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
@@ -63,6 +67,10 @@ export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
         name: DeviceDb.name,
         schema: DeviceSchema,
       },
+      {
+        name: Comment.name,
+        schema: CommentSchema,
+      },
     ]),
     PassportModule,
     JwtModule.register({
@@ -83,7 +91,7 @@ export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
   providers: [
     AppService,
     BlogsService,
-    BlogsDbRepository,
+    BlogsRepository,
     BlogsQueryRepository,
     PostsService,
     PostsQueryRepository,
@@ -102,6 +110,9 @@ export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
     JwtRefreshStrategy,
     EmailsManager,
     RecoveryCodeGuard,
+    CommentsService,
+    CommentsRepository,
+    CommentsQueryRepository,
   ],
 })
 export class AppModule {}
