@@ -4,6 +4,8 @@ import { Post, PostDocument } from '../posts/posts-schema';
 import { Model } from 'mongoose';
 import { Blog, BlogDocument } from '../blogs/db/blogs-schema';
 import { User, UserDocument } from '../users/users-schema';
+import { Comment, CommentDocument } from '../comments/comments-schema';
+import { DeviceDb, DeviceDocument } from '../devices/device-schema';
 
 @Injectable()
 export class DeleteAllRepository {
@@ -11,6 +13,8 @@ export class DeleteAllRepository {
     @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
     @InjectModel(Post.name) private postModel: Model<PostDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
+    @InjectModel(DeviceDb.name) private deviceModel: Model<DeviceDocument>,
   ) {}
   async deleteAllBlogs(): Promise<boolean> {
     const result = await this.blogModel.deleteMany({});
@@ -24,6 +28,12 @@ export class DeleteAllRepository {
     const result = await this.userModel.deleteMany({});
     return result !== null;
   }
+  async deleteAllComments(): Promise<boolean> {
+    const result = await this.commentModel.deleteMany({});
+    return result !== null;
+  }
+  async deleteAllDevices(): Promise<boolean> {
+    const result = await this.deviceModel.deleteMany({});
+    return result !== null;
+  }
 }
-
-// n

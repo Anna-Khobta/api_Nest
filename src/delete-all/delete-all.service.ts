@@ -13,10 +13,11 @@ export class DeleteAllService {
       await this.deleteAllRepository.deleteAllBlogs();
       await this.deleteAllRepository.deleteAllPosts();
       await this.deleteAllRepository.deleteAllUsers();
+      await this.deleteAllRepository.deleteAllComments();
+      await this.deleteAllRepository.deleteAllDevices();
     } catch (error) {
       console.log(error);
       return null;
     }
   }
 }
-// n
