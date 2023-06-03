@@ -40,6 +40,7 @@ import { Comment, CommentSchema } from './comments/comments-schema';
 import { CommentsService } from './comments/comments.service';
 import { CommentsRepository } from './comments/comments.repository';
 import { CommentsQueryRepository } from './comments/comments.query.repository';
+import { IfElseUserAuthGuard } from './auth-guards/if.else.user.auth.guard';
 export const configModule = ConfigModule.forRoot({ isGlobal: true });
 
 export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
@@ -113,6 +114,7 @@ export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
     CommentsService,
     CommentsRepository,
     CommentsQueryRepository,
+    IfElseUserAuthGuard,
   ],
 })
 export class AppModule {}
