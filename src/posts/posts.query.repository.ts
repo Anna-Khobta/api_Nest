@@ -236,6 +236,54 @@ export class PostsQueryRepository {
     return postView;
   }
 
+  async findPostByIdWithWithoutUser(
+    postId: string,
+    userId: string | null,
+  ): Promise<PostViewType | null> {
+    const postInstance = await this.postModel.findById(
+      { _id: postId },
+      { __v: 0 },
+    );
+
+    if (!postInstance) {
+      return null;
+    }
+
+    let myStatus;
+    if (userId) {
+      const userLikeInfo = postInstance.usersEngagement.find(
+        (user) => user.userId === userId,
+      );
+
+      if (!userLikeInfo) {
+        myStatus = LikeStatusesEnum.None;
+      } else {
+        myStatus = userLikeInfo.userStatus;
+      }
+    } else {
+      myStatus = LikeStatusesEnum.None;
+    }
+
+    const likers = await this.last3UsersLikes(postId);
+
+    const postView = {
+      id: postId,
+      title: postInstance.title,
+      shortDescription: postInstance.shortDescription,
+      content: postInstance.content,
+      blogId: postInstance.blogId,
+      blogName: postInstance.blogName,
+      createdAt: postInstance.createdAt,
+      extendedLikesInfo: {
+        likesCount: postInstance.likesCount,
+        dislikesCount: postInstance.dislikesCount,
+        myStatus: myStatus,
+        newestLikes: likers,
+      },
+    };
+    return postView;
+  }
+
   async checkUserLike(
     postId: string,
     userId: string,
