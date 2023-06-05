@@ -23,6 +23,7 @@ import {
 } from './db/blogs-input-classes';
 import { CreatePostInputModelClass } from '../posts/post-input-model-class';
 import { BasicAuthGuard } from '../auth-guards/basic-auth.guard';
+import { JwtAccessGuard } from '../auth-guards/jwt-access.guard';
 @Controller('blogs')
 export class BlogsController {
   constructor(
@@ -109,6 +110,7 @@ export class BlogsController {
 
   @Post(':blogId/posts')
   @HttpCode(201)
+  @UseGuards(BasicAuthGuard)
   async createPostForBlog(
     @Param('blogId') blogId: string,
     @Body() inputModel: CreatePostInputModelClass,
