@@ -21,9 +21,11 @@ import {
   CreateBlogInputModelClass,
   QueryPaginationInputModelClass,
 } from './db/blogs-input-classes';
-import { CreatePostInputModelClass } from '../posts/post-input-model-class';
+import { CreatePostForSpecialBlogInputModel } from '../posts/post-input-model-class';
 import { BasicAuthGuard } from '../auth-guards/basic-auth.guard';
-import { JwtAccessGuard } from '../auth-guards/jwt-access.guard';
+import { IfHaveUserJwtAccessGuard } from '../auth-guards/if.have.user.jwt-access.guard';
+import { CurrentUserId } from '../decorators/current-user-id.param.decorator';
+
 @Controller('blogs')
 export class BlogsController {
   constructor(
@@ -113,10 +115,9 @@ export class BlogsController {
   @UseGuards(BasicAuthGuard)
   async createPostForBlog(
     @Param('blogId') blogId: string,
-    @Body() inputModel: CreatePostInputModelClass,
+    @Body() inputModel: CreatePostForSpecialBlogInputModel,
   ) {
     isValid(blogId);
-
     const blogById = await this.blogsQueryRepository.findBlogByIdViewModel(
       blogId,
     );
@@ -142,12 +143,13 @@ export class BlogsController {
   }
 
   @Get(':blogId/posts')
+  @UseGuards(IfHaveUserJwtAccessGuard)
   async getAllPostsForBlog(
     @Param('blogId') blogId: string,
     @Query() queryPagination: QueryPaginationInputModelClass,
+    @CurrentUserId() currentUserId: string,
   ) {
     isValid(blogId);
-
     const blogById = await this.blogsQueryRepository.findBlogByIdViewModel(
       blogId,
     );
@@ -158,22 +160,18 @@ export class BlogsController {
     const foundPosts = await this.postsQueryRepository.findPosts(
       blogId,
       queryPagination,
+      currentUserId,
     );
     return foundPosts;
   }
 }
 
 /*
-
                 const foundPostsWithoutUser = await postQueryRepository.findPosts(blogId, page, limit, sortDirection, sortBy, skip)
                 res.status(200).send(foundPostsWithoutUser)
-
             } else {
-
                 const foundPostsWithUser = await postQueryRepository.findPostsWithUser(blogId, page, limit, sortDirection, sortBy, skip, userInfo.id)
                 res.status(200).send(foundPostsWithUser)
-
             }
-
         })
     }*/
