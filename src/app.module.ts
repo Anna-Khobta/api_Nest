@@ -43,6 +43,11 @@ import { CommentsQueryRepository } from './comments/repositories/comments.query.
 import { IfHaveUserJwtAccessGuard } from './auth-guards/if.have.user.jwt-access.guard';
 import { BlogIdValidator } from './decorators/BlogId.validator';
 import { CommentsController } from './comments/comments.controller';
+import { IfRefreshTokenInDbGuard } from './auth-guards/if.Refresh.Token.In.Db.guard';
+import { DevicesController } from './devices/devices.controller';
+import { IpDb, IpDbSchema } from './auth-guards/ip.limit/ip-limit-schema';
+import { IpLimitGuard } from './auth-guards/ip.limit/ip.limit.guard';
+import { IpLimitRepository } from './auth-guards/ip.limit/ip.limit.repository';
 export const configModule = ConfigModule.forRoot({ isGlobal: true });
 
 export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
@@ -74,6 +79,10 @@ export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
         name: Comment.name,
         schema: CommentSchema,
       },
+      {
+        name: IpDb.name,
+        schema: IpDbSchema,
+      },
     ]),
     PassportModule,
     JwtModule.register({
@@ -90,6 +99,7 @@ export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
     DeleteAllController,
     AuthController,
     CommentsController,
+    DevicesController,
   ],
 
   providers: [
@@ -118,7 +128,10 @@ export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
     CommentsRepository,
     CommentsQueryRepository,
     IfHaveUserJwtAccessGuard,
+    IfRefreshTokenInDbGuard,
     BlogIdValidator,
+    IpLimitGuard,
+    IpLimitRepository,
   ],
 })
 export class AppModule {}
