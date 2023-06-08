@@ -6,6 +6,7 @@ import { Request } from 'express';
 
 const cookieExtractor = (req: Request) => {
   const token = req.cookies['refreshToken'];
+
   if (!token) return null;
   return token;
 };

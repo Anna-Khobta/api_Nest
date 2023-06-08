@@ -15,7 +15,7 @@ import { UsersQueryRepository } from './users-repositories/users.query.repositor
 import { CustomException } from '../functions/custom-exception';
 import { isValid } from '../functions/isValid-Id';
 import { BasicAuthGuard } from '../auth-guards/basic-auth.guard';
-import { CreateUserInputModelClass } from './users-input-model-class';
+import { CreateUserInputModelClass } from './users-input-model-class.dto';
 import { QueryPaginationInputModelClass } from '../blogs/db/blogs-input-classes';
 
 @Controller('users')

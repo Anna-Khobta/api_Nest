@@ -3,10 +3,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from './users-schema';
 import { UsersRepository } from './users-repositories/users.repository';
-import { UserTypeWiithoutIds, UserViewType } from '../blogs/types';
+import {
+  UserTypeWiithoutIds,
+  UserViewType,
+  UserWithMongoId,
+} from '../blogs/types';
 import { UsersQueryRepository } from './users-repositories/users.query.repository';
 import { v4 as uuidv4 } from 'uuid';
-import { CreateUserInputModelClass } from './users-input-model-class';
+import { CreateUserInputModelClass } from './users-input-model-class.dto';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const bcrypt = require('bcrypt');
@@ -90,5 +94,40 @@ export class UsersService {
 
   async findUserById(userId: string): Promise<UserViewType | null> {
     return await this.usersQueryRepository.findUserById(userId);
+  }
+
+  async checkUserExist(
+    login: string | null,
+    email: string | null,
+  ): Promise<UserWithMongoId | null | string> {
+    const foundUser = await this.usersQueryRepository.findUserByLoginOrEmail(
+      login,
+      email,
+    );
+
+    if (foundUser) {
+      if (foundUser.accountData.login === login) {
+        return 'Login';
+      }
+
+      if (foundUser.accountData.email === email) {
+        return 'Email';
+      }
+
+      return foundUser;
+    }
+
+    try {
+      const foundUser = await this.userModel
+        .findOne({
+          $or: [{ 'accountData.login': login }, { 'accountData.email': email }],
+        })
+        .lean();
+
+      return foundUser;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
   }
 }

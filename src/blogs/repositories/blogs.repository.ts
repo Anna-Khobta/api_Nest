@@ -2,7 +2,7 @@ import { Model } from 'mongoose';
 import { Blog, BlogDocument } from '../db/blogs-schema';
 import { InjectModel } from '@nestjs/mongoose';
 
-export class BlogsDbRepository {
+export class BlogsRepository {
   constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
   async save(blogInstance: BlogDocument): Promise<boolean> {
     try {
@@ -31,9 +31,5 @@ export class BlogsDbRepository {
   async deleteBlog(id: string): Promise<boolean> {
     const result = await this.blogModel.findOneAndDelete({ _id: id });
     return result !== null;
-  }
-  async deleteAllBlogs(): Promise<number> {
-    const result = await this.blogModel.deleteMany({});
-    return result.deletedCount;
   }
 }

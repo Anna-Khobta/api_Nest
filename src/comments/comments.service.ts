@@ -258,9 +258,6 @@ export class CommentsService {
       dislikes,
     );
 
-    /*        const commentAfter = await commentsCollection.findOne({id: commentId})
-
-            console.log({commentAfter})*/
     return true;
   }
 

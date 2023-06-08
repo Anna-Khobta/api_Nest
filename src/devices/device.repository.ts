@@ -8,11 +8,11 @@ import { JwtPayloadClass } from '../auth/auth-input-classes';
 @Injectable()
 export class DeviceRepository {
   constructor(
-    @InjectModel(DeviceDb.name) private tokenModel: Model<DeviceDocument>,
+    @InjectModel(DeviceDb.name) private deviceModel: Model<DeviceDocument>,
   ) {}
 
   async addToken(newRefTokenDb: DeviceDBType): Promise<boolean> {
-    const tokenInstance: DeviceDocument = new this.tokenModel(newRefTokenDb);
+    const tokenInstance: DeviceDocument = new this.deviceModel(newRefTokenDb);
     //upsert
     try {
       await tokenInstance.save();
@@ -23,55 +23,67 @@ export class DeviceRepository {
     }
 
     /*
-    const insertNewTokenToDb = await this.tokenModel.insertMany(newRefTokenDb);
-
+    const insertNewTokenToDb = await this.deviceModel.insertMany(newRefTokenDb);
     if (insertNewTokenToDb) return true;*/
   }
 
-  async findToken(decodedRefreshToken: any): Promise<DeviceDBType | null> {
-    const foundTokenInDb = await this.tokenModel.findOne(
-      {
-        userId: decodedRefreshToken.userId,
-        iat: decodedRefreshToken.iat,
-      },
-      { projection: { _id: 0 } },
-    );
+  async findToken(
+    decodedRefreshToken: JwtPayloadClass,
+  ): Promise<DeviceDBType | null> {
+    try {
+      const foundTokenInDb = await this.deviceModel.findOne(
+        {
+          userId: decodedRefreshToken.userId,
+          deviceId: decodedRefreshToken.deviceId,
+          iat: decodedRefreshToken.iat,
+        },
+        { projection: { _id: 0 } },
+      );
 
-    if (!foundTokenInDb) {
+      if (!foundTokenInDb) {
+        return null;
+      } else {
+        return foundTokenInDb;
+      }
+    } catch (err) {
+      console.log(err);
       return null;
-    } else {
-      return foundTokenInDb;
     }
   }
 
-  async findAllDevices(findTokenInDb: DeviceDBType): Promise<deviceViewType[]> {
-    const foundAllTokensInDb = await this.tokenModel
-      .find(
-        { userId: findTokenInDb.userId },
-        {
-          projection: {
-            _id: 0,
-            ip: 1,
-            deviceTitle: 1,
-            iat: 1,
-            deviceId: 1,
+  async findAllDevices(userId: string): Promise<deviceViewType[] | null> {
+    try {
+      const foundAllTokensInDb = await this.deviceModel
+        .find(
+          { userId: userId },
+          {
+            projection: {
+              _id: 0,
+              //ip: 1,
+              //deviceTitle: 1,
+              //iat: 1,
+              //deviceId: 1,
+            },
           },
-        },
-      )
-      .lean();
+        )
+        .lean();
 
-    const items: deviceViewType[] = foundAllTokensInDb.map((tokensInfo) => ({
-      ip: tokensInfo.ip,
-      title: tokensInfo.deviceTitle,
-      lastActiveDate: new Date(tokensInfo.iat * 1000).toISOString(),
-      deviceId: tokensInfo.deviceId,
-    }));
+      const items: deviceViewType[] = foundAllTokensInDb.map((tokensInfo) => ({
+        ip: tokensInfo.ip,
+        title: tokensInfo.deviceTitle,
+        lastActiveDate: new Date(tokensInfo.iat * 1000).toISOString(),
+        deviceId: tokensInfo.deviceId,
+      }));
 
-    return items;
+      return items;
+    } catch (err) {
+      console.log(err);
+      return null;
+    }
   }
 
   async findUserByDeviceId(deviceId: string): Promise<string | null> {
-    const foundTokenInDb = await this.tokenModel.findOne({
+    const foundTokenInDb = await this.deviceModel.findOne({
       deviceId: deviceId,
     });
 
@@ -83,7 +95,7 @@ export class DeviceRepository {
   }
 
   async updateToken(decodedRefreshToken: any, ip: string): Promise<boolean> {
-    const result = await this.tokenModel.updateOne(
+    const result = await this.deviceModel.updateOne(
       {
         userId: decodedRefreshToken.userId,
         deviceId: decodedRefreshToken.deviceId,
@@ -100,7 +112,7 @@ export class DeviceRepository {
   }
 
   async updateTokenIatExpIp(refreshToken: DeviceDBType): Promise<boolean> {
-    const result = await this.tokenModel.updateOne(
+    const result = await this.deviceModel.updateOne(
       {
         userId: refreshToken.userId,
         deviceId: refreshToken.deviceId,
@@ -119,7 +131,7 @@ export class DeviceRepository {
 
   async deleteToken(jwtPayload: JwtPayloadClass): Promise<boolean> {
     try {
-      const result = await this.tokenModel.deleteOne({
+      const result = await this.deviceModel.deleteOne({
         userId: jwtPayload.userId,
         deviceId: jwtPayload.deviceId,
         iat: jwtPayload.iat,
@@ -127,26 +139,25 @@ export class DeviceRepository {
 
       return result.deletedCount === 1;
     } catch (error) {
-      console.log(error, 'Error in Db');
+      console.log(error);
       return false;
     }
   }
 
   async deleteDevice(id: string): Promise<boolean> {
-    const result = await this.tokenModel.deleteOne({ deviceId: id });
+    const result = await this.deviceModel.deleteOne({ deviceId: id });
     return result.deletedCount === 1;
   }
 
   async deleteAllExcludeOne(deviceId: string): Promise<boolean> {
-    const result = await this.tokenModel.deleteMany({
+    const result = await this.deviceModel.deleteMany({
       deviceId: { $ne: deviceId },
     });
-
     return result.acknowledged;
   }
 
   async deleteAllTokens(): Promise<boolean> {
-    const result = await this.tokenModel.deleteMany({});
+    const result = await this.deviceModel.deleteMany({});
     return result.acknowledged;
     // если всё удалит, вернет true
   }

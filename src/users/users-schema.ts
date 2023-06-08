@@ -50,6 +50,16 @@ export class PasswordRecoveryClass {
 }
 
 @Schema()
+export class BanInfoClass {
+  @Prop()
+  isBanned: boolean;
+  @Prop()
+  banDate: Date;
+  @Prop()
+  banReason: string;
+}
+
+@Schema()
 export class User {
   @Prop()
   accountData: AccountDataSchema;
@@ -62,6 +72,8 @@ export class User {
 
   @Prop()
   likesCount: number;
+  @Prop()
+  banInfo: BanInfoClass;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

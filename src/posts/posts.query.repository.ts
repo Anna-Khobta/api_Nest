@@ -21,6 +21,7 @@ export class PostsQueryRepository {
   async findPosts(
     blogId: string | null,
     queryPagination: QueryPaginationInputModelClass,
+    userId: string | null,
   ): Promise<PostsWithPagination> {
     const myPagination = getPagination(queryPagination);
 
@@ -40,6 +41,10 @@ export class PostsQueryRepository {
       foundPosts.map(async (post) => {
         const likers = await this.last3UsersLikes(post._id.toString());
 
+        const myStatus = post.usersEngagement.find(
+          (el) => el.userId === userId,
+        );
+
         return {
           id: post._id.toString(),
           title: post.title,
@@ -51,7 +56,72 @@ export class PostsQueryRepository {
           extendedLikesInfo: {
             likesCount: post.likesCount,
             dislikesCount: post.dislikesCount,
-            myStatus: LikeStatusesEnum.None,
+            myStatus: myStatus?.userStatus || LikeStatusesEnum.None,
+            newestLikes: likers,
+          },
+        };
+      }),
+    );
+
+    const total = await this.postModel.countDocuments(filter);
+    const pagesCount = Math.ceil(total / myPagination.limit);
+
+    return {
+      pagesCount: pagesCount,
+      page: myPagination.page,
+      pageSize: myPagination.limit,
+      totalCount: total,
+      items: mappedPosts,
+    };
+  }
+
+  async findPostsWithWithoutUser(
+    blogId: string | null,
+    queryPagination: QueryPaginationInputModelClass,
+    userId: string | null,
+  ): Promise<PostsWithPagination> {
+    const myPagination = getPagination(queryPagination);
+
+    let filter: any = {};
+    if (blogId) {
+      filter = { blogId: blogId };
+    }
+
+    const foundPosts = await this.postModel
+      .find(filter, { __v: 0 })
+      .skip(myPagination.skip)
+      .limit(myPagination.limit)
+      .sort({ [myPagination.sortBy]: myPagination.sortDirection })
+      .lean();
+
+    const mappedPosts = await Promise.all(
+      foundPosts.map(async (post) => {
+        const likers = await this.last3UsersLikes(post._id.toString());
+
+        let myStatus;
+        if (userId) {
+          const foundUserStatus = post.usersEngagement.find(
+            (el) => el.userId === userId,
+          );
+          if (foundUserStatus) {
+            myStatus = foundUserStatus.userStatus;
+          } else {
+            myStatus = LikeStatusesEnum.None;
+          }
+        }
+
+        return {
+          id: post._id.toString(),
+          title: post.title,
+          shortDescription: post.shortDescription,
+          content: post.content,
+          blogId: post.blogId,
+          blogName: post.blogName,
+          createdAt: post.createdAt,
+          extendedLikesInfo: {
+            likesCount: post.likesCount,
+            dislikesCount: post.dislikesCount,
+            myStatus: myStatus,
             newestLikes: likers,
           },
         };
@@ -250,19 +320,30 @@ export class PostsQueryRepository {
     }
 
     let myStatus;
-    if (userId) {
+
+    const userLikeInfo = postInstance.usersEngagement.find(
+      (user) => user.userId === userId,
+    );
+
+    if (!userLikeInfo) {
+      myStatus = LikeStatusesEnum.None;
+    } else {
+      myStatus = userLikeInfo.userStatus;
+    }
+    /* if (userId) {
       const userLikeInfo = postInstance.usersEngagement.find(
         (user) => user.userId === userId,
       );
 
+      console.log(userLikeInfo);
+
       if (!userLikeInfo) {
         myStatus = LikeStatusesEnum.None;
-      } else {
-        myStatus = userLikeInfo.userStatus;
       }
+      myStatus = userLikeInfo.userStatus;
     } else {
       myStatus = LikeStatusesEnum.None;
-    }
+    }*/
 
     const likers = await this.last3UsersLikes(postId);
 

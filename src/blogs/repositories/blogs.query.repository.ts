@@ -48,18 +48,22 @@ export class BlogsQueryRepository {
   }
 
   async findBlogByIdViewModel(blogId: string): Promise<BlogViewType | null> {
-    const blog = await this.blogModel.findById(blogId).lean();
-
-    if (blog) {
-      return {
-        id: blog._id.toString(),
-        name: blog.name,
-        description: blog.description,
-        websiteUrl: blog.websiteUrl,
-        createdAt: blog.createdAt,
-        isMembership: blog.isMembership,
-      };
-    } else {
+    try {
+      const blog = await this.blogModel.findById(blogId).lean();
+      if (blog) {
+        return {
+          id: blog._id.toString(),
+          name: blog.name,
+          description: blog.description,
+          websiteUrl: blog.websiteUrl,
+          createdAt: blog.createdAt,
+          isMembership: blog.isMembership,
+        };
+      } else {
+        return null;
+      }
+    } catch (err) {
+      console.log(err);
       return null;
     }
   }

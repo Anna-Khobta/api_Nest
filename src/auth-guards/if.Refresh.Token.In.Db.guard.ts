@@ -21,8 +21,6 @@ export class IfRefreshTokenInDbGuard implements CanActivate {
 
     const decodedRT = await this.jwtService.decode(refreshToken);
 
-    console.log(decodedRT, ' decodedRT ');
-
     const checkJwtInDb = await this.authService.ifTokenInfoInDb(decodedRT);
 
     if (!checkJwtInDb) {
