@@ -7,6 +7,7 @@
 .env
 
 /auth-guards/constants.ts
+constants.ts
 
 # Logs
 logs
