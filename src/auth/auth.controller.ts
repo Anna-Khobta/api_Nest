@@ -20,7 +20,6 @@ import { CurrentUserId } from '../decorators/current-user-id.param.decorator';
 import { JwtAccessGuard } from '../auth-guards/jwt-access.guard';
 import { Response } from 'express';
 import { EmailsManager } from '../managers/emails-manager';
-import { JwtPayload } from '../decorators/current-cookies.param.decorator';
 import { JwtRefreshGuard } from '../auth-guards/jwt-refresh.guard';
 import { RecoveryCodeGuard } from '../auth-guards/recoveryCode.guard';
 import {
@@ -29,7 +28,15 @@ import {
   inputModelEmail,
   JwtPayloadClass,
 } from './auth-input-classes';
-import { CreateUserInputModelClass } from '../users/users-input-model-class';
+import { CreateUserInputModelClass } from '../users/users-input-model-class.dto';
+import { JwtPayload } from '../decorators/JwtPayload.param.decorator';
+import { IfRefreshTokenInDbGuard } from '../auth-guards/if.Refresh.Token.In.Db.guard';
+import { IpLimitGuard } from '../auth-guards/ip.limit/ip.limit.guard';
+
+const httpOnlyTrue = {
+  httpOnly: true,
+  secure: true,
+};
 
 export type LoginUserInputModelType = {
   loginOrEmail: string;
@@ -48,6 +55,7 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(200)
+  @UseGuards(IpLimitGuard)
   async loginUser(
     @Headers('user-agent') deviceTitle: string,
     @Body() inputModel: LoginUserInputModelType,
@@ -59,7 +67,7 @@ export class AuthController {
         inputModel.loginOrEmail,
         inputModel.loginOrEmail,
       );
-
+    // TODO вынести в сервис
     if (!foundUserInDb) {
       throw new CustomException('No such user in app', HttpStatus.UNAUTHORIZED);
     }
@@ -68,6 +76,8 @@ export class AuthController {
       foundUserInDb.accountData.hashPassword,
       inputModel.password,
     );
+
+    // TODO вынести в сервис
 
     if (!isPasswordCorrect) {
       throw new CustomException(
@@ -79,17 +89,15 @@ export class AuthController {
     const loginUser = await this.authService.getTokens(
       foundUserInDb._id.toString(),
     );
-
+    // TODO вынести в сервис
     await this.deviceService.createDeviceInfoInDB(
       loginUser.decodedRefreshToken,
       ip,
       deviceTitle,
     );
+    // TODO вынести в сервис
 
-    response.cookie('refreshToken', loginUser.refreshToken, {
-      httpOnly: true,
-      secure: true,
-    });
+    response.cookie('refreshToken', loginUser.refreshToken, httpOnlyTrue);
     return { accessToken: loginUser.accessToken };
   }
 
@@ -106,9 +114,12 @@ export class AuthController {
   }
 
   @Post('registration')
+  @UseGuards(IpLimitGuard)
   @HttpCode(204)
   async registerUser(@Body() inputModel: CreateUserInputModelClass) {
     const newUserId = await this.usersService.createUser(inputModel, false);
+
+    // TODO вынести в сервис
 
     if (newUserId === 'login') {
       throw new CustomException(
@@ -144,6 +155,7 @@ export class AuthController {
       await this.usersQueryRepository.findUserInfoForEmailSend(newUserId);
 
     try {
+      // в сервис
       await this.emailsManager.sendEmailConfirmationMessage(
         userConfirmationCode!.id,
         userConfirmationCode!.email,
@@ -159,6 +171,7 @@ export class AuthController {
   }
 
   @Post('registration-confirmation')
+  @UseGuards(IpLimitGuard)
   @HttpCode(204)
   async confirmRegistration(@Body() inputCode: inputCodeType) {
     const isEmailConfirmed = await this.authService.confirmEmail(
@@ -174,18 +187,18 @@ export class AuthController {
         },
         HttpStatus.BAD_REQUEST,
       );
-    } else {
-      return true;
     }
+    return true;
   }
 
   @Post('registration-email-resending')
   @HttpCode(204)
+  @UseGuards(IpLimitGuard)
   async resendEmail(@Body() email: inputModelEmail) {
     // TODO проверку перенести в сервис  ?
     const foundUserByEmail =
       await this.usersQueryRepository.findUserByLoginOrEmail(null, email.email);
-
+    // перенести в репозиторий
     if (!foundUserByEmail) {
       throw new CustomException(
         {
@@ -224,14 +237,19 @@ export class AuthController {
     return true;
   }
 
-  @Post('refresh-devices')
+  @Post('refresh-token')
   @HttpCode(200)
-  @UseGuards(JwtRefreshGuard)
+  @UseGuards(JwtRefreshGuard, IfRefreshTokenInDbGuard)
   async createNewTokens(
     @Ip() ip: string,
     @JwtPayload() jwtPayload: JwtPayloadClass,
     @Res({ passthrough: true }) response: Response,
   ) {
+    /* const checkJwtInDb = await this.authService.ifTokenInfoInDb(jwtPayload);
+    if (!checkJwtInDb) {
+      throw new CustomException('Blog not found', HttpStatus.UNAUTHORIZED);
+    }*/
+
     const createNewTokens = await this.authService.createNewAccessRefreshTokens(
       jwtPayload.userId,
       jwtPayload.deviceId,
@@ -241,13 +259,13 @@ export class AuthController {
       ip,
     );
 
-    response.cookie('refreshToken', createNewTokens.refreshToken);
+    response.cookie('refreshToken', createNewTokens.refreshToken, httpOnlyTrue);
     return { accessToken: createNewTokens.accessToken };
   }
 
   @Post('logout')
   @HttpCode(204)
-  @UseGuards(JwtRefreshGuard)
+  @UseGuards(JwtRefreshGuard, IfRefreshTokenInDbGuard)
   async logoutUser(
     @Ip() ip: string,
     @JwtPayload() jwtPayload: JwtPayloadClass,
@@ -264,9 +282,8 @@ export class AuthController {
     const result = await this.authService.checkEmailPassRecov(email);
     if (!result) {
       throw new CustomException('Something went wrong', HttpStatus.BAD_REQUEST);
-    } else {
-      return true;
     }
+    return true;
   }
   @Post('new-password')
   @UseGuards(RecoveryCodeGuard)
@@ -288,8 +305,7 @@ export class AuthController {
         },
         HttpStatus.BAD_REQUEST,
       );
-    } else {
-      return true;
     }
+    return true;
   }
 }

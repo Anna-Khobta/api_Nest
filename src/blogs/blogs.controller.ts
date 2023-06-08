@@ -23,8 +23,8 @@ import {
 } from './db/blogs-input-classes';
 import { CreatePostForSpecialBlogInputModel } from '../posts/post-input-model-class';
 import { BasicAuthGuard } from '../auth-guards/basic-auth.guard';
-import { IfHaveUserJwtAccessGuard } from '../auth-guards/if.have.user.jwt-access.guard';
 import { CurrentUserId } from '../decorators/current-user-id.param.decorator';
+import { IfHaveUserJwtAccessGuard } from '../auth-guards/if.have.user.jwt-access.guard';
 
 @Controller('blogs')
 export class BlogsController {
@@ -116,6 +116,7 @@ export class BlogsController {
   async createPostForBlog(
     @Param('blogId') blogId: string,
     @Body() inputModel: CreatePostForSpecialBlogInputModel,
+    @CurrentUserId() currentUserId: string,
   ) {
     isValid(blogId);
     const blogById = await this.blogsQueryRepository.findBlogByIdViewModel(
@@ -157,6 +158,7 @@ export class BlogsController {
       throw new CustomException('Blog not found', HttpStatus.NOT_FOUND);
     }
 
+    //currentUserId
     const foundPosts = await this.postsQueryRepository.findPosts(
       blogId,
       queryPagination,
@@ -165,13 +167,3 @@ export class BlogsController {
     return foundPosts;
   }
 }
-
-/*
-                const foundPostsWithoutUser = await postQueryRepository.findPosts(blogId, page, limit, sortDirection, sortBy, skip)
-                res.status(200).send(foundPostsWithoutUser)
-            } else {
-                const foundPostsWithUser = await postQueryRepository.findPostsWithUser(blogId, page, limit, sortDirection, sortBy, skip, userInfo.id)
-                res.status(200).send(foundPostsWithUser)
-            }
-        })
-    }*/
