@@ -25,6 +25,7 @@ export class CommentsController {
   constructor(protected commentsService: CommentsService) {}
 
   @Put(':id')
+  @HttpCode(204)
   @UseGuards(JwtAccessGuard)
   async createBlog(
     @Param('id') commentId: string,
