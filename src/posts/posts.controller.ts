@@ -23,10 +23,10 @@ import {
 } from './post-input-model-class';
 import { CurrentUserId } from '../decorators/current-user-id.param.decorator';
 import { CommentsService } from '../comments/comments.service';
-import { JwtRefreshGuard } from '../auth-guards/jwt-refresh.guard';
 import { IfHaveUserJwtAccessGuard } from '../auth-guards/if.have.user.jwt-access.guard';
-import { CommentsQueryRepository } from '../comments/comments.query.repository';
+import { CommentsQueryRepository } from '../comments/repositories/comments.query.repository';
 import { JwtAccessGuard } from '../auth-guards/jwt-access.guard';
+import { BasicAuthGuard } from '../auth-guards/basic-auth.guard';
 
 @Controller('posts')
 export class PostsController {
@@ -39,6 +39,7 @@ export class PostsController {
 
   @Post()
   @HttpCode(201)
+  @UseGuards(BasicAuthGuard)
   async createPost(@Body() inputModel: CreatePostInputModelClass) {
     const createdPostId = await this.postsService.createPost(
       inputModel.title,
@@ -54,8 +55,17 @@ export class PostsController {
   }
 
   @Get()
-  async getAllPosts(@Query() queryPagination: QueryPaginationInputModelClass) {
-    return await this.postsQueryRepository.findPosts(null, queryPagination);
+  @UseGuards(IfHaveUserJwtAccessGuard)
+  async getAllPosts(
+    @Query() queryPagination: QueryPaginationInputModelClass,
+    @CurrentUserId() currentUserId: string,
+  ) {
+    const foundPosts = await this.postsQueryRepository.findPostsWithWithoutUser(
+      null,
+      queryPagination,
+      currentUserId,
+    );
+    return foundPosts;
   }
 
   @Get(':id')
@@ -79,6 +89,7 @@ export class PostsController {
 
   @Put(':id')
   @HttpCode(204)
+  @UseGuards(BasicAuthGuard)
   async updatePostById(
     @Param('id') postId: string,
     @Body() inputModel: CreatePostInputModelClass,
@@ -96,6 +107,7 @@ export class PostsController {
 
   @Delete(':id')
   @HttpCode(204)
+  @UseGuards(BasicAuthGuard)
   async deletePostById(@Param('id') postId: string) {
     isValid(postId);
     const isDeleted = await this.postsService.deletePost(postId);
@@ -107,7 +119,7 @@ export class PostsController {
 
   @Post(':postId/comments')
   @HttpCode(201)
-  @UseGuards(JwtRefreshGuard)
+  @UseGuards(JwtAccessGuard)
   async createCommentForPost(
     @Param('postId') postId: string,
     @Body() inputModel: CreateCommentInputModelClass,
