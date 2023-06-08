@@ -11,8 +11,8 @@ import { PostsService } from './posts/posts.service';
 import { PostsQueryRepository } from './posts/posts.query.repository';
 import { PostsRepository } from './posts/posts.repository';
 import { User, UserSchema } from './users/users-schema';
-import { UsersController } from './users/users.controller';
-import { UsersService } from './users/users.service';
+import { OldUsersController } from './users/api/old.users.controller';
+import { UsersService } from './users/sa-api/users.service';
 import { UsersQueryRepository } from './users/users-repositories/users.query.repository';
 import { UsersRepository } from './users/users-repositories/users.repository';
 import { AppController } from './app.controller';
@@ -48,6 +48,7 @@ import { LocalStrategy } from './auth-guards/local.strategy';
 import { CommentSchema, Comment } from './comments/comments-schema';
 import { IpDb, IpDbSchema } from './auth-guards/ip.limit/ip-limit-schema';
 import { BlogsRepository } from './blogs/repositories/blogs.repository';
+import { SaUsersController } from './users/sa-api/sa.users.controller';
 export const configModule = ConfigModule.forRoot({ isGlobal: true });
 
 export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
@@ -95,7 +96,8 @@ export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
     AppController,
     BlogsController,
     PostsController,
-    UsersController,
+    OldUsersController,
+    SaUsersController,
     DeleteAllController,
     AuthController,
     CommentsController,

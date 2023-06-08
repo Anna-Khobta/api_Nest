@@ -10,16 +10,16 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { UsersQueryRepository } from './users-repositories/users.query.repository';
-import { CustomException } from '../functions/custom-exception';
-import { isValid } from '../functions/isValid-Id';
-import { BasicAuthGuard } from '../auth-guards/basic-auth.guard';
-import { CreateUserInputModelClass } from './users-input-model-class.dto';
-import { QueryPaginationInputModelClass } from '../blogs/db/blogs-input-classes';
+import { UsersService } from '../sa-api/users.service';
+import { UsersQueryRepository } from '../users-repositories/users.query.repository';
+import { CustomException } from '../../functions/custom-exception';
+import { isValid } from '../../functions/isValid-Id';
+import { BasicAuthGuard } from '../../auth-guards/basic-auth.guard';
+import { CreateUserInputModel } from '../users-input-model.dto';
+import { QueryPaginationInputModelClass } from '../../blogs/db/blogs-input-classes';
 
 @Controller('users')
-export class UsersController {
+export class OldUsersController {
   constructor(
     protected usersService: UsersService,
     protected usersQueryRepository: UsersQueryRepository,
@@ -27,7 +27,7 @@ export class UsersController {
   @Post()
   @HttpCode(201)
   @UseGuards(BasicAuthGuard)
-  async createUser(@Body() inputModel: CreateUserInputModelClass) {
+  async createUser(@Body() inputModel: CreateUserInputModel) {
     const isUserRegisteredInDb =
       await this.usersQueryRepository.findUserByLoginOrEmail(
         inputModel.login,
