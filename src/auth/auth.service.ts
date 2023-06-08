@@ -7,6 +7,7 @@ import { EmailsManager } from '../managers/emails-manager';
 import { UsersRepository } from '../users/users-repositories/users.repository';
 import { UsersQueryRepository } from '../users/users-repositories/users.query.repository';
 import { ConfigService } from '@nestjs/config';
+import { DeviceRepository } from '../devices/device.repository';
 @Injectable()
 export class AuthService {
   constructor(
@@ -16,6 +17,7 @@ export class AuthService {
     protected usersRepository: UsersRepository,
     protected usersQueryRepository: UsersQueryRepository,
     private configService: ConfigService,
+    protected deviceRepository: DeviceRepository,
   ) {}
   async validateUser(username: string, password: string): Promise<any> {
     const auth = { login: 'admin', password: 'qwerty' };
@@ -31,12 +33,18 @@ export class AuthService {
   }
 
   async getTokens(id: string) {
-    const accessToken = this.jwtService.sign({ userId: id });
+    const accessToken = this.jwtService.sign(
+      { userId: id },
+      { expiresIn: this.configService.get('ACCESS_TOKEN_LIFE_TIME') },
+    );
 
-    const refreshToken = this.jwtService.sign({
-      userId: id,
-      deviceId: uuidv4(),
-    });
+    const refreshToken = this.jwtService.sign(
+      {
+        userId: id,
+        deviceId: uuidv4(),
+      },
+      { expiresIn: this.configService.get('REFRESH_TOKEN_LIFE_TIME') },
+    );
 
     const decodedRefreshToken = this.jwtService.decode(refreshToken);
 
@@ -133,5 +141,15 @@ export class AuthService {
       refreshToken: newRefreshToken,
       decodedRefreshToken: newDecodedRefreshToken,
     };
+  }
+
+  async ifTokenInfoInDb(jwtPayload: any): Promise<boolean> {
+    const foundRefreshTokenInDb = await this.deviceRepository.findToken(
+      jwtPayload,
+    );
+    if (!foundRefreshTokenInDb) {
+      return false;
+    }
+    return true;
   }
 }

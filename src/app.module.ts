@@ -38,9 +38,16 @@ import { EmailsManager } from './managers/emails-manager';
 import { RecoveryCodeGuard } from './auth-guards/recoveryCode.guard';
 import { Comment, CommentSchema } from './comments/comments-schema';
 import { CommentsService } from './comments/comments.service';
-import { CommentsRepository } from './comments/comments.repository';
-import { CommentsQueryRepository } from './comments/comments.query.repository';
+import { CommentsRepository } from './comments/repositories/comments.repository';
+import { CommentsQueryRepository } from './comments/repositories/comments.query.repository';
 import { IfHaveUserJwtAccessGuard } from './auth-guards/if.have.user.jwt-access.guard';
+import { BlogIdValidator } from './decorators/BlogId.validator';
+import { CommentsController } from './comments/comments.controller';
+import { IfRefreshTokenInDbGuard } from './auth-guards/if.Refresh.Token.In.Db.guard';
+import { DevicesController } from './devices/devices.controller';
+import { IpDb, IpDbSchema } from './auth-guards/ip.limit/ip-limit-schema';
+import { IpLimitGuard } from './auth-guards/ip.limit/ip.limit.guard';
+import { IpLimitRepository } from './auth-guards/ip.limit/ip.limit.repository';
 export const configModule = ConfigModule.forRoot({ isGlobal: true });
 
 export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
@@ -72,6 +79,10 @@ export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
         name: Comment.name,
         schema: CommentSchema,
       },
+      {
+        name: IpDb.name,
+        schema: IpDbSchema,
+      },
     ]),
     PassportModule,
     JwtModule.register({
@@ -87,6 +98,8 @@ export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
     UsersController,
     DeleteAllController,
     AuthController,
+    CommentsController,
+    DevicesController,
   ],
 
   providers: [
@@ -115,6 +128,10 @@ export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
     CommentsRepository,
     CommentsQueryRepository,
     IfHaveUserJwtAccessGuard,
+    IfRefreshTokenInDbGuard,
+    BlogIdValidator,
+    IpLimitGuard,
+    IpLimitRepository,
   ],
 })
 export class AppModule {}
