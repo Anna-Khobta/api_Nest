@@ -27,10 +27,6 @@ export class DeviceService {
       userId: decodedRefreshToken.userId,
     };
 
-    const checkDeviceInDb = await this.deviceRepository.findUserByDeviceId(
-      newDeviceInfoFromRT.deviceId,
-    );
-
     const addNewDeviceInfoToDb = await this.deviceRepository.addToken(
       newDeviceInfoFromRT,
     );
@@ -60,7 +56,26 @@ export class DeviceService {
     return await this.deviceRepository.deleteToken(jwtPayload);
   }
 
-  async deleteAllTokens(): Promise<boolean> {
-    return this.deviceRepository.deleteAllTokens();
+  async deleteDevice(
+    deviceId: string,
+    userId: string,
+  ): Promise<boolean | string> {
+    const foundUserByDeviceId = await this.deviceRepository.findUserByDeviceId(
+      deviceId,
+    );
+
+    if (!foundUserByDeviceId) {
+      return 'NotFound';
+    }
+
+    if (!(foundUserByDeviceId === userId)) {
+      return 'NotOwn';
+    }
+
+    return await this.deviceRepository.deleteDevice(deviceId);
+  }
+
+  async deleteAllExcludeOne(deviceId: string): Promise<boolean> {
+    return await this.deviceRepository.deleteAllExcludeOne(deviceId);
   }
 }
