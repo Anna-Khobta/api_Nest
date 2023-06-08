@@ -6,6 +6,7 @@ import { Blog, BlogDocument } from '../blogs/db/blogs-schema';
 import { User, UserDocument } from '../users/users-schema';
 import { Comment, CommentDocument } from '../comments/comments-schema';
 import { DeviceDb, DeviceDocument } from '../devices/device-schema';
+import { IpDb, IpDbDocument } from '../auth-guards/ip.limit/ip-limit-schema';
 
 @Injectable()
 export class DeleteAllRepository {
@@ -15,6 +16,7 @@ export class DeleteAllRepository {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
     @InjectModel(DeviceDb.name) private deviceModel: Model<DeviceDocument>,
+    @InjectModel(IpDb.name) private ipDbModel: Model<IpDbDocument>,
   ) {}
   async deleteAllBlogs(): Promise<boolean> {
     const result = await this.blogModel.deleteMany({});
@@ -34,6 +36,10 @@ export class DeleteAllRepository {
   }
   async deleteAllDevices(): Promise<boolean> {
     const result = await this.deviceModel.deleteMany({});
+    return result !== null;
+  }
+  async deleteAllIps(): Promise<boolean> {
+    const result = await this.ipDbModel.deleteMany({});
     return result !== null;
   }
 }

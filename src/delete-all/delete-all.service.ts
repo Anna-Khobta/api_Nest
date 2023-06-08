@@ -15,6 +15,7 @@ export class DeleteAllService {
       await this.deleteAllRepository.deleteAllUsers();
       await this.deleteAllRepository.deleteAllComments();
       await this.deleteAllRepository.deleteAllDevices();
+      await this.deleteAllRepository.deleteAllIps();
     } catch (error) {
       console.log(error);
       return null;
