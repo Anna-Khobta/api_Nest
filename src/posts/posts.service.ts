@@ -7,12 +7,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { BlogsQueryRepository } from '../blogs/repositories/blogs.query.repository';
 
-import {
-  LikeStatusesEnum,
-  PostViewType,
-  UserLikeInfo,
-  UserViewType,
-} from '../blogs/types';
+import { LikeStatusesEnum, PostViewType, UserLikeInfo } from '../blogs/types';
 import { CreatePostInputModelClass } from './post-input-model-class';
 
 @Injectable()
@@ -86,16 +81,16 @@ export class PostsService {
   }
 
   async createLikeStatus(
-    userInfo: UserViewType,
+    userId: string,
     foundPost: PostViewType,
     postId: string,
     likeStatus: LikeStatusesEnum,
   ): Promise<boolean> {
     const checkIfUserHaveAlreadyPutLike: LikeStatusesEnum | null =
-      await this.postQueryRepository.checkUserLike(postId, userInfo.id);
+      await this.postQueryRepository.checkUserLike(postId, userId);
 
     const userLikeInfo: UserLikeInfo = {
-      userId: userInfo.id,
+      userId: userId,
       createdAt: new Date().toISOString(),
       userStatus: checkIfUserHaveAlreadyPutLike || likeStatus,
     };
