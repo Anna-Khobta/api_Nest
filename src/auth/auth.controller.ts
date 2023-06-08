@@ -55,7 +55,7 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(200)
-  @UseGuards(IpLimitGuard)
+  //@UseGuards(IpLimitGuard)
   async loginUser(
     @Headers('user-agent') deviceTitle: string,
     @Body() inputModel: LoginUserInputModelType,
@@ -114,7 +114,7 @@ export class AuthController {
   }
 
   @Post('registration')
-  @UseGuards(IpLimitGuard)
+  //@UseGuards(IpLimitGuard)
   @HttpCode(204)
   async registerUser(@Body() inputModel: CreateUserInputModelClass) {
     const newUserId = await this.usersService.createUser(inputModel, false);
@@ -171,7 +171,7 @@ export class AuthController {
   }
 
   @Post('registration-confirmation')
-  @UseGuards(IpLimitGuard)
+  //@UseGuards(IpLimitGuard)
   @HttpCode(204)
   async confirmRegistration(@Body() inputCode: inputCodeType) {
     const isEmailConfirmed = await this.authService.confirmEmail(
@@ -193,7 +193,7 @@ export class AuthController {
 
   @Post('registration-email-resending')
   @HttpCode(204)
-  @UseGuards(IpLimitGuard)
+  //@UseGuards(IpLimitGuard)
   async resendEmail(@Body() email: inputModelEmail) {
     // TODO проверку перенести в сервис  ?
     const foundUserByEmail =
