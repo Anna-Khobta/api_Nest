@@ -1,6 +1,6 @@
 import { IsNotEmptyString } from '../decorators/IsNotEmptyString.validator';
 import { IsEnum, IsString, Length } from 'class-validator';
-import { LikeStatusesEnum } from '../blogs/types';
+import { LikeStatusesEnum } from '../types/types';
 
 export class UpdateCommentInputModel {
   @IsNotEmptyString()

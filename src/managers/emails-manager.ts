@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import { v4 as uuidv4 } from 'uuid';
-import { UserWithMongoId } from '../blogs/types';
+import { UserWithMongoId } from '../types/types';
 import add from 'date-fns/add';
 import { Injectable } from '@nestjs/common';
 import { UsersRepository } from '../users/users-repositories/users.repository';

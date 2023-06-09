@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { LikeStatusesEnum } from '../blogs/types';
+import { LikeStatusesEnum } from '../types/types';
 
 export type CommentDocument = HydratedDocument<Comment>;
 
@@ -30,7 +30,7 @@ export class UsersEngagement {
   userStatus: LikeStatusesEnum;
 }
 
-@Schema()
+/*@Schema()
 export class UserLikeInfo {
   @Prop({
     required: true,
@@ -44,7 +44,7 @@ export class UserLikeInfo {
     required: true,
   })
   userStatus: LikeStatusesEnum;
-}
+}*/
 
 @Schema()
 export class Comment {

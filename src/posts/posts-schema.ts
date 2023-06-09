@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { UserLikeInfo } from '../blogs/types';
+import { UserLikeInfo } from '../types/types';
 
 export type PostDocument = HydratedDocument<Post>;
 

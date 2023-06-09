@@ -7,10 +7,10 @@ import {
   NewestLikesType,
   PostsWithPagination,
   PostViewType,
-} from '../blogs/types';
+} from '../types/types';
 import { User, UserDocument } from '../users/users-schema';
 import { getPagination } from '../functions/pagination';
-import { QueryPaginationInputModelClass } from '../blogs/db/blogs-input-classes';
+import { QueryPaginationInputModel } from '../blogs/blogs-input-models/query-pagination-input-model.dto';
 
 @Injectable()
 export class PostsQueryRepository {
@@ -20,7 +20,7 @@ export class PostsQueryRepository {
   ) {}
   async findPosts(
     blogId: string | null,
-    queryPagination: QueryPaginationInputModelClass,
+    queryPagination: QueryPaginationInputModel,
     userId: string | null,
   ): Promise<PostsWithPagination> {
     const myPagination = getPagination(queryPagination);
@@ -77,7 +77,7 @@ export class PostsQueryRepository {
 
   async findPostsWithWithoutUser(
     blogId: string | null,
-    queryPagination: QueryPaginationInputModelClass,
+    queryPagination: QueryPaginationInputModel,
     userId: string | null,
   ): Promise<PostsWithPagination> {
     const myPagination = getPagination(queryPagination);

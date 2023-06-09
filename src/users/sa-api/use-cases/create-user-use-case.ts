@@ -3,10 +3,10 @@ import { UsersQueryRepository } from '../../users-repositories/users.query.repos
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../../users-schema';
 import { Model } from 'mongoose';
-import { CreateUserInputModel } from '../../users-input-model.dto';
+import { CreateUserInputModel } from '../../input-models/create-user-input-model.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UserViewType } from '../../../blogs/types';
+import { UserViewType } from '../../../types/types';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const bcrypt = require('bcrypt');
 
@@ -71,8 +71,8 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
       },
       banInfo: {
         isBanned: false,
-        banDate: true,
-        banReason: true,
+        banDate: null,
+        banReason: null,
       },
     };
 

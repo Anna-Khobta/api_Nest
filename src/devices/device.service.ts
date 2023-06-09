@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../users/users-schema';
 import { Model } from 'mongoose';
 import { DeviceRepository } from './device.repository';
-import { DeviceDBType } from '../blogs/types';
+import { DeviceDBType } from '../types/types';
 import { JwtPayloadClass } from '../auth/auth-input-classes';
 
 @Injectable()

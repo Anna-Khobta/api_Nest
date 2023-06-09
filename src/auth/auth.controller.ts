@@ -11,7 +11,7 @@ import {
   HttpCode,
   BadRequestException,
 } from '@nestjs/common';
-import { UsersService } from '../users/sa-api/users.service';
+import { UsersService } from '../users/users.service';
 import { UsersQueryRepository } from '../users/users-repositories/users.query.repository';
 import { CustomException } from '../functions/custom-exception';
 import { AuthService } from './auth.service';
@@ -28,7 +28,7 @@ import {
   inputModelEmail,
   JwtPayloadClass,
 } from './auth-input-classes';
-import { CreateUserInputModel } from '../users/users-input-model.dto';
+import { CreateUserInputModel } from '../users/input-models/create-user-input-model.dto';
 import { JwtPayload } from '../decorators/JwtPayload.param.decorator';
 import { IfRefreshTokenInDbGuard } from '../auth-guards/if.Refresh.Token.In.Db.guard';
 

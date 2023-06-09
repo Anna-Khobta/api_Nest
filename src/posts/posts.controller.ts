@@ -15,7 +15,6 @@ import { PostsService } from './posts.service';
 import { PostsQueryRepository } from './posts.query.repository';
 import { CustomException } from '../functions/custom-exception';
 import { isValid } from '../functions/isValid-Id';
-import { QueryPaginationInputModelClass } from '../blogs/db/blogs-input-classes';
 import {
   CreateCommentInputModelClass,
   CreatePostInputModelClass,
@@ -27,6 +26,7 @@ import { IfHaveUserJwtAccessGuard } from '../auth-guards/if.have.user.jwt-access
 import { CommentsQueryRepository } from '../comments/repositories/comments.query.repository';
 import { JwtAccessGuard } from '../auth-guards/jwt-access.guard';
 import { BasicAuthGuard } from '../auth-guards/basic-auth.guard';
+import { QueryPaginationInputModel } from '../blogs/blogs-input-models/query-pagination-input-model.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -57,7 +57,7 @@ export class PostsController {
   @Get()
   @UseGuards(IfHaveUserJwtAccessGuard)
   async getAllPosts(
-    @Query() queryPagination: QueryPaginationInputModelClass,
+    @Query() queryPagination: QueryPaginationInputModel,
     @CurrentUserId() currentUserId: string,
   ) {
     const foundPosts = await this.postsQueryRepository.findPostsWithWithoutUser(
@@ -145,7 +145,7 @@ export class PostsController {
   async getCommentsForPost(
     @Param('postId') postId: string,
     @CurrentUserId() currentUserId: string,
-    @Query() queryPagination: QueryPaginationInputModelClass,
+    @Query() queryPagination: QueryPaginationInputModel,
   ) {
     const post = await this.postsQueryRepository.findPostById(postId);
     if (!post) {

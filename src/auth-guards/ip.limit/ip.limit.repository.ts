@@ -1,7 +1,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { IpDb, IpDbDocument } from './ip-limit-schema';
-import { ipDbType } from '../../blogs/types';
+import { ipDbType } from '../../types/types';
 
 export class IpLimitRepository {
   constructor(@InjectModel(IpDb.name) private ipDbModel: Model<IpDbDocument>) {}
