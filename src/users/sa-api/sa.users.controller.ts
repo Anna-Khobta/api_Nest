@@ -11,16 +11,16 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
-import { UsersQueryRepository } from '../users/users-repositories/users.query.repository';
-import { BasicAuthGuard } from '../auth-guards/basic-auth.guard';
-import { CreateUserInputModelClass } from '../users/users-input-model-class.dto';
-import { CustomException } from '../functions/custom-exception';
-import { QueryPaginationInputModelClass } from '../blogs/db/blogs-input-classes';
-import { isValid } from '../functions/isValid-Id';
+import { UsersService } from './users.service';
+import { UsersQueryRepository } from '../users-repositories/users.query.repository';
+import { BasicAuthGuard } from '../../auth-guards/basic-auth.guard';
+import { CreateUserInputModel } from '../users-input-model.dto';
+import { CustomException } from '../../functions/custom-exception';
+import { QueryPaginationInputModelClass } from '../../blogs/db/blogs-input-classes';
+import { isValid } from '../../functions/isValid-Id';
 
 @Controller('sa/users')
-export class UsersController {
+export class SaUsersController {
   constructor(
     protected usersService: UsersService,
     protected usersQueryRepository: UsersQueryRepository,
@@ -28,7 +28,7 @@ export class UsersController {
   @Post()
   @HttpCode(201)
   @UseGuards(BasicAuthGuard)
-  async createUser(@Body() inputModel: CreateUserInputModelClass) {
+  async createUser(@Body() inputModel: CreateUserInputModel) {
     const checkUserIsAlreadyInDb = await this.usersService.checkUserExist(
       inputModel.login,
       inputModel.email,

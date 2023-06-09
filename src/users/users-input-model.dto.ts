@@ -1,6 +1,6 @@
-import { IsEmail, Length, Validate } from 'class-validator';
+import { IsEmail, Length } from 'class-validator';
 
-export class CreateUserInputModelClass {
+export class CreateUserInputModel {
   @Length(3, 10)
   //@Validate(IsLoginAlreadyExist)
   login: string;

@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User, UserDocument } from './users-schema';
-import { UsersRepository } from './users-repositories/users.repository';
+import { User, UserDocument } from '../users-schema';
+import { UsersRepository } from '../users-repositories/users.repository';
 import {
   UserTypeWiithoutIds,
   UserViewType,
   UserWithMongoId,
-} from '../blogs/types';
-import { UsersQueryRepository } from './users-repositories/users.query.repository';
+} from '../../blogs/types';
+import { UsersQueryRepository } from '../users-repositories/users.query.repository';
 import { v4 as uuidv4 } from 'uuid';
-import { CreateUserInputModelClass } from './users-input-model-class.dto';
+import { CreateUserInputModel } from '../users-input-model.dto';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const bcrypt = require('bcrypt');
@@ -24,7 +24,7 @@ export class UsersService {
   ) {}
 
   async createUser(
-    inputModel: CreateUserInputModelClass,
+    inputModel: CreateUserInputModel,
     isConfirmed: boolean,
   ): Promise<string | null> {
     const checkIsLoginOrEmailAlreadyUsed =
