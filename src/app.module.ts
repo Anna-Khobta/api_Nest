@@ -49,9 +49,13 @@ import { CommentSchema, Comment } from './comments/comments-schema';
 import { IpDb, IpDbSchema } from './auth-guards/ip.limit/ip-limit-schema';
 import { BlogsRepository } from './blogs/repositories/blogs.repository';
 import { SaUsersController } from './users/sa-api/sa.users.controller';
+import { CreateUserUseCase } from './users/sa-api/use-cases/create-user-use-case';
+import { CqrsModule } from '@nestjs/cqrs';
 export const configModule = ConfigModule.forRoot({ isGlobal: true });
 
 export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
+
+const useCases = [CreateUserUseCase];
 
 @Module({
   imports: [
@@ -91,6 +95,7 @@ export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '60m' },
     }),
+    CqrsModule,
   ],
   controllers: [
     AppController,
@@ -134,6 +139,7 @@ export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
     BlogIdValidator,
     IpLimitGuard,
     IpLimitRepository,
+    ...useCases,
   ],
 })
 export class AppModule {}
