@@ -1,5 +1,4 @@
 import { ObjectId } from 'mongodb';
-
 export type BlogViewType = {
   id: string;
   name: string;
@@ -97,6 +96,11 @@ export type UserViewType = {
   login: string;
   email: string;
   createdAt: string;
+  banInfo: {
+    isBanned: boolean;
+    banDate: Date | boolean;
+    banReason: string | boolean;
+  };
 };
 
 export type UsersWithPagination = {
