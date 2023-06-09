@@ -1,9 +1,9 @@
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Comment, CommentDocument } from '../comments-schema';
-import { CommentViewType, LikeStatusesEnum } from '../../blogs/types';
-import { QueryPaginationInputModelClass } from '../../blogs/db/blogs-input-classes';
+import { CommentViewType, LikeStatusesEnum } from '../../types/types';
 import { getPagination } from '../../functions/pagination';
+import { QueryPaginationInputModel } from '../../blogs/blogs-input-models/query-pagination-input-model.dto';
 
 export class CommentsQueryRepository {
   constructor(
@@ -13,7 +13,7 @@ export class CommentsQueryRepository {
   async findCommentsForPostWithAndWithoutUser(
     postId: string,
     userId: string | undefined,
-    queryPagination: QueryPaginationInputModelClass,
+    queryPagination: QueryPaginationInputModel,
   ) {
     const myPagination = getPagination(queryPagination);
     const filter = { postId };

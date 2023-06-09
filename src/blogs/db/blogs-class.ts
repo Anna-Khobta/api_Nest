@@ -13,5 +13,3 @@ export class BlogClassDbType {
     this.isMembership = false;
   }
 }
-
-// n

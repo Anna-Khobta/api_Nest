@@ -1,7 +1,7 @@
-import { IsMongoId, IsString, IsUrl, Length } from 'class-validator';
+import { IsString, IsUrl, Length } from 'class-validator';
 import { IsNotEmptyString } from '../../decorators/IsNotEmptyString.validator';
 
-export class CreateBlogInputModelClass {
+export class CreateBlogInputModel {
   //@Trim() почему-то не сработало
   //@IsNotEmpty()
   @IsNotEmptyString()
@@ -15,17 +15,4 @@ export class CreateBlogInputModelClass {
   @Length(3, 100)
   @IsUrl()
   websiteUrl: string;
-}
-
-export class QueryPaginationInputModelClass {
-  searchNameTerm: string;
-  sortBy: string;
-  sortDirection: string;
-  pageNumber: string;
-  pageSize: string;
-}
-
-export class BlogIdDto {
-  @IsMongoId()
-  id: string;
 }

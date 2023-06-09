@@ -1,4 +1,4 @@
-import { UserLikeInfo } from '../blogs/types';
+import { UserLikeInfo } from '../types/types';
 // n
 export class PostClassDbType {
   createdAt: string;

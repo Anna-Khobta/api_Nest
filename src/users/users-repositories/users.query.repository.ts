@@ -8,10 +8,10 @@ import {
   UsersWithPagination,
   UserViewType,
   UserWithMongoId,
-} from '../../blogs/types';
+} from '../../types/types';
 import { Post, PostDocument } from '../../posts/posts-schema';
 import { getUsersPagination } from '../users-pagination';
-import { QueryPaginationInputModelClass } from '../../blogs/db/blogs-input-classes';
+import { QueryPaginationInputModel } from '../../blogs/blogs-input-models/query-pagination-input-model.dto';
 
 @Injectable()
 export class UsersQueryRepository {
@@ -50,6 +50,11 @@ export class UsersQueryRepository {
       login: user.accountData.login,
       email: user.accountData.email,
       createdAt: user.accountData.createdAt,
+      banInfo: {
+        isBanned: user.banInfo.isBanned,
+        banDate: user.banInfo.banDate,
+        banReason: user.banInfo.banReason,
+      },
     };
   }
 
@@ -84,7 +89,7 @@ export class UsersQueryRepository {
   }
 
   async findUsers(
-    queryPagination: QueryPaginationInputModelClass,
+    queryPagination: QueryPaginationInputModel,
   ): Promise<UsersWithPagination> {
     const myPagination = getUsersPagination(queryPagination);
 
@@ -124,6 +129,11 @@ export class UsersQueryRepository {
       login: user.accountData.login,
       email: user.accountData.email,
       createdAt: user.accountData.createdAt,
+      banInfo: {
+        isBanned: user.banInfo.isBanned,
+        banDate: user.banInfo.banDate,
+        banReason: user.banInfo.banReason,
+      },
     }));
 
     const total = await this.userModel.countDocuments(filter);

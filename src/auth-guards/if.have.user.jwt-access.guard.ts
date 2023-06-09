@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../users/sa-api/users.service';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class IfHaveUserJwtAccessGuard implements CanActivate {

@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, SchemaTypes } from 'mongoose';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -53,10 +53,10 @@ export class PasswordRecoveryClass {
 export class BanInfoClass {
   @Prop()
   isBanned: boolean;
-  @Prop()
-  banDate: Date;
-  @Prop()
-  banReason: string;
+  @Prop({ type: SchemaTypes.Mixed })
+  banDate: Date | boolean;
+  @Prop({ type: SchemaTypes.Mixed })
+  banReason: string | boolean;
 }
 
 @Schema()
@@ -71,9 +71,9 @@ export class User {
   passwordRecovery: PasswordRecoveryClass;
 
   @Prop()
-  likesCount: number;
-  @Prop()
   banInfo: BanInfoClass;
+  @Prop()
+  likesCount: number;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

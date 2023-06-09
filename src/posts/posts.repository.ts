@@ -2,7 +2,7 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Post, PostDocument } from './posts-schema';
 import { Injectable } from '@nestjs/common';
-import { LikeStatusesEnum, UserLikeInfo } from '../blogs/types';
+import { LikeStatusesEnum, UserLikeInfo } from '../types/types';
 
 @Injectable()
 export class PostsRepository {

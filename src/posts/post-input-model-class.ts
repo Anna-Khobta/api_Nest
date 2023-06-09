@@ -1,6 +1,6 @@
 import { IsEnum, IsMongoId, Length } from 'class-validator';
 import { IsNotEmptyString } from '../decorators/IsNotEmptyString.validator';
-import { LikeStatusesEnum } from '../blogs/types';
+import { LikeStatusesEnum } from '../types/types';
 import { IsBlogExist } from '../decorators/BlogId.validator';
 
 export class CreatePostInputModelClass {

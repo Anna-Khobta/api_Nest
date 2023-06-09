@@ -5,7 +5,7 @@ import {
   CommentDBType,
   LikeStatusesEnum,
   UserLikeInfo,
-} from '../../blogs/types';
+} from '../../types/types';
 
 export class CommentsRepository {
   constructor(
@@ -50,7 +50,7 @@ export class CommentsRepository {
 
   async deleteComment(id: string): Promise<boolean> {
     try {
-      const result = await this.commentModel.findOneAndDelete({ _id: id });
+      await this.commentModel.findOneAndDelete({ _id: id });
       return true;
     } catch (err) {
       console.log(err);

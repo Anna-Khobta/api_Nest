@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { deviceViewType, DeviceDBType } from '../blogs/types';
+import { deviceViewType, DeviceDBType } from '../types/types';
 import { DeviceDb, DeviceDocument } from './device-schema';
 import { JwtPayloadClass } from '../auth/auth-input-classes';
 
@@ -156,8 +156,8 @@ export class DeviceRepository {
     return result.acknowledged;
   }
 
-  async deleteAllTokens(): Promise<boolean> {
-    const result = await this.deviceModel.deleteMany({});
+  async deleteAllTokensByUserId(userId: string): Promise<boolean> {
+    const result = await this.deviceModel.deleteMany({ userId: userId });
     return result.acknowledged;
     // если всё удалит, вернет true
   }

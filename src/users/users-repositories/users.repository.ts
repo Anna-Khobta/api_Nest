@@ -108,4 +108,33 @@ export class UsersRepository {
       return null;
     }
   }
+
+  async updateBanInfo(
+    userId: string,
+    isBanned: boolean,
+    banReason: string,
+  ): Promise<boolean> {
+    try {
+      const user = await this.userModel.findOne({ _id: userId });
+      if (!user) {
+        return false;
+      }
+
+      if (user.banInfo.isBanned === isBanned) {
+        return true;
+      }
+      user.banInfo.isBanned = isBanned;
+      user.banInfo.banReason = banReason;
+      user.banInfo.banDate = new Date();
+
+      // после обновления true на false - надо делать null banReason и  banDate?
+      // если да, то добавить if else или switch case
+
+      await user.save();
+      return true;
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
+  }
 }
