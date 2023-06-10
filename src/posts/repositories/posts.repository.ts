@@ -1,8 +1,8 @@
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { Post, PostDocument } from './posts-schema';
+import { Post, PostDocument } from '../posts-schema';
 import { Injectable } from '@nestjs/common';
-import { LikeStatusesEnum, UserLikeInfo } from '../types/types';
+import { LikeStatusesEnum, UserLikeInfo } from '../../types/types';
 
 @Injectable()
 export class PostsRepository {
@@ -101,11 +101,11 @@ export class PostsRepository {
     likes: number,
     dislikes: number,
   ): Promise<boolean> {
-    const userLikeInfoToAdd: UserLikeInfo = {
+    /* const userLikeInfoToAdd: UserLikeInfo = {
       userId: userLikeInfo.userId,
       createdAt: userLikeInfo.createdAt,
       userStatus: likeStatus,
-    };
+    };*/
 
     try {
       const updateResult = await this.postModel.updateOne(

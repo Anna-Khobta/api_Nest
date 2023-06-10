@@ -16,7 +16,7 @@ import { BlogsQueryRepository } from '../repositories/blogs.query.repository';
 import { CustomException } from '../../functions/custom-exception';
 import { isValid } from '../../functions/isValid-Id';
 import { PostsService } from '../../posts/posts.service';
-import { PostsQueryRepository } from '../../posts/posts.query.repository';
+import { PostsQueryRepository } from '../../posts/repositories/posts.query.repository';
 import { CreateBlogInputModel } from '../blogs-input-models/create-blog-input-model.dto';
 import { CreatePostForSpecialBlogInputModel } from '../../posts/post-input-model-class';
 import { BasicAuthGuard } from '../../auth-guards/basic-auth.guard';

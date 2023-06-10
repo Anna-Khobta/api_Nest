@@ -12,7 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
-import { PostsQueryRepository } from './posts.query.repository';
+import { PostsQueryRepository } from './repositories/posts.query.repository';
 import { CustomException } from '../functions/custom-exception';
 import { isValid } from '../functions/isValid-Id';
 import {

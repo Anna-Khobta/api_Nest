@@ -1,16 +1,16 @@
 import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Post, PostDocument } from './posts-schema';
+import { Post, PostDocument } from '../posts-schema';
 import {
   LikeStatusesEnum,
   NewestLikesType,
   PostsWithPagination,
   PostViewType,
-} from '../types/types';
-import { User, UserDocument } from '../users/users-schema';
-import { getPagination } from '../functions/pagination';
-import { QueryPaginationInputModel } from '../blogs/blogs-input-models/query-pagination-input-model.dto';
+} from '../../types/types';
+import { User, UserDocument } from '../../users/users-schema';
+import { getPagination } from '../../functions/pagination';
+import { QueryPaginationInputModel } from '../../blogs/blogs-input-models/query-pagination-input-model.dto';
 
 @Injectable()
 export class PostsQueryRepository {

@@ -1,16 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User, UserDocument } from '../users-schema';
-import { UsersRepository } from '../users-repositories/users.repository';
-import {
-  UserTypeWiithoutIds,
-  UserViewType,
-  UserWithMongoId,
-} from '../../blogs/types';
-import { UsersQueryRepository } from '../users-repositories/users.query.repository';
+import { User, UserDocument } from './users-schema';
+import { UsersRepository } from './users-repositories/users.repository';
+import { UserViewType, UserWithMongoId } from '../types/types';
+import { UsersQueryRepository } from './users-repositories/users.query.repository';
 import { v4 as uuidv4 } from 'uuid';
-import { CreateUserInputModel } from '../users-input-model.dto';
+import { CreateUserInputModel } from './input-models/create-user-input-model.dto';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const bcrypt = require('bcrypt');
@@ -50,7 +46,7 @@ export class UsersService {
 
     const hashPassword = await bcrypt.hash(inputModel.password, salt);
 
-    const newUser: UserTypeWiithoutIds = {
+    const newUser = {
       accountData: {
         login: inputModel.login,
         email: inputModel.email,
@@ -65,6 +61,11 @@ export class UsersService {
       passwordRecovery: {
         recoveryCode: null,
         exp: null,
+      },
+      banInfo: {
+        isBanned: false,
+        banDate: true,
+        banReason: true,
       },
     };
 
@@ -95,7 +96,6 @@ export class UsersService {
   async findUserById(userId: string): Promise<UserViewType | null> {
     return await this.usersQueryRepository.findUserById(userId);
   }
-
   async checkUserExist(
     login: string | null,
     email: string | null,

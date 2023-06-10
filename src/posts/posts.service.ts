@@ -1,8 +1,8 @@
 import { Post, PostDocument } from './posts-schema';
 import { Model } from 'mongoose';
 import { PostClassDbType } from './posts-class';
-import { PostsRepository } from './posts.repository';
-import { PostsQueryRepository } from './posts.query.repository';
+import { PostsRepository } from './repositories/posts.repository';
+import { PostsQueryRepository } from './repositories/posts.query.repository';
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { BlogsQueryRepository } from '../blogs/repositories/blogs.query.repository';
