@@ -51,12 +51,14 @@ export class PasswordRecoveryClass {
 
 @Schema()
 export class BanInfoClass {
-  @Prop()
+  @Prop({
+    required: true,
+  })
   isBanned: boolean;
   @Prop({ type: SchemaTypes.Mixed })
-  banDate: Date | boolean;
+  banDate: Date | null;
   @Prop({ type: SchemaTypes.Mixed })
-  banReason: string | boolean;
+  banReason: string | null;
 }
 
 @Schema()
