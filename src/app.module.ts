@@ -3,18 +3,17 @@ import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Blog, BlogSchema } from './blogs/db/blogs-schema';
 import { BlogsService } from './blogs/blogs.service';
-import { BlogsController } from './blogs/blogs.controller';
+import { BlogsController } from './blogs/api/blogs.controller';
 import { BlogsQueryRepository } from './blogs/repositories/blogs.query.repository';
 import { Post, PostSchema } from './posts/posts-schema';
 import { PostsController } from './posts/posts.controller';
 import { PostsService } from './posts/posts.service';
-import { PostsQueryRepository } from './posts/posts.query.repository';
-import { PostsRepository } from './posts/posts.repository';
+import { PostsQueryRepository } from './posts/repositories/posts.query.repository';
+import { PostsRepository } from './posts/repositories/posts.repository';
 import { User, UserSchema } from './users/users-schema';
 import { OldUsersController } from './users/api/old.users.controller';
-import { UsersService } from './users/sa-api/users.service';
+import { UsersService } from './users/users.service';
 import { UsersQueryRepository } from './users/users-repositories/users.query.repository';
-import { UsersRepository } from './users/users-repositories/users.repository';
 import { AppController } from './app.controller';
 import { DeleteAllController } from './delete-all/delete-all.controller';
 import { DeleteAllService } from './delete-all/delete-all.service';
@@ -51,11 +50,16 @@ import { BlogsRepository } from './blogs/repositories/blogs.repository';
 import { SaUsersController } from './users/sa-api/sa.users.controller';
 import { CreateUserUseCase } from './users/sa-api/use-cases/create-user-use-case';
 import { CqrsModule } from '@nestjs/cqrs';
+import { BanUserUseCase } from './users/sa-api/use-cases/ban-user-use-case';
+import { BindBlogWithUserUseCase } from './blogs/sa-api/use-cases/bind-blog-with-user-use-case';
+import { UsersRepository } from './users/users-repositories/users.repository';
+import { SaBlogsController } from './blogs/sa-api/sa-blogs.controller';
+import { LoginPasswordGuard } from './auth-guards/login-password.guard';
 export const configModule = ConfigModule.forRoot({ isGlobal: true });
 
 export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
 
-const useCases = [CreateUserUseCase];
+const useCases = [CreateUserUseCase, BanUserUseCase, BindBlogWithUserUseCase];
 
 @Module({
   imports: [
@@ -107,6 +111,7 @@ const useCases = [CreateUserUseCase];
     AuthController,
     CommentsController,
     DevicesController,
+    SaBlogsController,
   ],
 
   providers: [
@@ -140,6 +145,7 @@ const useCases = [CreateUserUseCase];
     IpLimitGuard,
     IpLimitRepository,
     ...useCases,
+    LoginPasswordGuard,
   ],
 })
 export class AppModule {}
