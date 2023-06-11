@@ -12,14 +12,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
-import { PostsQueryRepository } from './posts.query.repository';
+import { PostsQueryRepository } from './repositories/posts.query.repository';
 import { CustomException } from '../functions/custom-exception';
 import { isValid } from '../functions/isValid-Id';
-import {
-  CreateCommentInputModelClass,
-  CreatePostInputModelClass,
-  LikeStatusInputModel,
-} from './post-input-model-class';
+import { LikeStatusInputModel } from './input-models/like-status-input-model.dto';
 import { CurrentUserId } from '../decorators/current-user-id.param.decorator';
 import { CommentsService } from '../comments/comments.service';
 import { IfHaveUserJwtAccessGuard } from '../auth-guards/if.have.user.jwt-access.guard';
@@ -27,6 +23,8 @@ import { CommentsQueryRepository } from '../comments/repositories/comments.query
 import { JwtAccessGuard } from '../auth-guards/jwt-access.guard';
 import { BasicAuthGuard } from '../auth-guards/basic-auth.guard';
 import { QueryPaginationInputModel } from '../blogs/blogs-input-models/query-pagination-input-model.dto';
+import { CreatePostInputModel } from './input-models/create-post-input-model.dto';
+import { CreateCommentInputModelDto } from '../comments/input-models/create-comment-input-model.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -40,7 +38,7 @@ export class PostsController {
   @Post()
   @HttpCode(201)
   @UseGuards(BasicAuthGuard)
-  async createPost(@Body() inputModel: CreatePostInputModelClass) {
+  async createPost(@Body() inputModel: CreatePostInputModel) {
     const createdPostId = await this.postsService.createPost(
       inputModel.title,
       inputModel.shortDescription,
@@ -92,7 +90,7 @@ export class PostsController {
   @UseGuards(BasicAuthGuard)
   async updatePostById(
     @Param('id') postId: string,
-    @Body() inputModel: CreatePostInputModelClass,
+    @Body() inputModel: CreatePostInputModel,
   ) {
     isValid(postId);
     const updatedPostId = await this.postsService.updatePost(
@@ -122,7 +120,7 @@ export class PostsController {
   @UseGuards(JwtAccessGuard)
   async createCommentForPost(
     @Param('postId') postId: string,
-    @Body() inputModel: CreateCommentInputModelClass,
+    @Body() inputModel: CreateCommentInputModelDto,
     @CurrentUserId() currentUserId: string,
   ) {
     const post = await this.postsQueryRepository.findPostById(postId);

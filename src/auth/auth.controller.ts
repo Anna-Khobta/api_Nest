@@ -31,6 +31,7 @@ import {
 import { CreateUserInputModel } from '../users/input-models/create-user-input-model.dto';
 import { JwtPayload } from '../decorators/JwtPayload.param.decorator';
 import { IfRefreshTokenInDbGuard } from '../auth-guards/if.Refresh.Token.In.Db.guard';
+import { LoginPasswordGuard } from '../auth-guards/login-password.guard';
 
 const httpOnlyTrue = {
   httpOnly: true,
@@ -55,39 +56,15 @@ export class AuthController {
   @Post('login')
   @HttpCode(200)
   //@UseGuards(IpLimitGuard)
+  @UseGuards(LoginPasswordGuard)
   async loginUser(
     @Headers('user-agent') deviceTitle: string,
     @Body() inputModel: LoginUserInputModelType,
     @Ip() ip: string,
     @Res({ passthrough: true }) response: Response,
+    @CurrentUserId() currentUserId: string,
   ) {
-    const foundUserInDb =
-      await this.usersQueryRepository.findUserByLoginOrEmail(
-        inputModel.loginOrEmail,
-        inputModel.loginOrEmail,
-      );
-    // TODO вынести в сервис
-    if (!foundUserInDb) {
-      throw new CustomException('No such user in app', HttpStatus.UNAUTHORIZED);
-    }
-
-    const isPasswordCorrect = await this.usersService.checkPasswordCorrect(
-      foundUserInDb.accountData.hashPassword,
-      inputModel.password,
-    );
-
-    // TODO вынести в сервис
-
-    if (!isPasswordCorrect) {
-      throw new CustomException(
-        'Incorrect login or password',
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-
-    const loginUser = await this.authService.getTokens(
-      foundUserInDb._id.toString(),
-    );
+    const loginUser = await this.authService.getTokens(currentUserId);
     // TODO вынести в сервис
     await this.deviceService.createDeviceInfoInDB(
       loginUser.decodedRefreshToken,

@@ -11,14 +11,12 @@ import {
 } from '@nestjs/common';
 
 import { JwtAccessGuard } from '../auth-guards/jwt-access.guard';
-import {
-  MakeLikeInputModel,
-  UpdateCommentInputModel,
-} from './comments-input.classes';
+import { MakeLikeInputModelDto } from './input-models/make-like-input.model.dto';
 import { CurrentUserId } from '../decorators/current-user-id.param.decorator';
 import { CommentsService } from './comments.service';
 import { CustomException } from '../functions/custom-exception';
 import { IfHaveUserJwtAccessGuard } from '../auth-guards/if.have.user.jwt-access.guard';
+import { UpdateCommentInputModelDto } from './input-models/update-comment-input.model.dto';
 
 @Controller('comments')
 export class CommentsController {
@@ -29,7 +27,7 @@ export class CommentsController {
   @UseGuards(JwtAccessGuard)
   async createBlog(
     @Param('id') commentId: string,
-    @Body() inputModel: UpdateCommentInputModel,
+    @Body() inputModel: UpdateCommentInputModelDto,
     @CurrentUserId() currentUserId: string,
   ) {
     const checkUserOwnComment = await this.commentsService.checkUser(
@@ -103,7 +101,7 @@ export class CommentsController {
   @HttpCode(204)
   @UseGuards(JwtAccessGuard)
   async makeLikeOperationOnComment(
-    @Body() inputModel: MakeLikeInputModel,
+    @Body() inputModel: MakeLikeInputModelDto,
     @Param('commentId') commentId: string,
     @CurrentUserId() currentUserId: string,
   ) {

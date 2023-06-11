@@ -1,22 +1,27 @@
 import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Post, PostDocument } from './posts-schema';
+import { Post, PostDocument } from '../posts-schema';
 import {
+  countBannedEngagement,
   LikeStatusesEnum,
   NewestLikesType,
   PostsWithPagination,
   PostViewType,
-} from '../types/types';
-import { User, UserDocument } from '../users/users-schema';
-import { getPagination } from '../functions/pagination';
-import { QueryPaginationInputModel } from '../blogs/blogs-input-models/query-pagination-input-model.dto';
+} from '../../types/types';
+import { User, UserDocument } from '../../users/users-schema';
+import { getPagination } from '../../functions/pagination';
+import { QueryPaginationInputModel } from '../../blogs/blogs-input-models/query-pagination-input-model.dto';
+import { BlogsQueryRepository } from '../../blogs/repositories/blogs.query.repository';
+import { UsersRepository } from '../../users/users-repositories/users.repository';
 
 @Injectable()
 export class PostsQueryRepository {
   constructor(
     @InjectModel(Post.name) private postModel: Model<PostDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    protected blogsQueryRepository: BlogsQueryRepository,
+    protected usersRepository: UsersRepository,
   ) {}
   async findPosts(
     blogId: string | null,
@@ -41,6 +46,9 @@ export class PostsQueryRepository {
       foundPosts.map(async (post) => {
         const likers = await this.last3UsersLikes(post._id.toString());
 
+        const countingWithBanned =
+          await this.countingLikesDislikesMinusBannedUsers(post._id.toString());
+
         const myStatus = post.usersEngagement.find(
           (el) => el.userId === userId,
         );
@@ -54,8 +62,8 @@ export class PostsQueryRepository {
           blogName: post.blogName,
           createdAt: post.createdAt,
           extendedLikesInfo: {
-            likesCount: post.likesCount,
-            dislikesCount: post.dislikesCount,
+            likesCount: countingWithBanned.likesCountWithBanned,
+            dislikesCount: countingWithBanned.dislikesCountWithBanned,
             myStatus: myStatus?.userStatus || LikeStatusesEnum.None,
             newestLikes: likers,
           },
@@ -98,6 +106,9 @@ export class PostsQueryRepository {
       foundPosts.map(async (post) => {
         const likers = await this.last3UsersLikes(post._id.toString());
 
+        const countingWithBanned =
+          await this.countingLikesDislikesMinusBannedUsers(post._id.toString());
+
         let myStatus;
         if (userId) {
           const foundUserStatus = post.usersEngagement.find(
@@ -119,8 +130,8 @@ export class PostsQueryRepository {
           blogName: post.blogName,
           createdAt: post.createdAt,
           extendedLikesInfo: {
-            likesCount: post.likesCount,
-            dislikesCount: post.dislikesCount,
+            likesCount: countingWithBanned.likesCountWithBanned,
+            dislikesCount: countingWithBanned.dislikesCountWithBanned,
             myStatus: myStatus,
             newestLikes: likers,
           },
@@ -139,66 +150,6 @@ export class PostsQueryRepository {
       items: mappedPosts,
     };
   }
-
-  /*async findPostsWithUser(
-    blogId: string | null,
-    page: number,
-    limit: number,
-    sortDirection: SortOrder,
-    sortBy: string,
-    skip: number,
-    userId: string,
-  ): Promise<PostsWithPagination> {
-    let filter: any = {};
-
-    if (blogId) {
-      filter = { blogId: blogId };
-    }
-
-    const foundPosts = await this.postModel
-      .find(filter, { __v: 0 })
-      .skip(skip)
-      .limit(limit)
-      .sort({ [sortBy]: sortDirection })
-      .lean();
-
-    const mappedPosts = await Promise.all(
-      foundPosts.map(async (post) => {
-        const likers = await this.last3UsersLikes(post._id.toString());
-
-        const myStatus = post.usersEngagement.find(
-          (el) => el.userId === userId,
-        );
-
-        return {
-          id: post._id.toString(),
-          title: post.title,
-          shortDescription: post.shortDescription,
-          content: post.content,
-          blogId: post.blogId,
-          blogName: post.blogName,
-          createdAt: post.createdAt,
-          extendedLikesInfo: {
-            likesCount: post.likesCount,
-            dislikesCount: post.dislikesCount,
-            myStatus: myStatus?.userStatus || LikeStatusesEnum.None,
-            newestLikes: likers,
-          },
-        };
-      }),
-    );
-
-    const total = await this.postModel.countDocuments(filter);
-    const pagesCount = Math.ceil(total / limit);
-
-    return {
-      pagesCount: pagesCount,
-      page: page,
-      pageSize: limit,
-      totalCount: total,
-      items: mappedPosts,
-    };
-  }*/
 
   async findPostById(createdId: string): Promise<PostViewType | null> {
     try {
@@ -232,84 +183,10 @@ export class PostsQueryRepository {
     }
   }
 
-  async findPostByIdWithUser(
-    postId: string,
-    userId: string,
-  ): Promise<any | null> {
-    const postInstance = await this.postModel.findById(
-      { _id: postId },
-      { __v: 0 },
-    );
-
-    if (!postInstance) {
-      return null;
-    }
-
-    let myStatus;
-    const userLikeInfo = postInstance.usersEngagement.find(
-      (user) => user.userId === userId,
-    );
-
-    if (!userLikeInfo) {
-      myStatus = LikeStatusesEnum.None;
-    } else {
-      myStatus = userLikeInfo.userStatus;
-    }
-
-    const likers = await this.last3UsersLikes(postInstance._id.toString());
-
-    const postView = {
-      id: postId,
-      title: postInstance.title,
-      shortDescription: postInstance.shortDescription,
-      content: postInstance.content,
-      blogId: postInstance.blogId,
-      blogName: postInstance.blogName,
-      createdAt: postInstance.createdAt,
-      extendedLikesInfo: {
-        likesCount: postInstance.likesCount,
-        dislikesCount: postInstance.dislikesCount,
-        myStatus: myStatus,
-        newestLikes: likers,
-      },
-    };
-
-    return postView;
-  }
-  async findPostByIdWithoutUser(postId: string): Promise<any | null> {
-    const postInstance = await this.postModel.findById(
-      { _id: postId },
-      { __v: 0 },
-    );
-
-    if (!postInstance) {
-      return null;
-    }
-
-    const likers = await this.last3UsersLikes(postId);
-
-    const postView = {
-      id: postId,
-      title: postInstance.title,
-      shortDescription: postInstance.shortDescription,
-      content: postInstance.content,
-      blogId: postInstance.blogId,
-      blogName: postInstance.blogName,
-      createdAt: postInstance.createdAt,
-      extendedLikesInfo: {
-        likesCount: postInstance.likesCount,
-        dislikesCount: postInstance.dislikesCount,
-        myStatus: LikeStatusesEnum.None,
-        newestLikes: likers,
-      },
-    };
-    return postView;
-  }
-
   async findPostByIdWithWithoutUser(
     postId: string,
     userId: string | null,
-  ): Promise<PostViewType | null> {
+  ): Promise<PostViewType | null | string> {
     const postInstance = await this.postModel.findById(
       { _id: postId },
       { __v: 0 },
@@ -319,6 +196,17 @@ export class PostsQueryRepository {
       return null;
     }
 
+    // check if post owner was banned
+    // TODO вернуть
+    const isOwnerAlreadyBanned = await this.isPostOwnerBanned(
+      postInstance.blogId,
+    );
+
+    if (isOwnerAlreadyBanned) {
+      return null;
+    }
+
+    // find my like status
     let myStatus;
 
     const userLikeInfo = postInstance.usersEngagement.find(
@@ -330,20 +218,51 @@ export class PostsQueryRepository {
     } else {
       myStatus = userLikeInfo.userStatus;
     }
-    /* if (userId) {
-      const userLikeInfo = postInstance.usersEngagement.find(
-        (user) => user.userId === userId,
-      );
 
-      console.log(userLikeInfo);
+    // ------ WORK WITH BANNED USERS -----
 
-      if (!userLikeInfo) {
-        myStatus = LikeStatusesEnum.None;
-      }
-      myStatus = userLikeInfo.userStatus;
-    } else {
-      myStatus = LikeStatusesEnum.None;
-    }*/
+    const countingWithBanned = await this.countingLikesDislikesMinusBannedUsers(
+      postId,
+    );
+
+    /*const bannedUserIds = await this.usersRepository.getAllBannedUsersIds();
+
+    const postEngagementUsersLikedAndBanned = await this.postModel.find(
+      {
+        _id: postId,
+        usersEngagement: {
+          $elemMatch: {
+            userId: { $in: bannedUserIds },
+            userStatus: LikeStatusesEnum.Like,
+          },
+        },
+      },
+      { usersEngagement: 1 },
+    );
+
+    console.log(
+      postEngagementUsersLikedAndBanned[0],
+      'postEngagementUsersLikedAndBanned ',
+    );
+
+    const postEngagementUsersDislikedAndBanned = await this.postModel.find(
+      {
+        _id: postId,
+        usersEngagement: {
+          $elemMatch: {
+            userId: { $in: bannedUserIds },
+            userStatus: LikeStatusesEnum.Dislike,
+          },
+        },
+      },
+      { usersEngagement: 1 },
+    );
+
+    const minusLikes = postEngagementUsersLikedAndBanned.length;
+    const minusDislikes = postEngagementUsersDislikedAndBanned.length;
+
+    const likesCountWithBanned = postInstance.likesCount - minusLikes;
+    const dislikesCountWithBanned = postInstance.dislikesCount - minusDislikes;*/
 
     const likers = await this.last3UsersLikes(postId);
 
@@ -356,8 +275,8 @@ export class PostsQueryRepository {
       blogName: postInstance.blogName,
       createdAt: postInstance.createdAt,
       extendedLikesInfo: {
-        likesCount: postInstance.likesCount,
-        dislikesCount: postInstance.dislikesCount,
+        likesCount: countingWithBanned.likesCountWithBanned,
+        dislikesCount: countingWithBanned.dislikesCountWithBanned,
         myStatus: myStatus,
         newestLikes: likers,
       },
@@ -390,9 +309,25 @@ export class PostsQueryRepository {
     }
   }
   async last3UsersLikes(postId: string) {
+    const bannedUserIds = await this.usersRepository.getAllBannedUsersIds();
+
     const postWithLikes = await this.postModel
       .find(
-        { _id: postId, 'usersEngagement.userStatus': LikeStatusesEnum.Like },
+        {
+          $and: [
+            { _id: postId },
+            {
+              usersEngagement: {
+                $not: {
+                  $elemMatch: {
+                    userId: { $in: bannedUserIds },
+                  },
+                },
+              },
+            },
+            { 'usersEngagement.userStatus': LikeStatusesEnum.Like },
+          ],
+        },
         { _id: 0, __v: 0 },
       )
       .sort({ 'usersEngagement.createdAt': 'asc' })
@@ -427,5 +362,64 @@ export class PostsQueryRepository {
     } else {
       return mappedLikes;
     }
+  }
+
+  async isPostOwnerBanned(blogId: string): Promise<boolean> {
+    const foundBlogOwner =
+      await this.blogsQueryRepository.findBlogOwnerUserByBlogId(blogId);
+
+    const isUserOwnerBanned = await this.userModel.findOne({
+      $and: [{ _id: foundBlogOwner }, { 'banInfo.isBanned': true }],
+    });
+
+    if (isUserOwnerBanned) {
+      return true;
+    }
+    return false;
+  }
+
+  async countingLikesDislikesMinusBannedUsers(
+    postId: string,
+  ): Promise<countBannedEngagement> {
+    const bannedUserIds = await this.usersRepository.getAllBannedUsersIds();
+
+    const post = await this.postModel.findById({ _id: postId }, { __v: 0 });
+
+    const postEngagementUsersLikedAndBanned = await this.postModel.find(
+      {
+        _id: postId,
+        usersEngagement: {
+          $elemMatch: {
+            userId: { $in: bannedUserIds },
+            userStatus: LikeStatusesEnum.Like,
+          },
+        },
+      },
+      { usersEngagement: 1 },
+    );
+
+    const postEngagementUsersDislikedAndBanned = await this.postModel.find(
+      {
+        _id: postId,
+        usersEngagement: {
+          $elemMatch: {
+            userId: { $in: bannedUserIds },
+            userStatus: LikeStatusesEnum.Dislike,
+          },
+        },
+      },
+      { usersEngagement: 1 },
+    );
+
+    const minusLikes = postEngagementUsersLikedAndBanned.length;
+    const minusDislikes = postEngagementUsersDislikedAndBanned.length;
+
+    const likesCountWithBanned = post.likesCount - minusLikes;
+    const dislikesCountWithBanned = post.dislikesCount - minusDislikes;
+
+    return {
+      likesCountWithBanned: likesCountWithBanned,
+      dislikesCountWithBanned: dislikesCountWithBanned,
+    };
   }
 }

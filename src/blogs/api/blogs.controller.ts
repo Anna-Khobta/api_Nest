@@ -16,13 +16,13 @@ import { BlogsQueryRepository } from '../repositories/blogs.query.repository';
 import { CustomException } from '../../functions/custom-exception';
 import { isValid } from '../../functions/isValid-Id';
 import { PostsService } from '../../posts/posts.service';
-import { PostsQueryRepository } from '../../posts/posts.query.repository';
+import { PostsQueryRepository } from '../../posts/repositories/posts.query.repository';
 import { CreateBlogInputModel } from '../blogs-input-models/create-blog-input-model.dto';
-import { CreatePostForSpecialBlogInputModel } from '../../posts/post-input-model-class';
 import { BasicAuthGuard } from '../../auth-guards/basic-auth.guard';
 import { CurrentUserId } from '../../decorators/current-user-id.param.decorator';
 import { IfHaveUserJwtAccessGuard } from '../../auth-guards/if.have.user.jwt-access.guard';
 import { QueryPaginationInputModel } from '../blogs-input-models/query-pagination-input-model.dto';
+import { CreatePostForSpecialBlogInputModelDto } from '../../posts/input-models/create-post-for-special-blog-input-model.dto';
 
 @Controller('blogs')
 export class BlogsController {
@@ -113,7 +113,7 @@ export class BlogsController {
   @UseGuards(BasicAuthGuard)
   async createPostForBlog(
     @Param('blogId') blogId: string,
-    @Body() inputModel: CreatePostForSpecialBlogInputModel,
+    @Body() inputModel: CreatePostForSpecialBlogInputModelDto,
     @CurrentUserId() currentUserId: string,
   ) {
     isValid(blogId);

@@ -34,9 +34,13 @@ export class Post {
     required: true,
   })
   createdAt: string;
-  @Prop()
+  @Prop({
+    required: true,
+  })
   likesCount: number;
-  @Prop()
+  @Prop({
+    required: true,
+  })
   dislikesCount: number;
   @Prop()
   usersEngagement: UserLikeInfo[];

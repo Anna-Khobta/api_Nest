@@ -1,7 +1,21 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, SchemaTypes } from 'mongoose';
 
 export type BlogDocument = HydratedDocument<Blog>;
+
+@Schema()
+export class BlogOwnerInfo {
+  @Prop({
+    //required: true,
+    type: SchemaTypes.Mixed,
+  })
+  userId: string | null;
+  @Prop({
+    //required: true,
+    type: SchemaTypes.Mixed,
+  })
+  userLogin: string | null;
+}
 
 @Schema()
 export class Blog {
@@ -29,6 +43,11 @@ export class Blog {
     required: true,
   })
   isMembership: boolean;
+
+  @Prop({
+    required: true,
+  })
+  blogOwnerInfo: BlogOwnerInfo;
 
   setName(newName1: string) {
     this.name = newName1;

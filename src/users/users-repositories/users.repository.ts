@@ -3,12 +3,25 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../users-schema';
 import * as bcrypt from 'bcrypt';
+import { is, tr } from 'date-fns/locale';
 
 const salt = bcrypt.genSaltSync(5);
 
 @Injectable()
 export class UsersRepository {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+
+  async findUserLogin(userId: string): Promise<string | null> {
+    try {
+      const foundUser = await this.userModel.findById(userId);
+
+      console.log(foundUser, 'foundUser');
+      return foundUser.accountData.login;
+    } catch (err) {
+      console.log(err);
+      return null;
+    }
+  }
   async save(userInstance: UserDocument): Promise<boolean> {
     try {
       await userInstance.save();
@@ -123,15 +136,46 @@ export class UsersRepository {
       if (user.banInfo.isBanned === isBanned) {
         return true;
       }
-      user.banInfo.isBanned = isBanned;
-      user.banInfo.banReason = banReason;
-      user.banInfo.banDate = new Date();
-
-      // после обновления true на false - надо делать null banReason и  banDate?
-      // если да, то добавить if else или switch case
+      if (isBanned === false) {
+        user.banInfo.isBanned = isBanned;
+        user.banInfo.banReason = null;
+        user.banInfo.banDate = null;
+      } else {
+        user.banInfo.isBanned = isBanned;
+        user.banInfo.banReason = banReason;
+        user.banInfo.banDate = new Date();
+      }
 
       await user.save();
       return true;
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
+  }
+
+  async getAllBannedUsersIds(): Promise<string[] | null> {
+    const allBannedUsers = await this.userModel.find({
+      'banInfo.isBanned': true,
+    });
+
+    const bannedUserIds = allBannedUsers.map((user) => user._id.toString());
+    return bannedUserIds;
+  }
+
+  async isCurrentUserBanned(userId: string): Promise<boolean> {
+    try {
+      const isBanned = await this.userModel
+        .find({
+          $and: [{ _id: userId }, { 'banInfo.isBanned': true }],
+        })
+        .lean();
+
+      if (isBanned.length < 1) {
+        return false;
+      } else {
+        return true;
+      }
     } catch (err) {
       console.log(err);
       return false;

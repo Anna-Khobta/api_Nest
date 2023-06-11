@@ -32,4 +32,22 @@ export class BlogsRepository {
     const result = await this.blogModel.findOneAndDelete({ _id: id });
     return result !== null;
   }
+
+  async updateBlogOwnerInfo(
+    blogId: string,
+    userId: string,
+    userLogin: string,
+  ): Promise<boolean> {
+    try {
+      const blog = await this.blogModel.findOne({ _id: blogId });
+      blog.blogOwnerInfo.userId = userId;
+      blog.blogOwnerInfo.userLogin = userLogin;
+
+      await blog.save();
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
 }
