@@ -8,7 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { BlogsQueryRepository } from '../blogs/repositories/blogs.query.repository';
 
 import { LikeStatusesEnum, PostViewType, UserLikeInfo } from '../types/types';
-import { CreatePostInputModelClass } from './post-input-model-class';
+import { CreatePostInputModel } from './input-models/create-post-input-model.dto';
 
 @Injectable()
 export class PostsService {
@@ -48,7 +48,7 @@ export class PostsService {
   }
   async updatePost(
     postId: string,
-    inputModel: CreatePostInputModelClass,
+    inputModel: CreatePostInputModel,
   ): Promise<string | null> {
     const foundPostId = await this.postQueryRepository.findPostById(postId);
     const foundBlogName = await this.blogsQueryRepository.findBlogName(
