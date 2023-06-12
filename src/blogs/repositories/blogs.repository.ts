@@ -50,4 +50,20 @@ export class BlogsRepository {
       return false;
     }
   }
+
+  async checkIsUserOwnBlog(blogId: string, userId: string): Promise<boolean> {
+    try {
+      const blog = await this.blogModel.findOne({
+        $and: [{ _id: blogId }, { 'blogOwnerInfo.userId': userId }],
+      });
+
+      if (!blog) {
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
 }
