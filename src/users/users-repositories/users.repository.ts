@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../users-schema';
 import * as bcrypt from 'bcrypt';
-import { is, tr } from 'date-fns/locale';
 
 const salt = bcrypt.genSaltSync(5);
 
@@ -14,8 +13,6 @@ export class UsersRepository {
   async findUserLogin(userId: string): Promise<string | null> {
     try {
       const foundUser = await this.userModel.findById(userId);
-
-      console.log(foundUser, 'foundUser');
       return foundUser.accountData.login;
     } catch (err) {
       console.log(err);
@@ -159,8 +156,7 @@ export class UsersRepository {
       'banInfo.isBanned': true,
     });
 
-    const bannedUserIds = allBannedUsers.map((user) => user._id.toString());
-    return bannedUserIds;
+    return allBannedUsers.map((user) => user._id.toString());
   }
 
   async isCurrentUserBanned(userId: string): Promise<boolean> {
