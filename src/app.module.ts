@@ -30,7 +30,6 @@ import { DeviceService } from './devices/device.service';
 import { DeviceRepository } from './devices/device.repository';
 import { DeviceDb, DeviceSchema } from './devices/device-schema';
 import { JwtRefreshStrategy } from './auth-guards/jwt-refresh.strategy';
-import { jwtConstants } from './auth-guards/constants';
 import { EmailsManager } from './managers/emails-manager';
 import { RecoveryCodeGuard } from './auth-guards/recoveryCode.guard';
 import { CommentsService } from './comments/comments.service';
@@ -62,7 +61,10 @@ import { UpdateExistingPostForBlogUseCase } from './blogs/apis/blogger-api/blogg
 import { DeletePostByBloggerUseCase } from './blogs/apis/blogger-api/blogger-blogs.use.cases/delete-post-by-blogger-use-case';
 import { UpdateBlogByBloggerUseCase } from './blogs/apis/blogger-api/blogger-blogs.use.cases/update-blog-by-blogger-use-case';
 import { DeleteBlogByBloggerUseCase } from './blogs/apis/blogger-api/blogger-blogs.use.cases/delete-blog-by-blogger-use-case';
-export const configModule = ConfigModule.forRoot({ isGlobal: true });
+export const configModule = ConfigModule.forRoot({
+  isGlobal: true,
+  envFilePath: '.env',
+});
 export const mongoUri = process.env.MONGO_URL; //|| 'mongodb://127.00.1:27017';
 
 const useCases = [
@@ -113,7 +115,7 @@ const useCases = [
     PassportModule,
     JwtModule.register({
       global: true,
-      secret: jwtConstants.secret,
+      secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '60m' },
     }),
     CqrsModule,
