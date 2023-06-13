@@ -12,6 +12,7 @@ import { ObjectId } from 'mongodb';
 import { CommentsRepository } from './repositories/comments.repository';
 import { CommentsQueryRepository } from './repositories/comments.query.repository';
 import { UsersQueryRepository } from '../users/users-repositories/users.query.repository';
+import { UsersRepository } from '../users/users-repositories/users.repository';
 export type CommentWithMongoId = CommentDBType & { _id: ObjectId };
 
 @Injectable()
@@ -20,6 +21,7 @@ export class CommentsService {
     protected commentsRepository: CommentsRepository,
     protected commentsQueryRepository: CommentsQueryRepository,
     protected usersQueryRepository: UsersQueryRepository,
+    protected usersRepository: UsersRepository,
     @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
   ) {}
 
@@ -260,41 +262,6 @@ export class CommentsService {
 
     return true;
   }
-
-  async getCommentWithWithoutUser(commentId: string, userId: string | null) {
-    const foundCommentById = await this.commentsQueryRepository.findCommentById(
-      commentId,
-    );
-    if (!foundCommentById) {
-      return null;
-    }
-
-    if (!userId) {
-      return foundCommentById;
-    }
-
-    const checkUserStatus = await this.commentsQueryRepository.checkUserLike(
-      commentId,
-      userId,
-    );
-    if (!checkUserStatus) {
-      return null;
-    }
-    return {
-      id: commentId,
-      content: foundCommentById.content,
-      commentatorInfo: {
-        userId: foundCommentById.commentatorInfo.userId,
-        userLogin: foundCommentById.commentatorInfo.userLogin,
-      },
-      createdAt: foundCommentById.createdAt,
-      likesInfo: {
-        likesCount: foundCommentById.likesInfo.likesCount,
-        dislikesCount: foundCommentById.likesInfo.dislikesCount,
-        myStatus: checkUserStatus.toString(),
-      },
-    };
-  }
   async updateCommentStatus(
     commentId: string,
     userId: string,
@@ -316,5 +283,23 @@ export class CommentsService {
       return 'BadRequest';
     }
     return true;
+  }
+
+  async isCommentOwnerBanned(commentId: string): Promise<boolean> {
+    const foundCommentatorId =
+      await this.commentsRepository.findCommentatorIdByCommentId(commentId);
+
+    if (!foundCommentatorId) {
+      return false;
+    }
+
+    const isUserBanned = await this.usersRepository.isCurrentUserBanned(
+      foundCommentatorId,
+    );
+    if (!isUserBanned) {
+      return true;
+      // если все ок, вернется тру
+    }
+    return false;
   }
 }
