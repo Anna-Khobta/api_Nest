@@ -47,6 +47,97 @@ export class BlogsQueryRepository {
     };
   }
 
+  async findAllBlogsForBlogger(
+    queryPagination: QueryPaginationInputModel,
+    userId: string,
+  ): Promise<BlogsWithPagination> {
+    const myPagination = getPagination(queryPagination);
+
+    let filter: any = { 'blogOwnerInfo.userId': userId };
+
+    if (myPagination.searchNameTerm) {
+      filter = {
+        $and: [
+          { 'blogOwnerInfo.userId': userId },
+          {
+            name: { $regex: myPagination.searchNameTerm, $options: 'i' },
+          },
+        ],
+      };
+    }
+
+    const findBlogs = await this.blogModel
+      .find(filter, { __v: 0 })
+      .skip(myPagination.skip)
+      .limit(myPagination.limit)
+      .sort({ [myPagination.sortBy]: myPagination.sortDirection })
+      .lean();
+
+    const items: BlogViewType[] = findBlogs.map((blog) => ({
+      id: blog._id.toString(),
+      name: blog.name,
+      description: blog.description,
+      websiteUrl: blog.websiteUrl,
+      createdAt: blog.createdAt,
+      isMembership: blog.isMembership,
+    }));
+
+    const total = await this.blogModel.countDocuments(filter);
+
+    const pagesCount = Math.ceil(total / myPagination.limit);
+    return {
+      pagesCount: pagesCount,
+      page: myPagination.page,
+      pageSize: myPagination.limit,
+      totalCount: total,
+      items: items,
+    };
+  }
+
+  async findBlogsForSa(
+    queryPagination: QueryPaginationInputModel,
+  ): Promise<BlogsWithPagination> {
+    const myPagination = getPagination(queryPagination);
+
+    let filter: any = {};
+    if (myPagination.searchNameTerm) {
+      filter = {
+        name: { $regex: myPagination.searchNameTerm, $options: 'i' },
+      };
+    }
+
+    const findBlogs = await this.blogModel
+      .find(filter, { __v: 0 })
+      .skip(myPagination.skip)
+      .limit(myPagination.limit)
+      .sort({ [myPagination.sortBy]: myPagination.sortDirection })
+      .lean();
+
+    const items: BlogViewType[] = findBlogs.map((blog) => ({
+      id: blog._id.toString(),
+      name: blog.name,
+      description: blog.description,
+      websiteUrl: blog.websiteUrl,
+      createdAt: blog.createdAt,
+      isMembership: blog.isMembership,
+      blogOwnerInfo: {
+        userId: blog.blogOwnerInfo.userId,
+        userLogin: blog.blogOwnerInfo.userLogin,
+      },
+    }));
+
+    const total = await this.blogModel.countDocuments(filter);
+
+    const pagesCount = Math.ceil(total / myPagination.limit);
+    return {
+      pagesCount: pagesCount,
+      page: myPagination.page,
+      pageSize: myPagination.limit,
+      totalCount: total,
+      items: items,
+    };
+  }
+
   async findBlogByIdViewModel(blogId: string): Promise<BlogViewType | null> {
     try {
       const blog = await this.blogModel.findById(blogId).lean();
@@ -73,5 +164,12 @@ export class BlogsQueryRepository {
       .findOne({ _id: blogId }, { _id: 0 })
       .lean();
     return foundBlogName || null;
+  }
+
+  async findBlogOwnerUserByBlogId(blogId: string): Promise<string | null> {
+    const foundBlogName = await this.blogModel
+      .findOne({ _id: blogId }, { _id: 0 })
+      .lean();
+    return foundBlogName.blogOwnerInfo.userId || null;
   }
 }
