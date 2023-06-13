@@ -62,11 +62,10 @@ export class BloggerBlogsController {
     @Query() queryPagination: QueryPaginationInputModel,
     @CurrentUserId() currentUserId: string,
   ) {
-    const foundBlogs = await this.blogsQueryRepository.findAllBlogsForBlogger(
+    return await this.blogsQueryRepository.findAllBlogsForBlogger(
       queryPagination,
       currentUserId,
     );
-    return foundBlogs;
   }
 
   @Put(':id')
@@ -165,8 +164,6 @@ export class BloggerBlogsController {
     isValid(blogId);
     isValid(postId);
 
-    console.log(111);
-
     const postUpdated = await this.commandBus.execute(
       new UpdateExistingPostForBlogCommand(
         blogId,
@@ -178,17 +175,21 @@ export class BloggerBlogsController {
       ),
     );
 
-    console.log(postUpdated);
-
-    console.log(222);
-    if (postUpdated === 'NotOwner') {
+    if (
+      postUpdated === 'NotOwner' ||
+      postUpdated === 'NotFound' ||
+      !postUpdated
+    ) {
       throw new CustomException(null, HttpStatus.NOT_FOUND);
     }
 
-    console.log(333);
-    if (postUpdated === 'NotFound') {
+    /*if (postUpdated === 'NotFound') {
       throw new CustomException(null, HttpStatus.NOT_FOUND);
     }
+
+    if (!postUpdated) {
+      throw new CustomException(null, HttpStatus.NOT_FOUND);
+    }*/
 
     return postUpdated;
   }
