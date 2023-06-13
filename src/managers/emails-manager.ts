@@ -10,17 +10,17 @@ import { ConfigService } from '@nestjs/config';
 
 //TODO переменная окружения &&&
 
-const myPass = email;
+//const myPass = email;
 //export const myPass = process.env.EMAIL;
 
 // create reusable transporter object using the default SMTP transport
-const transporter = nodemailer.createTransport({
+/*const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: 'menthol.vegan@gmail.com', // generated ethereal user
     pass: myPass, // generated ethereal password
   },
-});
+});*/
 
 @Injectable()
 export class EmailsManager {
@@ -35,6 +35,8 @@ export class EmailsManager {
     confirmationCode: string,
   ) {
     const html = `<h1>Thank you for registration!</h1><p>To finish registration process please follow the link below:<a href="https://somesite.com/confirm-email?code=${confirmationCode}">complete registration</a></p>`;
+
+    const transporter = this.createTransporter();
 
     return await transporter.sendMail({
       from: 'AnnaTestEmail', // sender address
@@ -59,6 +61,8 @@ export class EmailsManager {
 
     const html2 = `<h1>Thank you for registration!</h1><p>To finish registration process please follow the link below:<a href="https://somesite.com/confirm-email?code=${generateConfirmationCode}">complete registration</a></p>`;
 
+    const transporter = this.createTransporter();
+
     return await transporter.sendMail({
       from: 'AnnaTestEmail', // sender address
       to: foundUserByEmail.accountData.email, // list of receivers
@@ -74,6 +78,8 @@ export class EmailsManager {
     const html = `<h1>Password recovery</h1
        <p>To finish password recovery please follow the link below: <a href="https://somesite.com/confirm-email?recoveryCode=${generatePassRecovCode}">complete registration</a></p>`;
 
+    const transporter = this.createTransporter();
+
     // send mail with defined transport object
     return await transporter.sendMail({
       from: 'AnnaTestEmail', // sender address
@@ -81,5 +87,18 @@ export class EmailsManager {
       subject: 'Password Recovery Message', // Subject line
       html: html,
     });
+  }
+  private createTransporter() {
+    const myPass = this.configService.get('EMAIL');
+
+    console.log(myPass, 'myPass');
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'menthol.vegan@gmail.com', // generated ethereal user
+        pass: myPass, // generated ethereal password
+      },
+    });
+    return transporter;
   }
 }

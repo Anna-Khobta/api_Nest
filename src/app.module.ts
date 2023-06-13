@@ -62,7 +62,10 @@ import { UpdateExistingPostForBlogUseCase } from './blogs/apis/blogger-api/blogg
 import { DeletePostByBloggerUseCase } from './blogs/apis/blogger-api/blogger-blogs.use.cases/delete-post-by-blogger-use-case';
 import { UpdateBlogByBloggerUseCase } from './blogs/apis/blogger-api/blogger-blogs.use.cases/update-blog-by-blogger-use-case';
 import { DeleteBlogByBloggerUseCase } from './blogs/apis/blogger-api/blogger-blogs.use.cases/delete-blog-by-blogger-use-case';
-export const configModule = ConfigModule.forRoot({ isGlobal: true });
+export const configModule = ConfigModule.forRoot({
+  isGlobal: true,
+  envFilePath: '.env',
+});
 export const mongoUri = process.env.MONGO_URL; //|| 'mongodb://127.00.1:27017';
 
 const useCases = [

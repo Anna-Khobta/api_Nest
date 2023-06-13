@@ -163,26 +163,45 @@ export class CommentsRepository {
   ): Promise<countBannedEngagement> {
     const bannedUserIds = await this.usersRepository.getAllBannedUsersIds();
 
+    console.log(bannedUserIds, ' bannedUserIds ');
+
     const comment = await this.commentModel.findById(
       { _id: commentId },
       { __v: 0 },
     );
 
-    const commentEngagementUsersLikedAndBanned = await this.commentModel.find(
-      {
-        _id: commentId,
-        usersEngagement: {
-          $elemMatch: {
-            userId: { $in: bannedUserIds },
-            userStatus: LikeStatusesEnum.Like,
+    const commentEngagementUsersLikedAndBanned =
+      await this.commentModel.findOne(
+        {
+          _id: commentId,
+          usersEngagement: {
+            $elemMatch: {
+              userId: { $in: bannedUserIds },
+              userStatus: LikeStatusesEnum.Like,
+            },
           },
         },
+        { usersEngagement: 1 },
+      );
+
+    /*(
+      {
+        _id: commentId,
+        $and: [
+          {
+            'usersEngagement.userId': { $in: bannedUserIds },
+          },
+          { 'usersEngagement.userStatus': LikeStatusesEnum.Like },
+        ],
       },
       { usersEngagement: 1 },
+    )*/ console.log(
+      commentEngagementUsersLikedAndBanned,
+      ' commentEngagementUsersLikedAndBanned ',
     );
 
     const commentEngagementUsersDislikedAndBanned =
-      await this.commentModel.find(
+      await this.commentModel.findOne(
         {
           _id: commentId,
           usersEngagement: {
@@ -195,8 +214,12 @@ export class CommentsRepository {
         { usersEngagement: 1 },
       );
 
-    const minusLikes = commentEngagementUsersLikedAndBanned.length;
-    const minusDislikes = commentEngagementUsersDislikedAndBanned.length;
+    const minusLikes =
+      commentEngagementUsersLikedAndBanned?.usersEngagement.length;
+    const minusDislikes =
+      commentEngagementUsersDislikedAndBanned?.usersEngagement.length;
+
+    //commentEngagementUsersLikedAndBanned[0]?.usersEngagement.length;
 
     const likesCountWithBanned = comment.likesCount - minusLikes;
     const dislikesCountWithBanned = comment.dislikesCount - minusDislikes;
