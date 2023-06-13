@@ -3,7 +3,7 @@ import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Blog, BlogSchema } from './blogs/db/blogs-schema';
 import { BlogsService } from './blogs/blogs.service';
-import { BlogsController } from './blogs/api/blogs.controller';
+import { BlogsController } from './blogs/apis/api/blogs.controller';
 import { BlogsQueryRepository } from './blogs/repositories/blogs.query.repository';
 import { Post, PostSchema } from './posts/posts-schema';
 import { PostsController } from './posts/posts.controller';
@@ -43,7 +43,6 @@ import { DevicesController } from './devices/devices.controller';
 import { IfHaveUserJwtAccessGuard } from './auth-guards/if.have.user.jwt-access.guard';
 import { IpLimitGuard } from './auth-guards/ip.limit/ip.limit.guard';
 import { IpLimitRepository } from './auth-guards/ip.limit/ip.limit.repository';
-import { LocalStrategy } from './auth-guards/local.strategy';
 import { CommentSchema, Comment } from './comments/comments-schema';
 import { IpDb, IpDbSchema } from './auth-guards/ip.limit/ip-limit-schema';
 import { BlogsRepository } from './blogs/repositories/blogs.repository';
@@ -51,15 +50,33 @@ import { SaUsersController } from './users/sa-api/sa.users.controller';
 import { CreateUserUseCase } from './users/sa-api/use-cases/create-user-use-case';
 import { CqrsModule } from '@nestjs/cqrs';
 import { BanUserUseCase } from './users/sa-api/use-cases/ban-user-use-case';
-import { BindBlogWithUserUseCase } from './blogs/sa-api/use-cases/bind-blog-with-user-use-case';
+import { BindBlogWithUserUseCase } from './blogs/apis/sa-api/sa-blogs.use.cases/bind-blog-with-user-use-case';
 import { UsersRepository } from './users/users-repositories/users.repository';
-import { SaBlogsController } from './blogs/sa-api/sa-blogs.controller';
+import { SaBlogsController } from './blogs/apis/sa-api/sa-blogs.controller';
 import { LoginPasswordGuard } from './auth-guards/login-password.guard';
+import { BloggerBlogsController } from './blogs/apis/blogger-api/blogger-blogs.controller';
+import { BloggerBlogsService } from './blogs/apis/blogger-api/blogger-blogs.service';
+import { CreateBlogByBloggerUseCase } from './blogs/apis/blogger-api/blogger-blogs.use.cases/create-blog-by-blogger-use-case';
+import { CreatePostForSpecialBlogUseCase } from './blogs/apis/blogger-api/blogger-blogs.use.cases/create-post-for-special-blog-by-blogger-use-case';
+import { UpdateExistingPostForBlogUseCase } from './blogs/apis/blogger-api/blogger-blogs.use.cases/update-existing-post-for-blog-by-blogger-use-case';
+import { DeletePostByBloggerUseCase } from './blogs/apis/blogger-api/blogger-blogs.use.cases/delete-post-by-blogger-use-case';
+import { UpdateBlogByBloggerUseCase } from './blogs/apis/blogger-api/blogger-blogs.use.cases/update-blog-by-blogger-use-case';
+import { DeleteBlogByBloggerUseCase } from './blogs/apis/blogger-api/blogger-blogs.use.cases/delete-blog-by-blogger-use-case';
 export const configModule = ConfigModule.forRoot({ isGlobal: true });
+export const mongoUri = process.env.MONGO_URL; //|| 'mongodb://127.00.1:27017';
 
-export const mongoUri = process.env.MONGO_URL || 'mongodb://127.00.1:27017';
-
-const useCases = [CreateUserUseCase, BanUserUseCase, BindBlogWithUserUseCase];
+const useCases = [
+  CreateUserUseCase,
+  BanUserUseCase,
+  BindBlogWithUserUseCase,
+  CreateBlogByBloggerUseCase,
+  BloggerBlogsService,
+  CreatePostForSpecialBlogUseCase,
+  UpdateExistingPostForBlogUseCase,
+  DeletePostByBloggerUseCase,
+  UpdateBlogByBloggerUseCase,
+  DeleteBlogByBloggerUseCase,
+];
 
 @Module({
   imports: [
@@ -112,6 +129,7 @@ const useCases = [CreateUserUseCase, BanUserUseCase, BindBlogWithUserUseCase];
     CommentsController,
     DevicesController,
     SaBlogsController,
+    BloggerBlogsController,
   ],
 
   providers: [
@@ -119,6 +137,7 @@ const useCases = [CreateUserUseCase, BanUserUseCase, BindBlogWithUserUseCase];
     BlogsService,
     BlogsRepository,
     BlogsQueryRepository,
+    BloggerBlogsService,
     PostsService,
     PostsQueryRepository,
     PostsRepository,
@@ -131,7 +150,6 @@ const useCases = [CreateUserUseCase, BanUserUseCase, BindBlogWithUserUseCase];
     BasicStrategy,
     DeviceService,
     DeviceRepository,
-    LocalStrategy,
     JwtAccessStrategy,
     JwtRefreshStrategy,
     EmailsManager,
