@@ -7,14 +7,14 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { BlogsService } from '../blogs.service';
-import { BlogsQueryRepository } from '../repositories/blogs.query.repository';
-import { PostsService } from '../../posts/posts.service';
-import { BasicAuthGuard } from '../../auth-guards/basic-auth.guard';
-import { QueryPaginationInputModel } from '../blogs-input-models/query-pagination-input-model.dto';
-import { BindBlogWithUserCommand } from './use-cases/bind-blog-with-user-use-case';
+import { BlogsService } from '../../blogs.service';
+import { BlogsQueryRepository } from '../../repositories/blogs.query.repository';
+import { PostsService } from '../../../posts/posts.service';
+import { BasicAuthGuard } from '../../../auth-guards/basic-auth.guard';
+import { QueryPaginationInputModel } from '../../blogs-input-models/query-pagination-input-model.dto';
+import { BindBlogWithUserCommand } from './sa-blogs.use.cases/bind-blog-with-user-use-case';
 import { CommandBus } from '@nestjs/cqrs';
-import { CustomException } from '../../functions/custom-exception';
+import { CustomException } from '../../../functions/custom-exception';
 
 @Controller('sa/blogs')
 export class SaBlogsController {
