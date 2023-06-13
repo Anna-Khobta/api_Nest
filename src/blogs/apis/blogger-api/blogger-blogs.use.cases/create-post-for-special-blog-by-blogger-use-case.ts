@@ -32,19 +32,19 @@ export class CreatePostForSpecialBlogUseCase
   async execute(
     command: CreatePostForSpecialBlogCommand,
   ): Promise<PostViewType | string> {
-    const isBloggerOwner = await this.blogsRepository.checkIsUserOwnBlog(
-      command.blogId,
-      command.userId,
-    );
-
-    if (!isBloggerOwner) {
-      return 'NotOwner';
-    }
     const blogById = await this.blogsQueryRepository.findBlogByIdViewModel(
       command.blogId,
     );
+
     if (!blogById) {
       return 'NotFound';
+    }
+
+    const blogOwnerId =
+      await this.blogsQueryRepository.findBlogOwnerUserByBlogId(command.blogId);
+
+    if (!(blogOwnerId === command.userId)) {
+      return 'NotOwner';
     }
 
     const foundBlogName = blogById.name;

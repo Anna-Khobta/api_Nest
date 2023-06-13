@@ -161,8 +161,11 @@ export class BloggerBlogsController {
     @Body() inputModel: CreatePostForSpecialBlogInputModelDto,
     @CurrentUserId() currentUserId: string,
   ) {
+    console.log(111);
     isValid(blogId);
     isValid(postId);
+
+    console.log(2222);
 
     const postUpdated = await this.commandBus.execute(
       new UpdateExistingPostForBlogCommand(
@@ -175,21 +178,15 @@ export class BloggerBlogsController {
       ),
     );
 
-    if (
-      postUpdated === 'NotOwner' ||
-      postUpdated === 'NotFound' ||
-      !postUpdated
-    ) {
-      throw new CustomException(null, HttpStatus.NOT_FOUND);
+    console.log(postUpdated);
+
+    if (postUpdated === 'NotOwner') {
+      throw new CustomException(null, HttpStatus.FORBIDDEN);
     }
 
-    /*if (postUpdated === 'NotFound') {
+    if (postUpdated === 'NotFound' || !postUpdated) {
       throw new CustomException(null, HttpStatus.NOT_FOUND);
     }
-
-    if (!postUpdated) {
-      throw new CustomException(null, HttpStatus.NOT_FOUND);
-    }*/
 
     return postUpdated;
   }
