@@ -4,9 +4,11 @@ import { Comment, CommentDocument } from '../comments-schema';
 import { CommentViewType, LikeStatusesEnum } from '../../types/types';
 import { getPagination } from '../../functions/pagination';
 import { QueryPaginationInputModel } from '../../blogs/blogs-input-models/query-pagination-input-model.dto';
+import { CommentsRepository } from './comments.repository';
 
 export class CommentsQueryRepository {
   constructor(
+    protected commentsRepository: CommentsRepository,
     @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
   ) {}
 
@@ -54,6 +56,45 @@ export class CommentsQueryRepository {
       pageSize: myPagination.limit,
       totalCount: total,
       items: mappedComments,
+    };
+  }
+
+  async getCommentWithWithoutUser(commentId: string, userId: string | null) {
+    const foundCommentById = await this.findCommentById(commentId);
+    if (!foundCommentById) {
+      return null;
+    }
+
+    if (!userId) {
+      return foundCommentById;
+    }
+
+    const checkUserStatus = await this.checkUserLike(commentId, userId);
+
+    if (!checkUserStatus) {
+      return null;
+    }
+
+    const countingCommentEngagementWithBannedUsers =
+      await this.commentsRepository.countingLikesDislikesOnCommentMinusBanned(
+        commentId,
+      );
+
+    return {
+      id: commentId,
+      content: foundCommentById.content,
+      commentatorInfo: {
+        userId: foundCommentById.commentatorInfo.userId,
+        userLogin: foundCommentById.commentatorInfo.userLogin,
+      },
+      createdAt: foundCommentById.createdAt,
+      likesInfo: {
+        likesCount:
+          countingCommentEngagementWithBannedUsers.likesCountWithBanned,
+        dislikesCount:
+          countingCommentEngagementWithBannedUsers.dislikesCountWithBanned,
+        myStatus: checkUserStatus.toString(),
+      },
     };
   }
 
