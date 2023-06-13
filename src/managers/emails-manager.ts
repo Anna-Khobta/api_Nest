@@ -5,7 +5,6 @@ import { UserWithMongoId } from '../types/types';
 import add from 'date-fns/add';
 import { Injectable } from '@nestjs/common';
 import { UsersRepository } from '../users/users-repositories/users.repository';
-import { email } from '../auth-guards/constants';
 import { ConfigService } from '@nestjs/config';
 
 //TODO переменная окружения &&&
@@ -91,7 +90,6 @@ export class EmailsManager {
   private createTransporter() {
     const myPass = this.configService.get('EMAIL');
 
-    console.log(myPass, 'myPass');
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {

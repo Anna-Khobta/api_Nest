@@ -30,7 +30,6 @@ import { DeviceService } from './devices/device.service';
 import { DeviceRepository } from './devices/device.repository';
 import { DeviceDb, DeviceSchema } from './devices/device-schema';
 import { JwtRefreshStrategy } from './auth-guards/jwt-refresh.strategy';
-import { jwtConstants } from './auth-guards/constants';
 import { EmailsManager } from './managers/emails-manager';
 import { RecoveryCodeGuard } from './auth-guards/recoveryCode.guard';
 import { CommentsService } from './comments/comments.service';
@@ -116,7 +115,7 @@ const useCases = [
     PassportModule,
     JwtModule.register({
       global: true,
-      secret: jwtConstants.secret,
+      secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '60m' },
     }),
     CqrsModule,
