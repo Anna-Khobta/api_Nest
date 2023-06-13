@@ -170,6 +170,7 @@ export class BlogsQueryRepository {
     const foundBlogName = await this.blogModel
       .findOne({ _id: blogId }, { _id: 0 })
       .lean();
+    console.log(foundBlogName);
     return foundBlogName.blogOwnerInfo.userId || null;
   }
 }
