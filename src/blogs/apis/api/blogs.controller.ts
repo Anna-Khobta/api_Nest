@@ -11,18 +11,17 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { BlogsService } from '../blogs.service';
-import { BlogsQueryRepository } from '../repositories/blogs.query.repository';
-import { CustomException } from '../../functions/custom-exception';
-import { isValid } from '../../functions/isValid-Id';
-import { PostsService } from '../../posts/posts.service';
-import { PostsQueryRepository } from '../../posts/repositories/posts.query.repository';
-import { CreateBlogInputModel } from '../blogs-input-models/create-blog-input-model.dto';
-import { BasicAuthGuard } from '../../auth-guards/basic-auth.guard';
-import { CurrentUserId } from '../../decorators/current-user-id.param.decorator';
-import { IfHaveUserJwtAccessGuard } from '../../auth-guards/if.have.user.jwt-access.guard';
-import { QueryPaginationInputModel } from '../blogs-input-models/query-pagination-input-model.dto';
-import { CreatePostForSpecialBlogInputModelDto } from '../../posts/input-models/create-post-for-special-blog-input-model.dto';
+import { BlogsService } from '../../blogs.service';
+import { BlogsQueryRepository } from '../../repositories/blogs.query.repository';
+import { CustomException } from '../../../functions/custom-exception';
+import { isValid } from '../../../functions/isValid-Id';
+import { PostsService } from '../../../posts/posts.service';
+import { PostsQueryRepository } from '../../../posts/repositories/posts.query.repository';
+import { CreateBlogInputModel } from '../../blogs-input-models/create-blog-input-model.dto';
+import { BasicAuthGuard } from '../../../auth-guards/basic-auth.guard';
+import { CurrentUserId } from '../../../decorators/current-user-id.param.decorator';
+import { IfHaveUserJwtAccessGuard } from '../../../auth-guards/if.have.user.jwt-access.guard';
+import { QueryPaginationInputModel } from '../../blogs-input-models/query-pagination-input-model.dto';
 
 @Controller('blogs')
 export class BlogsController {
@@ -36,7 +35,7 @@ export class BlogsController {
   @Post()
   @UseGuards(BasicAuthGuard)
   async createBlog(@Body() inputModel: CreateBlogInputModel) {
-    const blogIdIsCreated = await this.blogsService.createBlog(
+    const blogIdIsCreated = await this.blogsService.saCreateBlog(
       inputModel.name,
       inputModel.description,
       inputModel.websiteUrl,
@@ -106,39 +105,6 @@ export class BlogsController {
       throw new CustomException('Blog not found', HttpStatus.NOT_FOUND);
     }
     return;
-  }
-
-  @Post(':blogId/posts')
-  @HttpCode(201)
-  @UseGuards(BasicAuthGuard)
-  async createPostForBlog(
-    @Param('blogId') blogId: string,
-    @Body() inputModel: CreatePostForSpecialBlogInputModelDto,
-    @CurrentUserId() currentUserId: string,
-  ) {
-    isValid(blogId);
-    const blogById = await this.blogsQueryRepository.findBlogByIdViewModel(
-      blogId,
-    );
-    if (!blogById) {
-      throw new CustomException('Blog not found', HttpStatus.NOT_FOUND);
-    }
-
-    const createdPostId = await this.postsService.createPost(
-      inputModel.title,
-      inputModel.shortDescription,
-      inputModel.content,
-      blogId,
-    );
-
-    if (!createdPostId) {
-      throw new CustomException('Blog not found', HttpStatus.NOT_FOUND);
-    }
-
-    const postView = await this.postsQueryRepository.findPostById(
-      createdPostId,
-    );
-    return postView;
   }
 
   @Get(':blogId/posts')
