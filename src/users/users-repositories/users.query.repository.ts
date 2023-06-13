@@ -95,9 +95,37 @@ export class UsersQueryRepository {
 
     const searchLoginTerm = myPagination.searchLoginTerm;
     const searchEmailTerm = myPagination.searchEmailTerm;
+    const isBanned = myPagination.banStatus;
 
     let filter = {};
 
+    if (typeof isBanned === 'boolean') {
+      if (searchLoginTerm || searchEmailTerm) {
+        filter = {
+          $and: [
+            {
+              $or: [
+                {
+                  'accountData.login': {
+                    $regex: searchLoginTerm,
+                    $options: 'i',
+                  },
+                },
+                {
+                  'accountData.email': {
+                    $regex: searchEmailTerm,
+                    $options: 'i',
+                  },
+                },
+              ],
+            },
+            {
+              'banInfo.isBanned': isBanned,
+            },
+          ],
+        };
+      }
+    }
     if (searchLoginTerm || searchEmailTerm) {
       filter = {
         $or: [
@@ -116,6 +144,52 @@ export class UsersQueryRepository {
         ],
       };
     }
+
+    if (isBanned === true || isBanned === false) {
+      filter = {
+        'banInfo.isBanned': isBanned,
+      };
+    }
+
+    /*
+
+    {
+            'banInfo.isBanned': isBanned,
+          },
+
+          if (searchLoginTerm || searchEmailTerm) {
+      filter = {
+        $or: [
+          {
+            'accountData.login': {
+              $regex: searchLoginTerm,
+              $options: 'i',
+            },
+          },
+          {
+            'accountData.email': {
+              $regex: searchEmailTerm,
+              $options: 'i',
+            },
+          },
+        ],
+      };
+    }*/
+
+    /*
+isBanned === true ||
+      isBanned === false
+
+
+    {
+            'banInfo.isBanned': isBanned,
+          },
+
+    if (typeof isBanned === 'boolean') {
+      filter = {
+        'banInfo.isBanned': isBanned,
+      };
+    }*/
 
     const findUsers = await this.userModel
       .find(filter, { __v: 0 })

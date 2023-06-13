@@ -4,4 +4,5 @@ export class QueryPaginationInputModel {
   sortDirection: string;
   pageNumber: string;
   pageSize: string;
+  banStatus: string | boolean;
 }
