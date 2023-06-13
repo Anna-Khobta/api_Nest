@@ -11,7 +11,7 @@ export class BlogsService {
     @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
   ) {}
 
-  async createBlog(
+  async saCreateBlog(
     name: string,
     description: string,
     websiteUrl: string,
@@ -42,41 +42,3 @@ export class BlogsService {
     return await this.blogsRepository.deleteBlog(id);
   }
 }
-
-/*
-
-
-
-
-
-
-
-    async deleteAllBlogs(): Promise<number> {
-        return await blogsRepository.deleteAllBlogs()
-
-    }
-}
-
-*/
-
-/*async findBlogs(title: string | null | undefined): Promise<BlogType[]> {
-
-    const filter: any = {}
-
-    if (title) {
-        filter.title = {$regex: title}
-    }
-
-    return blogsCollection.find((filter),{projection:{_id:0}}).toArray()
-},
-
-
-async findBlogById(id: string): Promise<BlogType | null> {
-    let blog: BlogType | null = await blogsCollection.findOne({id: id},{projection:{_id:0}})
-    if (blog) {
-        return blog
-    } else {
-        return null
-    }
-},
-*/

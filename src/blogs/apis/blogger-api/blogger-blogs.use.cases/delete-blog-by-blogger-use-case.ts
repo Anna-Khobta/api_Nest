@@ -36,15 +36,11 @@ export class DeleteBlogByBloggerUseCase
       return 'NotOwner';
     }
 
-    const isDeleted = await deleteBlog(command.blogId);
+    const isDeleted = await this.blogsRepository.deleteBlog(command.blogId);
 
     if (!isDeleted) {
       return 'NotFound';
     }
     return;
   }
-}
-
-async function deleteBlog(id: string): Promise<boolean> {
-  return await this.blogsRepository.deleteBlog(id);
 }

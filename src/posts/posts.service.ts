@@ -39,6 +39,8 @@ export class PostsService {
       content,
       blogId,
       foundBlogName.name,
+      null,
+      null,
     );
 
     const postInstance = new this.postModel(newPost);
