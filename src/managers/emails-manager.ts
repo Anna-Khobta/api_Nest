@@ -1,3 +1,4 @@
+//import * as process from 'process';
 import nodemailer from 'nodemailer';
 import { v4 as uuidv4 } from 'uuid';
 import { UserWithMongoId } from '../types/types';
@@ -5,11 +6,12 @@ import add from 'date-fns/add';
 import { Injectable } from '@nestjs/common';
 import { UsersRepository } from '../users/users-repositories/users.repository';
 import { email } from '../auth-guards/constants';
+import { ConfigService } from '@nestjs/config';
 
-//export const myPass = process.env.EMAIL;
-//TODO переменная окружения
+//TODO переменная окружения &&&
 
 const myPass = email;
+//export const myPass = process.env.EMAIL;
 
 // create reusable transporter object using the default SMTP transport
 const transporter = nodemailer.createTransport({
@@ -22,7 +24,10 @@ const transporter = nodemailer.createTransport({
 
 @Injectable()
 export class EmailsManager {
-  constructor(protected usersRepository: UsersRepository) {}
+  constructor(
+    protected usersRepository: UsersRepository,
+    private configService: ConfigService,
+  ) {}
 
   async sendEmailConfirmationMessage(
     userId: string,

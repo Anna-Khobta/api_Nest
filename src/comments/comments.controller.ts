@@ -17,10 +17,14 @@ import { CommentsService } from './comments.service';
 import { CustomException } from '../functions/custom-exception';
 import { IfHaveUserJwtAccessGuard } from '../auth-guards/if.have.user.jwt-access.guard';
 import { UpdateCommentInputModelDto } from './input-models/update-comment-input.model.dto';
+import { CommentsQueryRepository } from './repositories/comments.query.repository';
 
 @Controller('comments')
 export class CommentsController {
-  constructor(protected commentsService: CommentsService) {}
+  constructor(
+    protected commentsService: CommentsService,
+    protected commentsQueryRepository: CommentsQueryRepository,
+  ) {}
 
   @Put(':id')
   @HttpCode(204)
@@ -61,12 +65,21 @@ export class CommentsController {
     @Param('id') commentId: string,
     @CurrentUserId() currentUserId: string,
   ) {
-    const getComment = await this.commentsService.getCommentWithWithoutUser(
+    const commentOwnerBanned = await this.commentsService.isCommentOwnerBanned(
       commentId,
-      currentUserId,
     );
+
+    if (!commentOwnerBanned) {
+      throw new CustomException(null, HttpStatus.NOT_FOUND);
+    }
+
+    const getComment =
+      await this.commentsQueryRepository.getCommentWithWithoutUser(
+        commentId,
+        currentUserId,
+      );
     if (!getComment) {
-      throw new CustomException('Cant update comment', HttpStatus.NOT_FOUND);
+      throw new CustomException(null, HttpStatus.NOT_FOUND);
     }
     return getComment;
   }

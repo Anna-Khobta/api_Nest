@@ -23,6 +23,15 @@ export const getUsersPagination = (query: any) => {
   const searchLoginTerm: string = query.searchLoginTerm || '';
   const searchEmailTerm: string = query.searchEmailTerm || '';
 
+  let banStatus = query.banStatus || '';
+
+  if (banStatus === 'banned') {
+    banStatus = true;
+  }
+  if (banStatus === 'notBanned' || banStatus === 'notbanned') {
+    banStatus = false;
+  }
+
   return {
     page,
     limit,
@@ -32,5 +41,6 @@ export const getUsersPagination = (query: any) => {
     searchNameTerm,
     searchLoginTerm,
     searchEmailTerm,
+    banStatus,
   };
 };

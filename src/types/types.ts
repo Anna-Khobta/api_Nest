@@ -177,3 +177,8 @@ export type deviceViewType = {
   lastActiveDate: string;
   deviceId: string;
 };
+
+export type countBannedEngagement = {
+  likesCountWithBanned: number;
+  dislikesCountWithBanned: number;
+};

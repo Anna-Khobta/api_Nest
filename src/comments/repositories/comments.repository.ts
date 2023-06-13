@@ -3,12 +3,15 @@ import { HydratedDocument, Model } from 'mongoose';
 import { Comment, CommentDocument } from '../comments-schema';
 import {
   CommentDBType,
+  countBannedEngagement,
   LikeStatusesEnum,
   UserLikeInfo,
 } from '../../types/types';
+import { UsersRepository } from '../../users/users-repositories/users.repository';
 
 export class CommentsRepository {
   constructor(
+    protected usersRepository: UsersRepository,
     @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
   ) {}
   async saveComment(
@@ -28,6 +31,17 @@ export class CommentsRepository {
       .lean();
 
     return foundCommentById || null;
+  }
+
+  async findCommentatorIdByCommentId(
+    commentId: string,
+  ): Promise<string | null> {
+    try {
+      const foundCommentById = await this.commentModel.findById(commentId);
+      return foundCommentById.commentatorInfo.userId;
+    } catch (err) {
+      return null;
+    }
   }
 
   async updateComment(id: string, content: string): Promise<string | null> {
@@ -142,5 +156,54 @@ export class CommentsRepository {
       console.log(error);
       return false;
     }
+  }
+
+  async countingLikesDislikesOnCommentMinusBanned(
+    commentId: string,
+  ): Promise<countBannedEngagement> {
+    const bannedUserIds = await this.usersRepository.getAllBannedUsersIds();
+
+    const comment = await this.commentModel.findById(
+      { _id: commentId },
+      { __v: 0 },
+    );
+
+    const commentEngagementUsersLikedAndBanned = await this.commentModel.find(
+      {
+        _id: commentId,
+        usersEngagement: {
+          $elemMatch: {
+            userId: { $in: bannedUserIds },
+            userStatus: LikeStatusesEnum.Like,
+          },
+        },
+      },
+      { usersEngagement: 1 },
+    );
+
+    const commentEngagementUsersDislikedAndBanned =
+      await this.commentModel.find(
+        {
+          _id: commentId,
+          usersEngagement: {
+            $elemMatch: {
+              userId: { $in: bannedUserIds },
+              userStatus: LikeStatusesEnum.Dislike,
+            },
+          },
+        },
+        { usersEngagement: 1 },
+      );
+
+    const minusLikes = commentEngagementUsersLikedAndBanned.length;
+    const minusDislikes = commentEngagementUsersDislikedAndBanned.length;
+
+    const likesCountWithBanned = comment.likesCount - minusLikes;
+    const dislikesCountWithBanned = comment.dislikesCount - minusDislikes;
+
+    return {
+      likesCountWithBanned: likesCountWithBanned,
+      dislikesCountWithBanned: dislikesCountWithBanned,
+    };
   }
 }
