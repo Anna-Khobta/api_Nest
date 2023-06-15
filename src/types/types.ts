@@ -31,7 +31,7 @@ export type PostViewType = {
     newestLikes: NewestLikesType[];
   };
 };
-
+//PostViewType['extendedLikesInfo']
 export type PostsWithPagination = {
   pagesCount: number;
   page: number;
