@@ -67,8 +67,28 @@ export class CommentsQueryRepository {
       return null;
     }
 
+    const countingCommentEngagementWithBannedUsers =
+      await this.commentsRepository.countingLikesDislikesOnCommentMinusBanned(
+        commentId,
+      );
+
     if (!userId) {
-      return foundCommentById;
+      return {
+        id: commentId,
+        content: foundCommentById.content,
+        commentatorInfo: {
+          userId: foundCommentById.commentatorInfo.userId,
+          userLogin: foundCommentById.commentatorInfo.userLogin,
+        },
+        createdAt: foundCommentById.createdAt,
+        likesInfo: {
+          likesCount:
+            countingCommentEngagementWithBannedUsers.likesCountWithBanned,
+          dislikesCount:
+            countingCommentEngagementWithBannedUsers.dislikesCountWithBanned,
+          myStatus: LikeStatusesEnum.None,
+        },
+      };
     }
 
     const checkUserStatus = await this.checkUserLike(commentId, userId);
@@ -76,11 +96,6 @@ export class CommentsQueryRepository {
     if (!checkUserStatus) {
       return null;
     }
-
-    const countingCommentEngagementWithBannedUsers =
-      await this.commentsRepository.countingLikesDislikesOnCommentMinusBanned(
-        commentId,
-      );
 
     return {
       id: commentId,
