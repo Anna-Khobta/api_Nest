@@ -5,10 +5,12 @@ import { CommentViewType, LikeStatusesEnum } from '../../types/types';
 import { getPagination } from '../../functions/pagination';
 import { QueryPaginationInputModel } from '../../blogs/blogs-input-models/query-pagination-input-model.dto';
 import { CommentsRepository } from './comments.repository';
+import { UsersRepository } from '../../users/users-repositories/users.repository';
 
 export class CommentsQueryRepository {
   constructor(
     protected commentsRepository: CommentsRepository,
+    private usersRepository: UsersRepository,
     @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
   ) {}
 
@@ -65,8 +67,28 @@ export class CommentsQueryRepository {
       return null;
     }
 
+    const countingCommentEngagementWithBannedUsers =
+      await this.commentsRepository.countingLikesDislikesOnCommentMinusBanned(
+        commentId,
+      );
+
     if (!userId) {
-      return foundCommentById;
+      return {
+        id: commentId,
+        content: foundCommentById.content,
+        commentatorInfo: {
+          userId: foundCommentById.commentatorInfo.userId,
+          userLogin: foundCommentById.commentatorInfo.userLogin,
+        },
+        createdAt: foundCommentById.createdAt,
+        likesInfo: {
+          likesCount:
+            countingCommentEngagementWithBannedUsers.likesCountWithBanned,
+          dislikesCount:
+            countingCommentEngagementWithBannedUsers.dislikesCountWithBanned,
+          myStatus: LikeStatusesEnum.None,
+        },
+      };
     }
 
     const checkUserStatus = await this.checkUserLike(commentId, userId);
@@ -74,11 +96,6 @@ export class CommentsQueryRepository {
     if (!checkUserStatus) {
       return null;
     }
-
-    const countingCommentEngagementWithBannedUsers =
-      await this.commentsRepository.countingLikesDislikesOnCommentMinusBanned(
-        commentId,
-      );
 
     return {
       id: commentId,
@@ -125,6 +142,38 @@ export class CommentsQueryRepository {
   }
 
   async checkUserLike(
+    commentId: string,
+    userId: string,
+  ): Promise<LikeStatusesEnum | null> {
+    try {
+      const checkIfBanned = await this.usersRepository.isCurrentUserBanned(
+        userId,
+      );
+
+      if (checkIfBanned) {
+        return LikeStatusesEnum.None;
+      }
+
+      const commentInstance = await this.commentModel.findById({
+        _id: commentId,
+      });
+
+      const userLikeInfo = commentInstance!.usersEngagement.find(
+        (user) => user.userId === userId,
+      );
+
+      if (!userLikeInfo) {
+        return LikeStatusesEnum.None;
+      } else {
+        return userLikeInfo.userStatus;
+      }
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+
+  async checkUserLikeEvenBanned(
     commentId: string,
     userId: string,
   ): Promise<LikeStatusesEnum | null> {

@@ -163,8 +163,6 @@ export class CommentsRepository {
   ): Promise<countBannedEngagement> {
     const bannedUserIds = await this.usersRepository.getAllBannedUsersIds();
 
-    console.log(bannedUserIds, ' bannedUserIds ');
-
     const comment = await this.commentModel.findById(
       { _id: commentId },
       { __v: 0 },
@@ -201,39 +199,38 @@ export class CommentsRepository {
         },
       ]);
 
-    /*(
-      {
-        _id: commentId,
-        $and: [
-          {
-            'usersEngagement.userId': { $in: bannedUserIds },
-          },
-          { 'usersEngagement.userStatus': LikeStatusesEnum.Like },
-        ],
-      },
-      { usersEngagement: 1 },
-    )*/
-
-    console.log(
-      commentEngagementUsersLikedAndBanned,
-      ' commentEngagementUsersLikedAndBanned ',
-    );
-
-    //console.log(commentEngagementUsersLikedAndBanned[0].userCount);
-
     const commentEngagementUsersDislikedAndBanned =
-      await this.commentModel.findOne(
+      await this.commentModel.aggregate([
         {
-          _id: commentId,
-          usersEngagement: {
-            $elemMatch: {
-              userId: { $in: bannedUserIds },
-              userStatus: LikeStatusesEnum.Dislike,
+          $match: {
+            usersEngagement: {
+              $elemMatch: {
+                userId: { $in: bannedUserIds },
+                userStatus: LikeStatusesEnum.Dislike,
+              },
             },
           },
         },
-        { usersEngagement: 1 },
-      );
+        {
+          $project: {
+            userCount: {
+              $size: {
+                $filter: {
+                  input: '$usersEngagement',
+                  cond: {
+                    $and: [
+                      { $in: ['$$this.userId', bannedUserIds] },
+                      {
+                        $eq: ['$$this.userStatus', LikeStatusesEnum.Dislike],
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          },
+        },
+      ]);
 
     let minusLikes;
     if (!commentEngagementUsersLikedAndBanned[0]) {
@@ -242,27 +239,15 @@ export class CommentsRepository {
       minusLikes = commentEngagementUsersLikedAndBanned[0].userCount;
     }
 
-    /*let minusLikes;
-    try {
-      minusLikes = commentEngagementUsersLikedAndBanned[0].userCount;
-    } catch (err) {
-      minusLikes = 0;
-    }*/
-
-    //commentEngagementUsersLikedAndBanned[0]?.usersEngagement.length;
-
-    console.log(minusLikes, ' minusLikes');
-
-    const minusDislikes =
-      commentEngagementUsersDislikedAndBanned?.usersEngagement.length;
-
-    //commentEngagementUsersLikedAndBanned?.usersEngagement.length;
-    // commentEngagementUsersLikedAndBanned[0]?.usersEngagement.length;
+    let minusDislikes;
+    if (!commentEngagementUsersDislikedAndBanned[0]) {
+      minusDislikes = 0;
+    } else {
+      minusDislikes = commentEngagementUsersDislikedAndBanned[0].userCount;
+    }
 
     const likesCountWithBanned = comment.likesCount - minusLikes;
     const dislikesCountWithBanned = comment.dislikesCount - minusDislikes;
-
-    console.log(likesCountWithBanned);
 
     return {
       likesCountWithBanned: likesCountWithBanned,
