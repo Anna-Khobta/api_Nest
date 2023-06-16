@@ -42,7 +42,7 @@ export class CreateBlogByBloggerUseCase
       blogIdIsCreated,
     );
   }
-  async bloggerCreateBlog(
+  private async bloggerCreateBlog(
     name: string,
     description: string,
     websiteUrl: string,

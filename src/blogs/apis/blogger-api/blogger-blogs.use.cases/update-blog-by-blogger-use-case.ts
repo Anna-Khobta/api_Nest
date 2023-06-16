@@ -1,6 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogsRepository } from '../../../repositories/blogs.repository';
-import { BlogsQueryRepository } from '../../../repositories/blogs.query.repository';
 import { BlogViewType } from '../../../../types/types';
 
 export class UpdateBlogByBloggerCommand {
@@ -17,15 +16,12 @@ export class UpdateBlogByBloggerCommand {
 export class UpdateBlogByBloggerUseCase
   implements ICommandHandler<UpdateBlogByBloggerCommand>
 {
-  constructor(
-    protected blogsRepository: BlogsRepository,
-    protected blogsQueryRepository: BlogsQueryRepository,
-  ) {}
+  constructor(protected blogsRepository: BlogsRepository) {}
 
   async execute(
     command: UpdateBlogByBloggerCommand,
   ): Promise<BlogViewType | string> {
-    const isBlogExist = await this.blogsQueryRepository.findBlogByIdViewModel(
+    const isBlogExist = await this.blogsRepository.checkIsBlogExist(
       command.blogId,
     );
 
@@ -55,7 +51,7 @@ export class UpdateBlogByBloggerUseCase
     return;
   }
 
-  async updateBlog(
+  private async updateBlog(
     id: string,
     name: string,
     description: string,

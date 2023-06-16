@@ -66,4 +66,37 @@ export class BlogsRepository {
       return false;
     }
   }
+  async checkIsBlogExist(blogId: string): Promise<boolean> {
+    try {
+      const blog = await this.blogModel.findById(blogId).lean();
+      if (blog) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (err) {
+      console.log(err);
+      return null;
+    }
+  }
+
+  async foundBlogName(blogId: string): Promise<string | null> {
+    try {
+      const blog = await this.blogModel.findById(blogId).lean();
+      if (blog) {
+        return blog.name;
+      } else {
+        return null;
+      }
+    } catch (err) {
+      console.log(err);
+      return null;
+    }
+  }
+  async findBlogOwnerUserByBlogId(blogId: string): Promise<string | null> {
+    const foundBlogName = await this.blogModel
+      .findOne({ _id: blogId }, { _id: 0 })
+      .lean();
+    return foundBlogName.blogOwnerInfo.userId || null;
+  }
 }

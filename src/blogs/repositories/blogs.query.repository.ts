@@ -165,11 +165,4 @@ export class BlogsQueryRepository {
       .lean();
     return foundBlogName || null;
   }
-
-  async findBlogOwnerUserByBlogId(blogId: string): Promise<string | null> {
-    const foundBlogName = await this.blogModel
-      .findOne({ _id: blogId }, { _id: 0 })
-      .lean();
-    return foundBlogName.blogOwnerInfo.userId || null;
-  }
 }

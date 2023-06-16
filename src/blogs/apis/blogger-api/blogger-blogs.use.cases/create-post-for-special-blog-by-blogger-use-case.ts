@@ -1,6 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogsRepository } from '../../../repositories/blogs.repository';
-import { BlogsQueryRepository } from '../../../repositories/blogs.query.repository';
 import { PostViewType } from '../../../../types/types';
 import { UsersRepository } from '../../../../users/users-repositories/users.repository';
 import { PostClassDbType } from '../../../../posts/posts-class';
@@ -23,7 +22,6 @@ export class CreatePostForSpecialBlogUseCase
 {
   constructor(
     protected blogsRepository: BlogsRepository,
-    protected blogsQueryRepository: BlogsQueryRepository,
     protected usersRepository: UsersRepository,
     protected postRepository: PostsRepository,
     protected postsQueryRepository: PostsQueryRepository,
@@ -32,33 +30,30 @@ export class CreatePostForSpecialBlogUseCase
   async execute(
     command: CreatePostForSpecialBlogCommand,
   ): Promise<PostViewType | string> {
-    const blogById = await this.blogsQueryRepository.findBlogByIdViewModel(
-      command.blogId,
-    );
+    const blogName = await this.blogsRepository.foundBlogName(command.blogId);
 
-    if (!blogById) {
+    if (!blogName) {
       return 'NotFound';
     }
 
-    const blogOwnerId =
-      await this.blogsQueryRepository.findBlogOwnerUserByBlogId(command.blogId);
+    const blogOwnerId = await this.blogsRepository.findBlogOwnerUserByBlogId(
+      command.blogId,
+    );
 
     if (!(blogOwnerId === command.userId)) {
       return 'NotOwner';
     }
 
-    const foundBlogName = blogById.name;
-
     return await this.bloggerCreatePost(
       command.title,
       command.shortDescription,
       command.content,
-      foundBlogName,
+      blogName,
       command.blogId,
       command.userId,
     );
   }
-  async bloggerCreatePost(
+  private async bloggerCreatePost(
     title: string,
     shortDescription: string,
     content: string,

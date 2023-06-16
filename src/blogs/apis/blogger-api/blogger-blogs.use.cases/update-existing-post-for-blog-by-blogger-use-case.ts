@@ -4,7 +4,6 @@ import { BlogsQueryRepository } from '../../../repositories/blogs.query.reposito
 import { PostViewType } from '../../../../types/types';
 import { UsersRepository } from '../../../../users/users-repositories/users.repository';
 import { PostsRepository } from '../../../../posts/repositories/posts.repository';
-import { PostsQueryRepository } from '../../../../posts/repositories/posts.query.repository';
 
 export class UpdateExistingPostForBlogCommand {
   constructor(
@@ -26,21 +25,21 @@ export class UpdateExistingPostForBlogUseCase
     protected blogsQueryRepository: BlogsQueryRepository,
     protected usersRepository: UsersRepository,
     protected postRepository: PostsRepository,
-    protected postsQueryRepository: PostsQueryRepository,
   ) {}
 
   async execute(
     command: UpdateExistingPostForBlogCommand,
   ): Promise<PostViewType | string> {
-    const blogById = await this.blogsQueryRepository.findBlogByIdViewModel(
+    const blogById = await this.blogsRepository.checkIsBlogExist(
       command.blogId,
     );
     if (!blogById) {
       return 'NotFound';
     }
 
-    const blogOwnerId =
-      await this.blogsQueryRepository.findBlogOwnerUserByBlogId(command.blogId);
+    const blogOwnerId = await this.blogsRepository.findBlogOwnerUserByBlogId(
+      command.blogId,
+    );
 
     if (!(blogOwnerId === command.userId)) {
       return 'NotOwner';

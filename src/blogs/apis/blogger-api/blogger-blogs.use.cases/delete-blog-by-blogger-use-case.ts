@@ -1,6 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogsRepository } from '../../../repositories/blogs.repository';
-import { BlogsQueryRepository } from '../../../repositories/blogs.query.repository';
 import { BlogViewType } from '../../../../types/types';
 
 export class DeleteBlogByBloggerCommand {
@@ -11,15 +10,12 @@ export class DeleteBlogByBloggerCommand {
 export class DeleteBlogByBloggerUseCase
   implements ICommandHandler<DeleteBlogByBloggerCommand>
 {
-  constructor(
-    protected blogsRepository: BlogsRepository,
-    protected blogsQueryRepository: BlogsQueryRepository,
-  ) {}
+  constructor(protected blogsRepository: BlogsRepository) {}
 
   async execute(
     command: DeleteBlogByBloggerCommand,
   ): Promise<BlogViewType | string> {
-    const isBlogExist = await this.blogsQueryRepository.findBlogByIdViewModel(
+    const isBlogExist = await this.blogsRepository.checkIsBlogExist(
       command.blogId,
     );
 
