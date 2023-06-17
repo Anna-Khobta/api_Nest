@@ -18,8 +18,6 @@ export class BanUserUseCase implements ICommandHandler<BanUserCommand> {
   ) {}
 
   async execute(command: BanUserCommand): Promise<boolean | string> {
-    // TODO надо ли тут ссылать на репозитории ИЛИ надо сюда перенести всю логику из них?
-
     const updateUserInfo = await this.usersRepository.updateBanInfo(
       command.userId,
       command.inputModel.isBanned,

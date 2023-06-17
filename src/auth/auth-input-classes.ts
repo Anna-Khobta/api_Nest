@@ -1,4 +1,5 @@
 import { IsEmail, IsString, Length } from 'class-validator';
+import { IsNotEmptyString } from '../decorators/IsNotEmptyString.validator';
 
 export class JwtPayloadClass {
   iat: number;
@@ -21,4 +22,14 @@ export class inputCodeType {
 export class inputModelEmail {
   @IsEmail()
   email: string;
+}
+
+export class LoginUserInputModelType {
+  @IsString()
+  @IsNotEmptyString()
+  @Length(3)
+  loginOrEmail: string;
+  @Length(6, 20)
+  @IsNotEmptyString()
+  password: string;
 }
