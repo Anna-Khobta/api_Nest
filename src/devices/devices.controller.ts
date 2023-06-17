@@ -61,9 +61,15 @@ export class DevicesController {
   @Delete('devices')
   @HttpCode(204)
   @UseGuards(JwtRefreshGuard)
-  async deleteAllDeviceSessions(@JwtPayload() jwtPayload: JwtPayloadClass) {
+  async deleteAllDeviceSessions(
+    @JwtPayload() jwtPayload: JwtPayloadClass,
+    @CurrentUserId() currentUserId: string,
+  ) {
     const isTerminateAllSessionsExcludeCurrent =
-      await this.deviceService.deleteAllExcludeOne(jwtPayload.deviceId);
+      await this.deviceService.deleteAllExcludeOne(
+        jwtPayload.deviceId,
+        currentUserId,
+      );
     if (!isTerminateAllSessionsExcludeCurrent) {
       throw new CustomException('Something wrong', HttpStatus.BAD_REQUEST);
     }
