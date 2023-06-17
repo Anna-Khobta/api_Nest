@@ -73,7 +73,7 @@ export class BloggerBlogsController {
     @Body() inputModel: CreateBlogInputModel,
     @CurrentUserId() currentUserId: string,
   ) {
-    //isValid(blogId);
+    isValid(blogId);
 
     console.log(1);
     const isUpdated = await this.commandBus.execute(
