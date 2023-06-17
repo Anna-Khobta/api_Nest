@@ -1,6 +1,7 @@
 import { Model } from 'mongoose';
 import { Blog, BlogDocument } from '../db/blogs-schema';
 import { InjectModel } from '@nestjs/mongoose';
+import { BlogClassDbType } from '../db/blogs-class';
 
 export class BlogsRepository {
   constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
@@ -11,6 +12,24 @@ export class BlogsRepository {
     } catch (error) {
       console.log(error);
       return false;
+    }
+  }
+
+  async saveAndCreate(
+    newBlog: BlogClassDbType,
+    userId: string,
+    userLogin: string,
+  ): Promise<string | null> {
+    try {
+      const blogInstance: BlogDocument = new this.blogModel(newBlog);
+      blogInstance.blogOwnerInfo.userId = userId;
+      blogInstance.blogOwnerInfo.userLogin = userLogin;
+
+      await blogInstance.save();
+      return blogInstance._id.toString();
+    } catch (error) {
+      console.log(error);
+      return null;
     }
   }
   async updateBlog(
