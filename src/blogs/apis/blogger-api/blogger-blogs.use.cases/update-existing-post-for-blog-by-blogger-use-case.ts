@@ -1,9 +1,12 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogsRepository } from '../../../repositories/blogs.repository';
 import { BlogsQueryRepository } from '../../../repositories/blogs.query.repository';
-import { PostViewType } from '../../../../types/types';
 import { UsersRepository } from '../../../../users/users-repositories/users.repository';
 import { PostsRepository } from '../../../../posts/repositories/posts.repository';
+import {
+  ExceptionCodesType,
+  ResultCode,
+} from '../../../../functions/exception-handler';
 
 export class UpdateExistingPostForBlogCommand {
   constructor(
@@ -29,12 +32,12 @@ export class UpdateExistingPostForBlogUseCase
 
   async execute(
     command: UpdateExistingPostForBlogCommand,
-  ): Promise<PostViewType | string> {
+  ): Promise<string | ExceptionCodesType> {
     const blogById = await this.blogsRepository.checkIsBlogExist(
       command.blogId,
     );
     if (!blogById) {
-      return 'NotFound';
+      return { code: ResultCode.NotFound };
     }
 
     const blogOwnerId = await this.blogsRepository.findBlogOwnerUserByBlogId(
@@ -42,7 +45,7 @@ export class UpdateExistingPostForBlogUseCase
     );
 
     if (!(blogOwnerId === command.userId)) {
-      return 'NotOwner';
+      return { code: ResultCode.Forbidden };
     }
 
     return await this.postRepository.updatePost(

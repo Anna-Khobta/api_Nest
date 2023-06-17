@@ -5,6 +5,10 @@ import { UsersRepository } from '../../../../users/users-repositories/users.repo
 import { PostClassDbType } from '../../../../posts/posts-class';
 import { PostsRepository } from '../../../../posts/repositories/posts.repository';
 import { PostsQueryRepository } from '../../../../posts/repositories/posts.query.repository';
+import {
+  ExceptionCodesType,
+  ResultCode,
+} from '../../../../functions/exception-handler';
 
 export class CreatePostForSpecialBlogCommand {
   constructor(
@@ -29,11 +33,11 @@ export class CreatePostForSpecialBlogUseCase
 
   async execute(
     command: CreatePostForSpecialBlogCommand,
-  ): Promise<PostViewType | string> {
+  ): Promise<PostViewType | ExceptionCodesType> {
     const blogName = await this.blogsRepository.foundBlogName(command.blogId);
 
     if (!blogName) {
-      return 'NotFound';
+      return { code: ResultCode.NotFound };
     }
 
     const blogOwnerId = await this.blogsRepository.findBlogOwnerUserByBlogId(
@@ -41,7 +45,7 @@ export class CreatePostForSpecialBlogUseCase
     );
 
     if (!(blogOwnerId === command.userId)) {
-      return 'NotOwner';
+      return { code: ResultCode.Forbidden };
     }
 
     return await this.bloggerCreatePost(
@@ -60,7 +64,7 @@ export class CreatePostForSpecialBlogUseCase
     foundBlogName: string,
     blogId: string,
     userId: string,
-  ): Promise<string | PostViewType> {
+  ): Promise<PostViewType> {
     const userLogin = await this.usersRepository.findUserLogin(userId);
 
     const newPost = new PostClassDbType(

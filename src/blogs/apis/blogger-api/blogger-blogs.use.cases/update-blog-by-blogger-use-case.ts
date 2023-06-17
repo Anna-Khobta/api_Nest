@@ -1,6 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogsRepository } from '../../../repositories/blogs.repository';
-import { BlogViewType } from '../../../../types/types';
+import {
+  ExceptionCodesType,
+  ResultCode,
+} from '../../../../functions/exception-handler';
 
 export class UpdateBlogByBloggerCommand {
   constructor(
@@ -20,13 +23,13 @@ export class UpdateBlogByBloggerUseCase
 
   async execute(
     command: UpdateBlogByBloggerCommand,
-  ): Promise<BlogViewType | string> {
+  ): Promise<ExceptionCodesType | string> {
     const isBlogExist = await this.blogsRepository.checkIsBlogExist(
       command.blogId,
     );
 
     if (!isBlogExist) {
-      return 'NotFound';
+      return { code: ResultCode.NotFound };
     }
 
     const isBloggerOwner = await this.blogsRepository.checkIsUserOwnBlog(
@@ -35,7 +38,7 @@ export class UpdateBlogByBloggerUseCase
     );
 
     if (!isBloggerOwner) {
-      return 'NotOwner';
+      return { code: ResultCode.Forbidden };
     }
 
     const isUpdated = await this.updateBlog(
@@ -46,7 +49,7 @@ export class UpdateBlogByBloggerUseCase
     );
 
     if (!isUpdated) {
-      return 'NotFound';
+      return { code: ResultCode.NotFound };
     }
     return;
   }
