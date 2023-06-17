@@ -40,6 +40,6 @@ export class DeleteBlogByBloggerUseCase
     if (!isDeleted) {
       return { code: ResultCode.NotFound };
     }
-    return;
+    return { code: ResultCode.Success };
   }
 }

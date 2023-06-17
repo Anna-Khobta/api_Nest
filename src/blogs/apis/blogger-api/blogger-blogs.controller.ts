@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -11,6 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { BlogsQueryRepository } from '../../repositories/blogs.query.repository';
+import { CustomException } from '../../../functions/custom-exception';
 import { isValid } from '../../../functions/isValid-Id';
 import { CreateBlogInputModel } from '../../blogs-input-models/create-blog-input-model.dto';
 import { CurrentUserId } from '../../../decorators/current-user-id.param.decorator';
@@ -24,7 +26,11 @@ import { DeleteBlogByBloggerCommand } from './blogger-blogs.use.cases/delete-blo
 import { CreatePostForSpecialBlogCommand } from './blogger-blogs.use.cases/create-post-for-special-blog-by-blogger-use-case';
 import { UpdateExistingPostForBlogCommand } from './blogger-blogs.use.cases/update-existing-post-for-blog-by-blogger-use-case';
 import { DeletePostByBloggerCommand } from './blogger-blogs.use.cases/delete-post-by-blogger-use-case';
-import { exceptionHandler } from '../../../functions/exception-handler';
+import {
+  ExceptionCodesType,
+  exceptionHandler,
+  ResultCode,
+} from '../../../functions/exception-handler';
 
 @Controller('blogger/blogs')
 export class BloggerBlogsController {
@@ -81,9 +87,12 @@ export class BloggerBlogsController {
       ),
     );
 
-    if (isUpdated.code) {
+    if (isUpdated.code !== isUpdated.Succes) {
       return exceptionHandler(isUpdated.code);
     }
+    /*if (isUpdated === 'NotOwner') {
+      throw new CustomException(null, HttpStatus.FORBIDDEN);
+    }*/
 
     return;
   }
@@ -100,7 +109,8 @@ export class BloggerBlogsController {
     const isDeleted = await this.commandBus.execute(
       new DeleteBlogByBloggerCommand(blogId, currentUserId),
     );
-    if (isDeleted.code) {
+
+    if (isDeleted.code !== isDeleted.Succes) {
       return exceptionHandler(isDeleted.code);
     }
 
@@ -127,11 +137,15 @@ export class BloggerBlogsController {
       ),
     );
 
-    if (postCreated.code) {
+    if (postCreated.code !== postCreated.Succes) {
       return exceptionHandler(postCreated.code);
     }
 
-    return postCreated;
+    /* if (postCreated.code) {
+      return exceptionHandler(postCreated.code);
+    }*/
+
+    return postCreated.data;
   }
 
   @Put(':blogId/posts/:postId')
@@ -157,11 +171,11 @@ export class BloggerBlogsController {
       ),
     );
 
-    if (postUpdated.code) {
+    if (postUpdated.code !== postUpdated.Succes) {
       return exceptionHandler(postUpdated.code);
     }
 
-    return postUpdated;
+    return;
   }
   @Delete(':blogId/posts/:postId')
   @UseGuards(JwtAccessGuard)
@@ -175,10 +189,10 @@ export class BloggerBlogsController {
       new DeletePostByBloggerCommand(blogId, postId, currentUserId),
     );
 
-    if (isDeleted.code) {
+    if (isDeleted.code !== isDeleted.Succes) {
       return exceptionHandler(isDeleted.code);
     }
 
-    return isDeleted;
+    return;
   }
 }

@@ -51,7 +51,7 @@ export class UpdateBlogByBloggerUseCase
     if (!isUpdated) {
       return { code: ResultCode.NotFound };
     }
-    return;
+    return { code: ResultCode.Success };
   }
 
   private async updateBlog(

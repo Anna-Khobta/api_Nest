@@ -12,6 +12,11 @@ export type ExceptionCodesType = {
   code: ResultCode;
 };
 
+export type SuccesCodeType = {
+  data: any;
+  code: ResultCode;
+};
+
 export const exceptionHandler = (code: ResultCode, data?: any) => {
   switch (code) {
     case ResultCode.Unauthorized:

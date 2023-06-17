@@ -8,6 +8,7 @@ import { PostsQueryRepository } from '../../../../posts/repositories/posts.query
 import {
   ExceptionCodesType,
   ResultCode,
+  SuccesCodeType,
 } from '../../../../functions/exception-handler';
 
 export class CreatePostForSpecialBlogCommand {
@@ -33,7 +34,7 @@ export class CreatePostForSpecialBlogUseCase
 
   async execute(
     command: CreatePostForSpecialBlogCommand,
-  ): Promise<PostViewType | ExceptionCodesType> {
+  ): Promise<PostViewType | ExceptionCodesType | SuccesCodeType> {
     const blogName = await this.blogsRepository.foundBlogName(command.blogId);
 
     if (!blogName) {
@@ -48,7 +49,7 @@ export class CreatePostForSpecialBlogUseCase
       return { code: ResultCode.Forbidden };
     }
 
-    return await this.bloggerCreatePost(
+    const newPost = await this.bloggerCreatePost(
       command.title,
       command.shortDescription,
       command.content,
@@ -56,6 +57,8 @@ export class CreatePostForSpecialBlogUseCase
       command.blogId,
       command.userId,
     );
+
+    return { data: newPost, code: ResultCode.Success };
   }
   private async bloggerCreatePost(
     title: string,
