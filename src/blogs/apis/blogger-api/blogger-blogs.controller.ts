@@ -25,7 +25,6 @@ import { CreatePostForSpecialBlogCommand } from './blogger-blogs.use.cases/creat
 import { UpdateExistingPostForBlogCommand } from './blogger-blogs.use.cases/update-existing-post-for-blog-by-blogger-use-case';
 import { DeletePostByBloggerCommand } from './blogger-blogs.use.cases/delete-post-by-blogger-use-case';
 import {
-  ExceptionCodesType,
   exceptionHandler,
   ResultCode,
 } from '../../../functions/exception-handler';
