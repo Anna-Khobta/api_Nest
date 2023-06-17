@@ -75,7 +75,6 @@ export class BloggerBlogsController {
   ) {
     isValid(blogId);
 
-    console.log(1);
     const isUpdated = await this.commandBus.execute(
       new UpdateBlogByBloggerCommand(
         blogId,
@@ -89,9 +88,6 @@ export class BloggerBlogsController {
     if (isUpdated.code !== ResultCode.Success) {
       return exceptionHandler(isUpdated.code);
     }
-    /*if (isUpdated === 'NotOwner') {
-      throw new CustomException(null, HttpStatus.FORBIDDEN);
-    }*/
 
     return isUpdated;
   }

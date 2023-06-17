@@ -48,13 +48,16 @@ export class UpdateExistingPostForBlogUseCase
       return { code: ResultCode.Forbidden };
     }
 
-    await this.postRepository.updatePost(
+    const isUpdated = await this.postRepository.updatePost(
       command.postId,
       command.title,
       command.shortDescription,
       command.content,
     );
 
+    if (!isUpdated) {
+      return { code: ResultCode.NotFound };
+    }
     return { code: ResultCode.Success };
   }
 }
