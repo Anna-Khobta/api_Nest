@@ -24,7 +24,7 @@ export const exceptionHandler = (code: ResultCode, data?: any) => {
     case ResultCode.NotFound:
       throw new HttpException('Not Found', 404);
     case ResultCode.Forbidden:
-      throw new HttpException('Forbidden', 404);
+      throw new HttpException('Forbidden', 403);
     case ResultCode.BadRequest:
       throw new HttpException(data, 400);
 

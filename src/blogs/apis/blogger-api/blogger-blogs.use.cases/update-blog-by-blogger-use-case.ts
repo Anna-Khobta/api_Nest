@@ -49,7 +49,7 @@ export class UpdateBlogByBloggerUseCase
     );
 
     if (!isUpdated) {
-      return { code: ResultCode.NotFound };
+      return { code: ResultCode.Forbidden };
     }
     return { code: ResultCode.Success };
   }

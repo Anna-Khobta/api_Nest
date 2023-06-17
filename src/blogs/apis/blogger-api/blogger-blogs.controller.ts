@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   HttpCode,
-  HttpStatus,
   Param,
   Post,
   Put,
@@ -12,7 +11,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { BlogsQueryRepository } from '../../repositories/blogs.query.repository';
-import { CustomException } from '../../../functions/custom-exception';
 import { isValid } from '../../../functions/isValid-Id';
 import { CreateBlogInputModel } from '../../blogs-input-models/create-blog-input-model.dto';
 import { CurrentUserId } from '../../../decorators/current-user-id.param.decorator';
@@ -75,8 +73,9 @@ export class BloggerBlogsController {
     @Body() inputModel: CreateBlogInputModel,
     @CurrentUserId() currentUserId: string,
   ) {
-    isValid(blogId);
+    //isValid(blogId);
 
+    console.log(1);
     const isUpdated = await this.commandBus.execute(
       new UpdateBlogByBloggerCommand(
         blogId,
@@ -87,14 +86,14 @@ export class BloggerBlogsController {
       ),
     );
 
-    if (isUpdated.code !== isUpdated.Succes) {
+    if (isUpdated.code !== ResultCode.Success) {
       return exceptionHandler(isUpdated.code);
     }
     /*if (isUpdated === 'NotOwner') {
       throw new CustomException(null, HttpStatus.FORBIDDEN);
     }*/
 
-    return;
+    return isUpdated;
   }
 
   @Delete(':id')
@@ -110,11 +109,11 @@ export class BloggerBlogsController {
       new DeleteBlogByBloggerCommand(blogId, currentUserId),
     );
 
-    if (isDeleted.code !== isDeleted.Succes) {
+    if (isDeleted.code !== ResultCode.Success) {
       return exceptionHandler(isDeleted.code);
     }
 
-    return;
+    return isDeleted;
   }
 
   @Post(':blogId/posts')
@@ -137,13 +136,9 @@ export class BloggerBlogsController {
       ),
     );
 
-    if (postCreated.code !== postCreated.Succes) {
+    if (postCreated.code !== ResultCode.Success) {
       return exceptionHandler(postCreated.code);
     }
-
-    /* if (postCreated.code) {
-      return exceptionHandler(postCreated.code);
-    }*/
 
     return postCreated.data;
   }
@@ -171,7 +166,7 @@ export class BloggerBlogsController {
       ),
     );
 
-    if (postUpdated.code !== postUpdated.Succes) {
+    if (postUpdated.code !== ResultCode.Success) {
       return exceptionHandler(postUpdated.code);
     }
 
@@ -189,7 +184,7 @@ export class BloggerBlogsController {
       new DeletePostByBloggerCommand(blogId, postId, currentUserId),
     );
 
-    if (isDeleted.code !== isDeleted.Succes) {
+    if (isDeleted.code !== ResultCode.Success) {
       return exceptionHandler(isDeleted.code);
     }
 
