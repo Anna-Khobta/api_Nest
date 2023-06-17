@@ -66,39 +66,6 @@ describe('Comments (e2e)', () => {
     await mms.stop();
     await app.close();
   });
-  /*let app: INestApplication;
-  let mongod: MongoMemoryServer;
-  let mongoConnection: Connection;
-
-  beforeAll(async () => {
-    mongod = await MongoMemoryServer.create();
-    const uri = mongod.getUri();
-    mongoConnection = (await connect(uri)).connection;
-
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    await app.init();
-  });
-
-  afterAll(async () => {
-    await mongoConnection.dropDatabase();
-    await mongoConnection.close();
-    await mongod.stop();
-    await app.close();
-  });*/
-  /*it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World! Anna');
-  });
-
-  /!*it('/sa/users (get)', () => {
-    return request(app.getHttpServer()).get('/sa/users').expect(401);
-  });*!/*/
 
   it('post users', async () => {
     const deleteAll = await request(app.getHttpServer())
