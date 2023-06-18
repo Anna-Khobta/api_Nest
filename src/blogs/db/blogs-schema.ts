@@ -18,6 +18,16 @@ export class BlogOwnerInfo {
 }
 
 @Schema()
+export class BlogBanInfoClass {
+  @Prop({
+    required: true,
+  })
+  isBanned: boolean;
+  @Prop({ type: SchemaTypes.Mixed })
+  banDate: Date | null;
+}
+
+@Schema()
 export class Blog {
   @Prop({
     required: true,
@@ -48,6 +58,10 @@ export class Blog {
     required: true,
   })
   blogOwnerInfo: BlogOwnerInfo;
+  @Prop({
+    required: true,
+  })
+  banInfo: BlogBanInfoClass;
 
   setName(newName1: string) {
     this.name = newName1;

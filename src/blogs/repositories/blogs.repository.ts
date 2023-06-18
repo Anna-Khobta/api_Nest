@@ -118,4 +118,30 @@ export class BlogsRepository {
       .lean();
     return foundBlogName.blogOwnerInfo.userId || null;
   }
+
+  async updateBanInfo(blogId: string, isBanned: boolean): Promise<boolean> {
+    try {
+      const blog = await this.blogModel.findOne({ _id: blogId });
+      if (!blogId) {
+        return false;
+      }
+
+      if (blog.banInfo.isBanned === isBanned) {
+        return true;
+      }
+      if (isBanned === false) {
+        blog.banInfo.isBanned = isBanned;
+        blog.banInfo.banDate = null;
+      } else {
+        blog.banInfo.isBanned = isBanned;
+        blog.banInfo.banDate = new Date();
+      }
+
+      await blog.save();
+      return true;
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
+  }
 }

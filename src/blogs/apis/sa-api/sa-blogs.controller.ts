@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   HttpStatus,
@@ -15,6 +16,12 @@ import { QueryPaginationInputModel } from '../../blogs-input-models/query-pagina
 import { BindBlogWithUserCommand } from './sa-blogs.use.cases/bind-blog-with-user-use-case';
 import { CommandBus } from '@nestjs/cqrs';
 import { CustomException } from '../../../functions/custom-exception';
+import { BanBlogInputModel } from '../../blogs-input-models/ban-blog-unput-model.dto';
+import { BanBlogBySaCommand } from './sa-blogs.use.cases/ban-blog-by-sa-use-case';
+import {
+  exceptionHandler,
+  ResultCode,
+} from '../../../functions/exception-handler';
 
 @Controller('sa/blogs')
 export class SaBlogsController {
@@ -46,9 +53,23 @@ export class SaBlogsController {
 
   @Get()
   async getAllBlogs(@Query() queryPagination: QueryPaginationInputModel) {
-    const foundBlogs = await this.blogsQueryRepository.findBlogsForSa(
-      queryPagination,
+    return await this.blogsQueryRepository.findBlogsForSa(queryPagination);
+  }
+
+  @Put(':id/ban')
+  @UseGuards(BasicAuthGuard)
+  async banUnbanBlog(
+    @Param('id') blogId: string,
+    @Body() inputModel: BanBlogInputModel,
+  ) {
+    const updateBanBlog = await this.commandBus.execute(
+      new BanBlogBySaCommand(blogId, inputModel.isBanned),
     );
-    return foundBlogs;
+
+    if (updateBanBlog.code !== ResultCode.Success) {
+      return exceptionHandler(updateBanBlog.code);
+    }
+
+    return;
   }
 }

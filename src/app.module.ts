@@ -61,6 +61,7 @@ import { UpdateExistingPostForBlogUseCase } from './blogs/apis/blogger-api/blogg
 import { DeletePostByBloggerUseCase } from './blogs/apis/blogger-api/blogger-blogs.use.cases/delete-post-by-blogger-use-case';
 import { UpdateBlogByBloggerUseCase } from './blogs/apis/blogger-api/blogger-blogs.use.cases/update-blog-by-blogger-use-case';
 import { DeleteBlogByBloggerUseCase } from './blogs/apis/blogger-api/blogger-blogs.use.cases/delete-blog-by-blogger-use-case';
+import { BanBlogBySaUseCase } from './blogs/apis/sa-api/sa-blogs.use.cases/ban-blog-by-sa-use-case';
 export const configModule = ConfigModule.forRoot({
   isGlobal: true,
   envFilePath: '.env',
@@ -78,6 +79,7 @@ const useCases = [
   DeletePostByBloggerUseCase,
   UpdateBlogByBloggerUseCase,
   DeleteBlogByBloggerUseCase,
+  BanBlogBySaUseCase,
 ];
 
 @Module({
