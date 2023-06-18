@@ -13,11 +13,29 @@ export class BlogsQueryRepository {
     const myPagination = getPagination(queryPagination);
 
     let filter: any = {};
+
     if (myPagination.searchNameTerm) {
+      filter = {
+        $and: [
+          {
+            'banInfo.isBanned': false,
+          },
+          {
+            name: { $regex: myPagination.searchNameTerm, $options: 'i' },
+          },
+        ],
+      };
+    } else {
+      filter = {
+        'banInfo.isBanned': false,
+      };
+    }
+
+    /*if (myPagination.searchNameTerm) {
       filter = {
         name: { $regex: myPagination.searchNameTerm, $options: 'i' },
       };
-    }
+    }*/
 
     const findBlogs = await this.blogModel
       .find(filter, { __v: 0 })
