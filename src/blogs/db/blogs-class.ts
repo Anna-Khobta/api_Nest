@@ -5,12 +5,18 @@ export class BlogClassDbType {
     userId: null | string;
     userLogin: null | string;
   };
+  banInfo: {
+    isBanned: boolean;
+    banDate: Date | null;
+  };
   constructor(
     public name: string,
     public description: string,
     public websiteUrl: string,
     public userId = null,
     public userLogin = null,
+    public isBanned = false,
+    public banDate = null,
   ) {
     this.name = name;
     this.description = description;
@@ -20,6 +26,10 @@ export class BlogClassDbType {
     this.blogOwnerInfo = {
       userId,
       userLogin,
+    };
+    this.banInfo = {
+      isBanned,
+      banDate,
     };
   }
 }
