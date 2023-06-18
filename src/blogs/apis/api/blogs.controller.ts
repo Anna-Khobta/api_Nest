@@ -15,7 +15,6 @@ import { BlogsService } from '../../blogs.service';
 import { BlogsQueryRepository } from '../../repositories/blogs.query.repository';
 import { CustomException } from '../../../functions/custom-exception';
 import { isValid } from '../../../functions/isValid-Id';
-import { PostsService } from '../../../posts/posts.service';
 import { PostsQueryRepository } from '../../../posts/repositories/posts.query.repository';
 import { CreateBlogInputModel } from '../../blogs-input-models/create-blog-input-model.dto';
 import { BasicAuthGuard } from '../../../auth-guards/basic-auth.guard';
@@ -28,7 +27,6 @@ export class BlogsController {
   constructor(
     protected blogsService: BlogsService,
     protected blogsQueryRepository: BlogsQueryRepository,
-    protected postsService: PostsService,
     protected postsQueryRepository: PostsQueryRepository,
   ) {}
 
@@ -41,18 +39,14 @@ export class BlogsController {
       inputModel.websiteUrl,
     );
 
-    const blogById = await this.blogsQueryRepository.findBlogByIdViewModel(
+    return await this.blogsQueryRepository.findBlogByIdViewModel(
       blogIdIsCreated,
     );
-    return blogById;
   }
 
   @Get()
   async getAllBlogs(@Query() queryPagination: QueryPaginationInputModel) {
-    const foundBlogs = await this.blogsQueryRepository.findBlogs(
-      queryPagination,
-    );
-    return foundBlogs;
+    return await this.blogsQueryRepository.findBlogs(queryPagination);
   }
 
   @Get(':id')
@@ -123,11 +117,10 @@ export class BlogsController {
     }
 
     //currentUserId
-    const foundPosts = await this.postsQueryRepository.findPosts(
+    return await this.postsQueryRepository.findPosts(
       blogId,
       queryPagination,
       currentUserId,
     );
-    return foundPosts;
   }
 }

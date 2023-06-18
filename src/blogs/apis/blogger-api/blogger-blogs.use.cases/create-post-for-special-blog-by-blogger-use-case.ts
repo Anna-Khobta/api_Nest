@@ -1,11 +1,15 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogsRepository } from '../../../repositories/blogs.repository';
-import { BlogsQueryRepository } from '../../../repositories/blogs.query.repository';
 import { PostViewType } from '../../../../types/types';
 import { UsersRepository } from '../../../../users/users-repositories/users.repository';
 import { PostClassDbType } from '../../../../posts/posts-class';
 import { PostsRepository } from '../../../../posts/repositories/posts.repository';
 import { PostsQueryRepository } from '../../../../posts/repositories/posts.query.repository';
+import {
+  ExceptionCodesType,
+  ResultCode,
+  SuccesCodeType,
+} from '../../../../functions/exception-handler';
 
 export class CreatePostForSpecialBlogCommand {
   constructor(
@@ -23,7 +27,6 @@ export class CreatePostForSpecialBlogUseCase
 {
   constructor(
     protected blogsRepository: BlogsRepository,
-    protected blogsQueryRepository: BlogsQueryRepository,
     protected usersRepository: UsersRepository,
     protected postRepository: PostsRepository,
     protected postsQueryRepository: PostsQueryRepository,
@@ -31,41 +34,40 @@ export class CreatePostForSpecialBlogUseCase
 
   async execute(
     command: CreatePostForSpecialBlogCommand,
-  ): Promise<PostViewType | string> {
-    const blogById = await this.blogsQueryRepository.findBlogByIdViewModel(
+  ): Promise<PostViewType | ExceptionCodesType | SuccesCodeType> {
+    const blogName = await this.blogsRepository.foundBlogName(command.blogId);
+
+    if (!blogName) {
+      return { code: ResultCode.NotFound };
+    }
+
+    const blogOwnerId = await this.blogsRepository.findBlogOwnerUserByBlogId(
       command.blogId,
     );
 
-    if (!blogById) {
-      return 'NotFound';
-    }
-
-    const blogOwnerId =
-      await this.blogsQueryRepository.findBlogOwnerUserByBlogId(command.blogId);
-
     if (!(blogOwnerId === command.userId)) {
-      return 'NotOwner';
+      return { code: ResultCode.Forbidden };
     }
 
-    const foundBlogName = blogById.name;
-
-    return await this.bloggerCreatePost(
+    const newPost = await this.bloggerCreatePost(
       command.title,
       command.shortDescription,
       command.content,
-      foundBlogName,
+      blogName,
       command.blogId,
       command.userId,
     );
+
+    return { data: newPost, code: ResultCode.Success };
   }
-  async bloggerCreatePost(
+  private async bloggerCreatePost(
     title: string,
     shortDescription: string,
     content: string,
     foundBlogName: string,
     blogId: string,
     userId: string,
-  ): Promise<string | PostViewType> {
+  ): Promise<PostViewType> {
     const userLogin = await this.usersRepository.findUserLogin(userId);
 
     const newPost = new PostClassDbType(

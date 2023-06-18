@@ -27,6 +27,7 @@ import {
   inputCodeType,
   inputModelEmail,
   JwtPayloadClass,
+  LoginUserInputModelType,
 } from './auth-input-classes';
 import { CreateUserInputModel } from '../users/input-models/create-user-input-model.dto';
 import { JwtPayload } from '../decorators/JwtPayload.param.decorator';
@@ -36,11 +37,6 @@ import { LoginPasswordGuard } from '../auth-guards/login-password.guard';
 const httpOnlyTrue = {
   httpOnly: true,
   secure: true,
-};
-
-export type LoginUserInputModelType = {
-  loginOrEmail: string;
-  password: string;
 };
 
 @Controller('auth')
@@ -65,13 +61,12 @@ export class AuthController {
     @CurrentUserId() currentUserId: string,
   ) {
     const loginUser = await this.authService.getTokens(currentUserId);
-    // TODO вынести в сервис
+
     await this.deviceService.createDeviceInfoInDB(
       loginUser.decodedRefreshToken,
       ip,
       deviceTitle,
     );
-    // TODO вынести в сервис
 
     response.cookie('refreshToken', loginUser.refreshToken, httpOnlyTrue);
     return { accessToken: loginUser.accessToken };

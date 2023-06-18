@@ -13,11 +13,29 @@ export class BlogsQueryRepository {
     const myPagination = getPagination(queryPagination);
 
     let filter: any = {};
+
     if (myPagination.searchNameTerm) {
+      filter = {
+        $and: [
+          {
+            'banInfo.isBanned': false,
+          },
+          {
+            name: { $regex: myPagination.searchNameTerm, $options: 'i' },
+          },
+        ],
+      };
+    } else {
+      filter = {
+        'banInfo.isBanned': false,
+      };
+    }
+
+    /*if (myPagination.searchNameTerm) {
       filter = {
         name: { $regex: myPagination.searchNameTerm, $options: 'i' },
       };
-    }
+    }*/
 
     const findBlogs = await this.blogModel
       .find(filter, { __v: 0 })
@@ -164,12 +182,5 @@ export class BlogsQueryRepository {
       .findOne({ _id: blogId }, { _id: 0 })
       .lean();
     return foundBlogName || null;
-  }
-
-  async findBlogOwnerUserByBlogId(blogId: string): Promise<string | null> {
-    const foundBlogName = await this.blogModel
-      .findOne({ _id: blogId }, { _id: 0 })
-      .lean();
-    return foundBlogName.blogOwnerInfo.userId || null;
   }
 }

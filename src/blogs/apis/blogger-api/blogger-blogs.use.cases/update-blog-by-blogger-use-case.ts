@@ -1,7 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogsRepository } from '../../../repositories/blogs.repository';
-import { BlogsQueryRepository } from '../../../repositories/blogs.query.repository';
-import { BlogViewType } from '../../../../types/types';
+import {
+  ExceptionCodesType,
+  ResultCode,
+} from '../../../../functions/exception-handler';
 
 export class UpdateBlogByBloggerCommand {
   constructor(
@@ -17,20 +19,17 @@ export class UpdateBlogByBloggerCommand {
 export class UpdateBlogByBloggerUseCase
   implements ICommandHandler<UpdateBlogByBloggerCommand>
 {
-  constructor(
-    protected blogsRepository: BlogsRepository,
-    protected blogsQueryRepository: BlogsQueryRepository,
-  ) {}
+  constructor(protected blogsRepository: BlogsRepository) {}
 
   async execute(
     command: UpdateBlogByBloggerCommand,
-  ): Promise<BlogViewType | string> {
-    const isBlogExist = await this.blogsQueryRepository.findBlogByIdViewModel(
+  ): Promise<ExceptionCodesType | string> {
+    const isBlogExist = await this.blogsRepository.checkIsBlogExist(
       command.blogId,
     );
 
     if (!isBlogExist) {
-      return 'NotFound';
+      return { code: ResultCode.NotFound };
     }
 
     const isBloggerOwner = await this.blogsRepository.checkIsUserOwnBlog(
@@ -39,7 +38,7 @@ export class UpdateBlogByBloggerUseCase
     );
 
     if (!isBloggerOwner) {
-      return 'NotOwner';
+      return { code: ResultCode.Forbidden };
     }
 
     const isUpdated = await this.updateBlog(
@@ -50,12 +49,12 @@ export class UpdateBlogByBloggerUseCase
     );
 
     if (!isUpdated) {
-      return 'NotFound';
+      return { code: ResultCode.Forbidden };
     }
-    return;
+    return { code: ResultCode.Success };
   }
 
-  async updateBlog(
+  private async updateBlog(
     id: string,
     name: string,
     description: string,

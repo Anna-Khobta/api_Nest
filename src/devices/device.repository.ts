@@ -149,9 +149,12 @@ export class DeviceRepository {
     return result.deletedCount === 1;
   }
 
-  async deleteAllExcludeOne(deviceId: string): Promise<boolean> {
+  async deleteAllExcludeOne(
+    deviceId: string,
+    userId: string,
+  ): Promise<boolean> {
     const result = await this.deviceModel.deleteMany({
-      deviceId: { $ne: deviceId },
+      $and: [{ userId: userId }, { deviceId: { $ne: deviceId } }],
     });
     return result.acknowledged;
   }

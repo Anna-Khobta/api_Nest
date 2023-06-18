@@ -11,7 +11,7 @@ import { PostsService } from './posts/posts.service';
 import { PostsQueryRepository } from './posts/repositories/posts.query.repository';
 import { PostsRepository } from './posts/repositories/posts.repository';
 import { User, UserSchema } from './users/users-schema';
-import { OldUsersController } from './users/api/old.users.controller';
+import { OldUsersController } from './users/apis/api/old.users.controller';
 import { UsersService } from './users/users.service';
 import { UsersQueryRepository } from './users/users-repositories/users.query.repository';
 import { AppController } from './app.controller';
@@ -45,10 +45,10 @@ import { IpLimitRepository } from './auth-guards/ip.limit/ip.limit.repository';
 import { CommentSchema, Comment } from './comments/comments-schema';
 import { IpDb, IpDbSchema } from './auth-guards/ip.limit/ip-limit-schema';
 import { BlogsRepository } from './blogs/repositories/blogs.repository';
-import { SaUsersController } from './users/sa-api/sa.users.controller';
-import { CreateUserUseCase } from './users/sa-api/use-cases/create-user-use-case';
+import { SaUsersController } from './users/apis/sa-api/sa.users.controller';
+import { CreateUserUseCase } from './users/apis/sa-api/use-cases/create-user-use-case';
 import { CqrsModule } from '@nestjs/cqrs';
-import { BanUserUseCase } from './users/sa-api/use-cases/ban-user-use-case';
+import { BanUserUseCase } from './users/apis/sa-api/use-cases/ban-user-use-case';
 import { BindBlogWithUserUseCase } from './blogs/apis/sa-api/sa-blogs.use.cases/bind-blog-with-user-use-case';
 import { UsersRepository } from './users/users-repositories/users.repository';
 import { SaBlogsController } from './blogs/apis/sa-api/sa-blogs.controller';
@@ -61,6 +61,8 @@ import { UpdateExistingPostForBlogUseCase } from './blogs/apis/blogger-api/blogg
 import { DeletePostByBloggerUseCase } from './blogs/apis/blogger-api/blogger-blogs.use.cases/delete-post-by-blogger-use-case';
 import { UpdateBlogByBloggerUseCase } from './blogs/apis/blogger-api/blogger-blogs.use.cases/update-blog-by-blogger-use-case';
 import { DeleteBlogByBloggerUseCase } from './blogs/apis/blogger-api/blogger-blogs.use.cases/delete-blog-by-blogger-use-case';
+import { BanBlogBySaUseCase } from './blogs/apis/sa-api/sa-blogs.use.cases/ban-blog-by-sa-use-case';
+import { BanUserByBloggerUseCase } from './users/apis/blogger-api/blogger-user.use.cases/ban-user-by-blogger-use-case';
 export const configModule = ConfigModule.forRoot({
   isGlobal: true,
   envFilePath: '.env',
@@ -78,6 +80,8 @@ const useCases = [
   DeletePostByBloggerUseCase,
   UpdateBlogByBloggerUseCase,
   DeleteBlogByBloggerUseCase,
+  BanBlogBySaUseCase,
+  BanUserByBloggerUseCase,
 ];
 
 @Module({

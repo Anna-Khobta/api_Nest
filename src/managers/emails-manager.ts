@@ -1,4 +1,3 @@
-//import * as process from 'process';
 import nodemailer from 'nodemailer';
 import { v4 as uuidv4 } from 'uuid';
 import { UserWithMongoId } from '../types/types';
@@ -6,20 +5,6 @@ import add from 'date-fns/add';
 import { Injectable } from '@nestjs/common';
 import { UsersRepository } from '../users/users-repositories/users.repository';
 import { ConfigService } from '@nestjs/config';
-
-//TODO переменная окружения &&&
-
-//const myPass = email;
-//export const myPass = process.env.EMAIL;
-
-// create reusable transporter object using the default SMTP transport
-/*const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'menthol.vegan@gmail.com', // generated ethereal user
-    pass: myPass, // generated ethereal password
-  },
-});*/
 
 @Injectable()
 export class EmailsManager {

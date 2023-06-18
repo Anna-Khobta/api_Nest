@@ -42,7 +42,7 @@ export class CreateBlogByBloggerUseCase
       blogIdIsCreated,
     );
   }
-  async bloggerCreateBlog(
+  private async bloggerCreateBlog(
     name: string,
     description: string,
     websiteUrl: string,
@@ -52,13 +52,6 @@ export class CreateBlogByBloggerUseCase
 
     const newBlog = new BlogClassDbType(name, description, websiteUrl);
 
-    const blogInstance: BlogDocument = new this.blogModel(newBlog);
-
-    blogInstance.blogOwnerInfo.userId = userId;
-    blogInstance.blogOwnerInfo.userLogin = userLogin;
-
-    await this.blogsRepository.save(blogInstance);
-
-    return blogInstance._id.toString();
+    return await this.blogsRepository.saveAndCreate(newBlog, userId, userLogin);
   }
 }

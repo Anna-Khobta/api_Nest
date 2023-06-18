@@ -1,6 +1,7 @@
 import { Model } from 'mongoose';
 import { Blog, BlogDocument } from '../db/blogs-schema';
 import { InjectModel } from '@nestjs/mongoose';
+import { BlogClassDbType } from '../db/blogs-class';
 
 export class BlogsRepository {
   constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
@@ -11,6 +12,24 @@ export class BlogsRepository {
     } catch (error) {
       console.log(error);
       return false;
+    }
+  }
+
+  async saveAndCreate(
+    newBlog: BlogClassDbType,
+    userId: string,
+    userLogin: string,
+  ): Promise<string | null> {
+    try {
+      const blogInstance: BlogDocument = new this.blogModel(newBlog);
+      blogInstance.blogOwnerInfo.userId = userId;
+      blogInstance.blogOwnerInfo.userLogin = userLogin;
+
+      await blogInstance.save();
+      return blogInstance._id.toString();
+    } catch (error) {
+      console.log(error);
+      return null;
     }
   }
   async updateBlog(
@@ -63,6 +82,65 @@ export class BlogsRepository {
       return true;
     } catch (error) {
       console.log(error);
+      return false;
+    }
+  }
+  async checkIsBlogExist(blogId: string): Promise<boolean> {
+    try {
+      const blog = await this.blogModel.findById(blogId).lean();
+      if (blog) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (err) {
+      console.log(err);
+      return null;
+    }
+  }
+
+  async foundBlogName(blogId: string): Promise<string | null> {
+    try {
+      const blog = await this.blogModel.findById(blogId).lean();
+      if (blog) {
+        return blog.name;
+      } else {
+        return null;
+      }
+    } catch (err) {
+      console.log(err);
+      return null;
+    }
+  }
+  async findBlogOwnerUserByBlogId(blogId: string): Promise<string | null> {
+    const foundBlogName = await this.blogModel
+      .findOne({ _id: blogId }, { _id: 0 })
+      .lean();
+    return foundBlogName.blogOwnerInfo.userId || null;
+  }
+
+  async updateBanInfo(blogId: string, isBanned: boolean): Promise<boolean> {
+    try {
+      const blog = await this.blogModel.findOne({ _id: blogId });
+      if (!blogId) {
+        return false;
+      }
+
+      if (blog.banInfo.isBanned === isBanned) {
+        return true;
+      }
+      if (isBanned === false) {
+        blog.banInfo.isBanned = isBanned;
+        blog.banInfo.banDate = null;
+      } else {
+        blog.banInfo.isBanned = isBanned;
+        blog.banInfo.banDate = new Date();
+      }
+
+      await blog.save();
+      return true;
+    } catch (err) {
+      console.log(err);
       return false;
     }
   }

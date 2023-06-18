@@ -50,7 +50,7 @@ export class PasswordRecoveryClass {
 }
 
 @Schema()
-export class BanInfoClass {
+export class UserBanInfoClass {
   @Prop({
     required: true,
   })
@@ -73,7 +73,7 @@ export class User {
   passwordRecovery: PasswordRecoveryClass;
 
   @Prop()
-  banInfo: BanInfoClass;
+  banInfo: UserBanInfoClass;
   @Prop()
   likesCount: number;
 }

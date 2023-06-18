@@ -1,10 +1,12 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogsRepository } from '../../../repositories/blogs.repository';
 import { BlogsQueryRepository } from '../../../repositories/blogs.query.repository';
-import { PostViewType } from '../../../../types/types';
 import { UsersRepository } from '../../../../users/users-repositories/users.repository';
 import { PostsRepository } from '../../../../posts/repositories/posts.repository';
-import { PostsQueryRepository } from '../../../../posts/repositories/posts.query.repository';
+import {
+  ExceptionCodesType,
+  ResultCode,
+} from '../../../../functions/exception-handler';
 
 export class UpdateExistingPostForBlogCommand {
   constructor(
@@ -26,31 +28,36 @@ export class UpdateExistingPostForBlogUseCase
     protected blogsQueryRepository: BlogsQueryRepository,
     protected usersRepository: UsersRepository,
     protected postRepository: PostsRepository,
-    protected postsQueryRepository: PostsQueryRepository,
   ) {}
 
   async execute(
     command: UpdateExistingPostForBlogCommand,
-  ): Promise<PostViewType | string> {
-    const blogById = await this.blogsQueryRepository.findBlogByIdViewModel(
+  ): Promise<string | ExceptionCodesType> {
+    const blogById = await this.blogsRepository.checkIsBlogExist(
       command.blogId,
     );
     if (!blogById) {
-      return 'NotFound';
+      return { code: ResultCode.NotFound };
     }
 
-    const blogOwnerId =
-      await this.blogsQueryRepository.findBlogOwnerUserByBlogId(command.blogId);
+    const blogOwnerId = await this.blogsRepository.findBlogOwnerUserByBlogId(
+      command.blogId,
+    );
 
     if (!(blogOwnerId === command.userId)) {
-      return 'NotOwner';
+      return { code: ResultCode.Forbidden };
     }
 
-    return await this.postRepository.updatePost(
+    const isUpdated = await this.postRepository.updatePost(
       command.postId,
       command.title,
       command.shortDescription,
       command.content,
     );
+
+    if (!isUpdated) {
+      return { code: ResultCode.NotFound };
+    }
+    return { code: ResultCode.Success };
   }
 }

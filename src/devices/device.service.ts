@@ -75,7 +75,10 @@ export class DeviceService {
     return await this.deviceRepository.deleteDevice(deviceId);
   }
 
-  async deleteAllExcludeOne(deviceId: string): Promise<boolean> {
-    return await this.deviceRepository.deleteAllExcludeOne(deviceId);
+  async deleteAllExcludeOne(
+    deviceId: string,
+    userId: string,
+  ): Promise<boolean> {
+    return await this.deviceRepository.deleteAllExcludeOne(deviceId, userId);
   }
 }
