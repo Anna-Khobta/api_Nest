@@ -25,13 +25,11 @@ export class UsersQueryRepository {
     email: string | null,
   ): Promise<UserWithMongoId | null> {
     try {
-      const foundUser = await this.userModel
+      return await this.userModel
         .findOne({
           $or: [{ 'accountData.login': login }, { 'accountData.email': email }],
         })
         .lean();
-
-      return foundUser;
     } catch (error) {
       console.log(error);
       return null;
@@ -150,46 +148,6 @@ export class UsersQueryRepository {
         'banInfo.isBanned': isBanned,
       };
     }
-
-    /*
-
-    {
-            'banInfo.isBanned': isBanned,
-          },
-
-          if (searchLoginTerm || searchEmailTerm) {
-      filter = {
-        $or: [
-          {
-            'accountData.login': {
-              $regex: searchLoginTerm,
-              $options: 'i',
-            },
-          },
-          {
-            'accountData.email': {
-              $regex: searchEmailTerm,
-              $options: 'i',
-            },
-          },
-        ],
-      };
-    }*/
-
-    /*
-isBanned === true ||
-      isBanned === false
-
-
-    {
-            'banInfo.isBanned': isBanned,
-          },
-
-    if (typeof isBanned === 'boolean') {
-      filter = {
-        'banInfo.isBanned': isBanned,
-      };
-    }*/
 
     const findUsers = await this.userModel
       .find(filter, { __v: 0 })

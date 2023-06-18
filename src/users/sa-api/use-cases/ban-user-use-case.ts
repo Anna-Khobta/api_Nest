@@ -3,9 +3,6 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BanUserInputModel } from '../../input-models/ban-user-input-model.dto';
 import { DeviceRepository } from '../../../devices/device.repository';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const bcrypt = require('bcrypt');
-
 export class BanUserCommand {
   constructor(public userId: string, public inputModel: BanUserInputModel) {}
 }
@@ -27,9 +24,6 @@ export class BanUserUseCase implements ICommandHandler<BanUserCommand> {
       return false;
     }
 
-    const updateDeviceInfo =
-      await this.deviceRepository.deleteAllTokensByUserId(command.userId);
-
-    return updateDeviceInfo;
+    return await this.deviceRepository.deleteAllTokensByUserId(command.userId);
   }
 }
