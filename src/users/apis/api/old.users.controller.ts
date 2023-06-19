@@ -10,13 +10,13 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UsersService } from '../users.service';
-import { UsersQueryRepository } from '../users-repositories/users.query.repository';
-import { CustomException } from '../../functions/custom-exception';
-import { isValid } from '../../functions/isValid-Id';
-import { BasicAuthGuard } from '../../auth-guards/basic-auth.guard';
-import { CreateUserInputModel } from '../input-models/create-user-input-model.dto';
-import { QueryPaginationInputModel } from '../../blogs/blogs-input-models/query-pagination-input-model.dto';
+import { UsersService } from '../../users.service';
+import { UsersQueryRepository } from '../../users-repositories/users.query.repository';
+import { CustomException } from '../../../functions/custom-exception';
+import { isValid } from '../../../functions/isValid-Id';
+import { BasicAuthGuard } from '../../../auth-guards/basic-auth.guard';
+import { CreateUserInputModel } from '../../input-models/create-user-input-model.dto';
+import { QueryPaginationInputModel } from '../../../blogs/blogs-input-models/query-pagination-input-model.dto';
 
 @Controller('users')
 export class OldUsersController {
