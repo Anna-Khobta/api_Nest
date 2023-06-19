@@ -30,22 +30,6 @@ export class UsersEngagement {
   userStatus: LikeStatusesEnum;
 }
 
-/*@Schema()
-export class UserLikeInfo {
-  @Prop({
-    required: true,
-  })
-  userId: string;
-  @Prop({
-    required: true,
-  })
-  reatedAt: string;
-  @Prop({
-    required: true,
-  })
-  userStatus: LikeStatusesEnum;
-}*/
-
 @Schema()
 export class Comment {
   @Prop({
