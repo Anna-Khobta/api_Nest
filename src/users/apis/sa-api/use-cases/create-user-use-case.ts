@@ -1,12 +1,12 @@
-import { UsersRepository } from '../../users-repositories/users.repository';
-import { UsersQueryRepository } from '../../users-repositories/users.query.repository';
+import { UsersRepository } from '../../../users-repositories/users.repository';
+import { UsersQueryRepository } from '../../../users-repositories/users.query.repository';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from '../../users-schema';
+import { User, UserDocument } from '../../../users-schema';
 import { Model } from 'mongoose';
-import { CreateUserInputModel } from '../../input-models/create-user-input-model.dto';
+import { CreateUserInputModel } from '../../../input-models/create-user-input-model.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UserViewType } from '../../../types/types';
+import { UserViewType } from '../../../../types/types';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const bcrypt = require('bcrypt');
 
