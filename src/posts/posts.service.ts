@@ -9,6 +9,7 @@ import { BlogsQueryRepository } from '../blogs/repositories/blogs.query.reposito
 
 import { LikeStatusesEnum, PostViewType, UserLikeInfo } from '../types/types';
 import { CreatePostInputModel } from './input-models/create-post-input-model.dto';
+import { BlogsRepository } from '../blogs/repositories/blogs.repository';
 
 @Injectable()
 export class PostsService {
@@ -18,6 +19,7 @@ export class PostsService {
     @Inject(PostsRepository)
     protected postsDbRepository: PostsRepository,
     protected blogsQueryRepository: BlogsQueryRepository,
+    protected blogsRepository: BlogsRepository,
     @InjectModel(Post.name) protected postModel: Model<PostDocument>,
   ) {}
 
@@ -27,7 +29,7 @@ export class PostsService {
     content: string,
     blogId: string,
   ): Promise<string | null> {
-    const foundBlogName = await this.blogsQueryRepository.findBlogName(blogId);
+    const foundBlogName = await this.blogsRepository.findBlogName(blogId);
 
     if (!foundBlogName) {
       return null;
@@ -53,7 +55,7 @@ export class PostsService {
     inputModel: CreatePostInputModel,
   ): Promise<string | null> {
     const foundPostId = await this.postQueryRepository.findPostById(postId);
-    const foundBlogName = await this.blogsQueryRepository.findBlogName(
+    const foundBlogName = await this.blogsRepository.findBlogName(
       inputModel.blogId,
     );
 

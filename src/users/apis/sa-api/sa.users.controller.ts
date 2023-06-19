@@ -11,17 +11,17 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UsersService } from '../users.service';
-import { UsersQueryRepository } from '../users-repositories/users.query.repository';
-import { BasicAuthGuard } from '../../auth-guards/basic-auth.guard';
-import { CreateUserInputModel } from '../input-models/create-user-input-model.dto';
-import { CustomException } from '../../functions/custom-exception';
-import { isValid } from '../../functions/isValid-Id';
+import { UsersService } from '../../users.service';
+import { UsersQueryRepository } from '../../users-repositories/users.query.repository';
+import { BasicAuthGuard } from '../../../auth-guards/basic-auth.guard';
+import { CreateUserInputModel } from '../../input-models/create-user-input-model.dto';
+import { CustomException } from '../../../functions/custom-exception';
+import { isValid } from '../../../functions/isValid-Id';
 import { CreateUserCommand } from './use-cases/create-user-use-case';
 import { CommandBus } from '@nestjs/cqrs';
-import { BanUserInputModel } from '../input-models/ban-user-input-model.dto';
+import { BanUserInputModel } from '../../input-models/ban-user-input-model.dto';
 import { BanUserCommand } from './use-cases/ban-user-use-case';
-import { QueryPaginationInputModel } from '../../blogs/blogs-input-models/query-pagination-input-model.dto';
+import { QueryPaginationInputModel } from '../../../blogs/blogs-input-models/query-pagination-input-model.dto';
 
 const messageLogin = {
   errorsMessages: [
