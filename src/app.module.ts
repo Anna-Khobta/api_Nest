@@ -63,6 +63,7 @@ import { UpdateBlogByBloggerUseCase } from './blogs/apis/blogger-api/blogger-blo
 import { DeleteBlogByBloggerUseCase } from './blogs/apis/blogger-api/blogger-blogs.use.cases/delete-blog-by-blogger-use-case';
 import { BanBlogBySaUseCase } from './blogs/apis/sa-api/sa-blogs.use.cases/ban-blog-by-sa-use-case';
 import { BanUserByBloggerUseCase } from './users/apis/blogger-api/blogger-user.use.cases/ban-user-by-blogger-use-case';
+import { BloggerUsersController } from './users/apis/blogger-api/blogger-users.controller';
 export const configModule = ConfigModule.forRoot({
   isGlobal: true,
   envFilePath: '.env',
@@ -136,6 +137,7 @@ const useCases = [
     DevicesController,
     SaBlogsController,
     BloggerBlogsController,
+    BloggerUsersController,
   ],
 
   providers: [
