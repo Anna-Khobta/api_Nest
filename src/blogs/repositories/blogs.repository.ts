@@ -1,7 +1,9 @@
 import { Model } from 'mongoose';
-import { Blog, BlogDocument } from '../db/blogs-schema';
+import { Blog, BlogDocument, UsersWereBanned } from '../db/blogs-schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { BlogClassDbType } from '../db/blogs-class';
+import { BanUserByBlogerInputModel } from '../../users/input-models/ban-user-by-bloger.dto';
+import { BlogViewType } from '../../types/types';
 
 export class BlogsRepository {
   constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
@@ -143,5 +145,66 @@ export class BlogsRepository {
       console.log(err);
       return false;
     }
+  }
+
+  async updateUsersWereBannedInfo(
+    userId: string,
+    inputModel: BanUserByBlogerInputModel,
+  ): Promise<boolean> {
+    try {
+      const userBannedToAdd: UsersWereBanned = {
+        userId: userId,
+        isBanned: inputModel.isBanned,
+        banReason: inputModel.banReason,
+        banDate: new Date(),
+      };
+
+      const blog = await this.blogModel.findOne({ _id: inputModel.blogId });
+
+      if (!blog) {
+        return false;
+      }
+
+      // проверяем есть ли в БД
+      const checkIfUserInBannedGroup = blog.usersWerBanned.find(
+        (user) => user.userId === userId,
+      );
+
+      console.log('checkIfUserInBannedGroup', checkIfUserInBannedGroup);
+
+      console.log('inputModel.isBanned', inputModel.isBanned);
+
+      /*if (!checkIfUserInBannedGroup) {
+        if (inputModel.isBanned === true) {
+          blog.usersWerBanned.push(userBannedToAdd);
+        }
+      }*/
+
+      if (!checkIfUserInBannedGroup && inputModel.isBanned === true) {
+        // add in db
+        blog.usersWerBanned.push(userBannedToAdd);
+      }
+
+      if (checkIfUserInBannedGroup?.isBanned === inputModel.isBanned) {
+        return true;
+      }
+
+      // разбаненых удаляем из БД
+      if (checkIfUserInBannedGroup && inputModel.isBanned === false) {
+        blog.usersWerBanned.filter((user) => user.userId !== userId);
+      }
+
+      await blog.save();
+      return true;
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
+  }
+  async findBlogName(blogId: string): Promise<BlogViewType | null> {
+    const foundBlogName: BlogViewType | null = await this.blogModel
+      .findOne({ _id: blogId }, { _id: 0 })
+      .lean();
+    return foundBlogName || null;
   }
 }
