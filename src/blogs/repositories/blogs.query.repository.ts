@@ -1,12 +1,21 @@
 import { Model } from 'mongoose';
-import { BlogsWithPagination, BlogViewType } from '../../types/types';
+import {
+  BannedUsersWithPagination,
+  BlogsWithPagination,
+  BlogViewType,
+} from '../../types/types';
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog, BlogDocument } from '../db/blogs-schema';
 import { getPagination } from '../../functions/pagination';
 import { QueryPaginationInputModel } from '../blogs-input-models/query-pagination-input-model.dto';
+import { UsersRepository } from '../../users/users-repositories/users.repository';
+import { User, UserDocument } from '../../users/users-schema';
 
 export class BlogsQueryRepository {
-  constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
+  constructor(
+    @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>, //protected usersRepository: UsersRepository,
+  ) {}
   async findBlogs(
     queryPagination: QueryPaginationInputModel,
   ): Promise<BlogsWithPagination> {
@@ -30,12 +39,6 @@ export class BlogsQueryRepository {
         'banInfo.isBanned': false,
       };
     }
-
-    /*if (myPagination.searchNameTerm) {
-      filter = {
-        name: { $regex: myPagination.searchNameTerm, $options: 'i' },
-      };
-    }*/
 
     const findBlogs = await this.blogModel
       .find(filter, { __v: 0 })
@@ -177,10 +180,85 @@ export class BlogsQueryRepository {
     }
   }
 
-  async findBlogName(blogId: string): Promise<BlogViewType | null> {
-    const foundBlogName: BlogViewType | null = await this.blogModel
-      .findOne({ _id: blogId }, { _id: 0 })
+  async findAllBannedUsersForSpecialBlog(
+    blogId: string,
+    queryPagination: QueryPaginationInputModel,
+    userId: string,
+  ): Promise<BannedUsersWithPagination> {
+    const myPagination = getPagination(queryPagination);
+
+    let filter: any = {};
+
+    filter = { _id: blogId };
+
+    /* if (myPagination.searchLoginTerm) {
+      filter = {
+        $and: [
+          { _id: blogId },
+          {
+            usersWereBanned: {
+              $regex: myPagination.searchLoginTerm,
+              $options: 'i',
+            },
+          },
+        ],
+      };
+    } else {
+      filter = { _id: blogId };
+    }*/
+
+    const blog = await this.blogModel
+      .find(
+        { _id: blogId },
+        {
+          'usersWereBanned.userId': 1,
+          'usersWereBanned.isBanned': 1,
+          'usersWereBanned.banReason': 1,
+          'usersWereBanned.banDate': 1,
+        },
+      )
+      .skip(myPagination.skip)
+      .limit(myPagination.limit)
+      .sort({ [myPagination.sortBy]: myPagination.sortDirection })
       .lean();
-    return foundBlogName || null;
+
+    const bannedUsers = blog[0].usersWereBanned;
+
+    const items = await Promise.all(
+      bannedUsers.map(async (user) => {
+        const login = await this.findUserLogin(user.userId);
+        return {
+          id: user.userId,
+          login: login,
+          banInfo: {
+            isBanned: user.isBanned,
+            banDate: user.banDate,
+            banReason: user.banReason,
+          },
+        };
+      }),
+    );
+
+    const total = await this.blogModel.countDocuments(filter);
+
+    const pagesCount = Math.ceil(total / myPagination.limit);
+
+    return {
+      pagesCount: pagesCount,
+      page: myPagination.page,
+      pageSize: myPagination.limit,
+      totalCount: bannedUsers.length,
+      items: items,
+    };
+  }
+
+  async findUserLogin(userId: string): Promise<string | null> {
+    try {
+      const foundUser = await this.userModel.findById(userId);
+      return foundUser.accountData.login;
+    } catch (err) {
+      console.log(err);
+      return null;
+    }
   }
 }
