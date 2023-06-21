@@ -49,9 +49,10 @@ export class BlogsController {
     return await this.blogsQueryRepository.findBlogs(queryPagination);
   }
 
-  @Get(':id')
+  @Get('/:id')
   async getBlogById(@Param('id') blogId: string) {
     isValid(blogId);
+
     const blogById = await this.blogsQueryRepository.findBlogByIdViewModel(
       blogId,
     );

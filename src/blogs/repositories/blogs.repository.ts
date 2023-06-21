@@ -166,23 +166,19 @@ export class BlogsRepository {
       }
 
       // проверяем есть ли в БД
-      const checkIfUserInBannedGroup = blog.usersWerBanned.find(
+      const checkIfUserInBannedGroup = blog.usersWereBanned.find(
         (user) => user.userId === userId,
       );
 
-      console.log('checkIfUserInBannedGroup', checkIfUserInBannedGroup);
-
-      console.log('inputModel.isBanned', inputModel.isBanned);
-
       /*if (!checkIfUserInBannedGroup) {
         if (inputModel.isBanned === true) {
-          blog.usersWerBanned.push(userBannedToAdd);
+          blog.usersWereBanned.push(userBannedToAdd);
         }
       }*/
 
       if (!checkIfUserInBannedGroup && inputModel.isBanned === true) {
         // add in db
-        blog.usersWerBanned.push(userBannedToAdd);
+        blog.usersWereBanned.push(userBannedToAdd);
       }
 
       if (checkIfUserInBannedGroup?.isBanned === inputModel.isBanned) {
@@ -191,7 +187,7 @@ export class BlogsRepository {
 
       // разбаненых удаляем из БД
       if (checkIfUserInBannedGroup && inputModel.isBanned === false) {
-        blog.usersWerBanned.filter((user) => user.userId !== userId);
+        blog.usersWereBanned.filter((user) => user.userId !== userId);
       }
 
       await blog.save();

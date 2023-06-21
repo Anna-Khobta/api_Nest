@@ -78,7 +78,7 @@ export class Blog {
     required: true,
     default: [],
   })
-  usersWerBanned: UsersWereBanned[];
+  usersWereBanned: UsersWereBanned[];
 
   setName(newName1: string) {
     this.name = newName1;

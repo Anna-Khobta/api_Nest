@@ -11,7 +11,7 @@ export class BlogClassDbType {
     isBanned: boolean;
     banDate: Date | null;
   };
-  usersWerBanned: UsersWereBanned[];
+  usersWereBanned: UsersWereBanned[];
   constructor(
     public name: string,
     public description: string,
@@ -34,6 +34,6 @@ export class BlogClassDbType {
       isBanned,
       banDate,
     };
-    this.usersWerBanned = [];
+    this.usersWereBanned = [];
   }
 }
