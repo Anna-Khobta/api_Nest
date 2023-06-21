@@ -31,14 +31,14 @@ export class BanUserByBloggerUseCase
   async execute(command: BanUserByBloggerCommand): Promise<ExceptionCodesType> {
     const isBloggerOwner = await this.blogsRepository.checkIsUserOwnBlog(
       command.inputModel.blogId,
-      command.userId,
+      command.currentUserId,
     );
 
     if (!isBloggerOwner) {
       return { code: ResultCode.Forbidden };
     }
 
-    const updateBlogInfo = await this.blogsRepository.updateUsersWerBannedInfo(
+    const updateBlogInfo = await this.blogsRepository.updateUsersWereBannedInfo(
       command.userId,
       command.inputModel,
     );

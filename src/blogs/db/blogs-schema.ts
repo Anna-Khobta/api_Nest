@@ -28,6 +28,18 @@ export class BlogBanInfoClass {
 }
 
 @Schema()
+export class UsersWereBanned {
+  @Prop()
+  userId: string;
+  @Prop()
+  isBanned: boolean;
+  @Prop()
+  banReason: string | null;
+  @Prop({ type: SchemaTypes.Mixed })
+  banDate: Date | null;
+}
+
+@Schema()
 export class Blog {
   @Prop({
     required: true,
@@ -62,6 +74,11 @@ export class Blog {
     required: true,
   })
   banInfo: BlogBanInfoClass;
+  @Prop({
+    required: true,
+    default: [],
+  })
+  usersWereBanned: UsersWereBanned[];
 
   setName(newName1: string) {
     this.name = newName1;

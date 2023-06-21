@@ -49,16 +49,25 @@ export class BlogsController {
     return await this.blogsQueryRepository.findBlogs(queryPagination);
   }
 
-  @Get(':id')
+  @Get('/:id')
   async getBlogById(@Param('id') blogId: string) {
     isValid(blogId);
+
+    const checkIfBlogWasBanned = await this.blogsService.isBlogWasBannedBySa(
+      blogId,
+    );
+
+    if (checkIfBlogWasBanned) {
+      throw new CustomException(null, HttpStatus.NOT_FOUND);
+    }
+
     const blogById = await this.blogsQueryRepository.findBlogByIdViewModel(
       blogId,
     );
     if (blogById) {
       return blogById;
     } else {
-      throw new CustomException('Blog not found', HttpStatus.NOT_FOUND);
+      throw new CustomException(null, HttpStatus.NOT_FOUND);
     }
   }
   @Put(':id')

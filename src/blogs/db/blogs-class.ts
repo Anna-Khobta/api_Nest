@@ -1,3 +1,5 @@
+import { UsersWereBanned } from './blogs-schema';
+
 export class BlogClassDbType {
   createdAt: string;
   isMembership: boolean;
@@ -9,6 +11,7 @@ export class BlogClassDbType {
     isBanned: boolean;
     banDate: Date | null;
   };
+  usersWereBanned: UsersWereBanned[];
   constructor(
     public name: string,
     public description: string,
@@ -31,5 +34,6 @@ export class BlogClassDbType {
       isBanned,
       banDate,
     };
+    this.usersWereBanned = [];
   }
 }

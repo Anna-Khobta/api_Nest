@@ -16,6 +16,23 @@ export type BlogsWithPagination = {
   items: BlogViewType[];
 };
 
+export type BannedUsersViewType = {
+  id: string;
+  //login: string;
+  banInfo: {
+    isBanned: boolean;
+    banDate: Date;
+    banReason: string;
+  };
+};
+export type BannedUsersWithPagination = {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: BannedUsersViewType[];
+};
+
 export type PostViewType = {
   id: string;
   title: string;

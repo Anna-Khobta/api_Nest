@@ -4,7 +4,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Blog, BlogSchema } from './blogs/db/blogs-schema';
 import { BlogsService } from './blogs/blogs.service';
 import { BlogsController } from './blogs/apis/api/blogs.controller';
-import { BlogsQueryRepository } from './blogs/repositories/blogs.query.repository';
 import { Post, PostSchema } from './posts/posts-schema';
 import { PostsController } from './posts/posts.controller';
 import { PostsService } from './posts/posts.service';
@@ -50,7 +49,6 @@ import { CreateUserUseCase } from './users/apis/sa-api/use-cases/create-user-use
 import { CqrsModule } from '@nestjs/cqrs';
 import { BanUserUseCase } from './users/apis/sa-api/use-cases/ban-user-use-case';
 import { BindBlogWithUserUseCase } from './blogs/apis/sa-api/sa-blogs.use.cases/bind-blog-with-user-use-case';
-import { UsersRepository } from './users/users-repositories/users.repository';
 import { SaBlogsController } from './blogs/apis/sa-api/sa-blogs.controller';
 import { LoginPasswordGuard } from './auth-guards/login-password.guard';
 import { BloggerBlogsController } from './blogs/apis/blogger-api/blogger-blogs.controller';
@@ -63,6 +61,9 @@ import { UpdateBlogByBloggerUseCase } from './blogs/apis/blogger-api/blogger-blo
 import { DeleteBlogByBloggerUseCase } from './blogs/apis/blogger-api/blogger-blogs.use.cases/delete-blog-by-blogger-use-case';
 import { BanBlogBySaUseCase } from './blogs/apis/sa-api/sa-blogs.use.cases/ban-blog-by-sa-use-case';
 import { BanUserByBloggerUseCase } from './users/apis/blogger-api/blogger-user.use.cases/ban-user-by-blogger-use-case';
+import { BloggerUsersController } from './users/apis/blogger-api/blogger-users.controller';
+import { UsersRepository } from './users/users-repositories/users.repository';
+import { BlogsQueryRepository } from './blogs/repositories/blogs.query.repository';
 export const configModule = ConfigModule.forRoot({
   isGlobal: true,
   envFilePath: '.env',
@@ -136,6 +137,7 @@ const useCases = [
     DevicesController,
     SaBlogsController,
     BloggerBlogsController,
+    BloggerUsersController,
   ],
 
   providers: [
