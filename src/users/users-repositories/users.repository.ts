@@ -19,6 +19,9 @@ export class UsersRepository {
   async findUserLogin(userId: string): Promise<string | null> {
     try {
       const foundUser = await this.userModel.findById(userId);
+      if (!foundUser) {
+        return null;
+      }
       return foundUser.accountData.login;
     } catch (err) {
       console.log(err);
