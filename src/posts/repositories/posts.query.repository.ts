@@ -202,14 +202,6 @@ export class PostsQueryRepository {
       return null;
     }
 
-    // check if post owner was banned
-    const isOwnerAlreadyBanned =
-      await this.usersRepository.isBlogOrPostOwnerBanned(postInstance.blogId);
-
-    if (isOwnerAlreadyBanned) {
-      return null;
-    }
-
     // find my like status
     let myStatus;
 
