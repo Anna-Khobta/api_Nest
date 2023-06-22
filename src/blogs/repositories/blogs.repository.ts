@@ -235,4 +235,22 @@ export class BlogsRepository {
       return false;
     }
   }
+  async findAllBlogsUserOwner(userId: string): Promise<any> {
+    const findBlogs = await this.blogModel
+      .find(
+        {
+          $and: [
+            { 'banInfo.isBanned': false },
+            { 'blogOwnerInfo.userId': userId },
+          ],
+        },
+        { _id: 1, __v: 0 },
+      )
+      .lean();
+    const blogIds = findBlogs.map((blog) => ({
+      id: blog._id.toString(),
+    }));
+    console.log(blogIds);
+    return blogIds;
+  }
 }
