@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UsersRepository } from '../../../../users/users-repositories/users.repository';
+import { UsersRepository } from '../../../users-repositories/users.repository';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from '../../../../users/users-schema';
+import { User, UserDocument } from '../../../users-schema';
 import { Model } from 'mongoose';
 import {
   ExceptionCodesType,
@@ -29,6 +29,14 @@ export class BanUserByBloggerUseCase
   ) {}
 
   async execute(command: BanUserByBloggerCommand): Promise<ExceptionCodesType> {
+    const isBlogExist = await this.blogsRepository.checkIsBlogExist(
+      command.inputModel.blogId,
+    );
+
+    if (!isBlogExist) {
+      return { code: ResultCode.NotFound };
+    }
+
     const isBloggerOwner = await this.blogsRepository.checkIsUserOwnBlog(
       command.inputModel.blogId,
       command.currentUserId,
@@ -36,6 +44,13 @@ export class BanUserByBloggerUseCase
 
     if (!isBloggerOwner) {
       return { code: ResultCode.Forbidden };
+    }
+
+    const isUserExist = await this.usersRepository.findUserLogin(
+      command.userId,
+    );
+    if (!isUserExist) {
+      return { code: ResultCode.NotFound };
     }
 
     const updateBlogInfo = await this.blogsRepository.updateUsersWereBannedInfo(
