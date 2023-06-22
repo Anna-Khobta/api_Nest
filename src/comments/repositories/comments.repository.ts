@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { HydratedDocument, Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { Comment, CommentDocument } from '../comments-schema';
 import {
   CommentDBType,
@@ -14,15 +14,14 @@ export class CommentsRepository {
     protected usersRepository: UsersRepository,
     @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
   ) {}
-  async saveComment(
-    commentInstance: HydratedDocument<CommentDBType>,
-  ): Promise<boolean> {
+  async saveAndCreateComment(comment: any): Promise<string | null> {
     try {
+      const commentInstance = new this.commentModel(comment);
       await commentInstance.save();
-      return true;
+      return commentInstance._id.toString();
     } catch (error) {
       console.log(error);
-      return false;
+      return null;
     }
   }
   async findCommentById(id: string): Promise<CommentDBType | null> {
