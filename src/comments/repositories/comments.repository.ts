@@ -8,12 +8,17 @@ import {
   UserLikeInfo,
 } from '../../types/types';
 import { UsersRepository } from '../../users/users-repositories/users.repository';
+import { QueryPaginationInputModel } from '../../blogs/blogs-input-models/query-pagination-input-model.dto';
+import { getPagination } from '../../functions/pagination';
+import { PostsRepository } from '../../posts/repositories/posts.repository';
 
 export class CommentsRepository {
   constructor(
     protected usersRepository: UsersRepository,
+    protected postsRepository: PostsRepository,
     @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
   ) {}
+
   async saveAndCreateComment(comment: any): Promise<string | null> {
     try {
       const commentInstance = new this.commentModel(comment);
@@ -24,6 +29,7 @@ export class CommentsRepository {
       return null;
     }
   }
+
   async findCommentById(id: string): Promise<CommentDBType | null> {
     const foundCommentById = await this.commentModel
       .findOne({ _id: id })
@@ -253,4 +259,90 @@ export class CommentsRepository {
       dislikesCountWithBanned: dislikesCountWithBanned,
     };
   }
+
+  async findAllCommentsUserOwnerBlogs(
+    postIds: string[],
+    queryPagination: QueryPaginationInputModel,
+    userId: string,
+  ): Promise<any> {
+    const myPagination = getPagination(queryPagination);
+
+    const filterIds = [];
+    let filter = {};
+    for (let i = 0; i < postIds.length; i++) {
+      const filter1 = { postId: postIds[i] };
+      filterIds.push(filter1);
+    }
+
+    if (!filterIds[0]) {
+      filter;
+    } else {
+      filter = { $or: filterIds };
+    }
+    const foundComments = await this.commentModel
+      .find(filter)
+      .sort({ [myPagination.sortBy]: myPagination.sortDirection })
+      .skip(myPagination.skip)
+      .limit(myPagination.limit)
+      .lean();
+
+    const mappedComments = await Promise.all(
+      foundComments.map(async (comment) => {
+        const post = await this.postsRepository.findPostByIdWhenAddToComments(
+          comment.postId,
+        );
+
+        const myStatus = comment.usersEngagement.find(
+          (el) => el.userId === userId,
+        );
+
+        const countingCommentEngagementWithBannedUsers =
+          await this.countingLikesDislikesOnCommentMinusBanned(
+            comment._id.toString(),
+          );
+
+        return {
+          id: comment._id.toString(),
+          content: comment.content,
+          commentatorInfo: {
+            userId: comment.commentatorInfo.userId,
+            userLogin: comment.commentatorInfo.userLogin,
+          },
+          likesInfo: {
+            likesCount:
+              countingCommentEngagementWithBannedUsers.likesCountWithBanned,
+            dislikesCount:
+              countingCommentEngagementWithBannedUsers.dislikesCountWithBanned,
+            myStatus: myStatus?.userStatus || 'None',
+          },
+          createdAt: comment.createdAt,
+          postInfo: {
+            id: post.id,
+            title: post.title,
+            blogId: post.blogId,
+            blogName: post.blogName,
+          },
+        };
+      }),
+    );
+
+    const total = await this.commentModel.countDocuments(filter);
+    const pagesCount = Math.ceil(total / myPagination.limit);
+
+    return {
+      pagesCount: pagesCount,
+      page: myPagination.page,
+      pageSize: myPagination.limit,
+      totalCount: total,
+      items: mappedComments,
+    };
+  }
 }
+
+/* const comments = [];
+    for (let i = 0; i < postIds.length; i++) {
+      const foundComments = await this.commentModel.find({
+        postId: postIds[i],
+      });
+      comments.push(foundComments);
+    }*/
