@@ -199,4 +199,28 @@ export class PostsRepository {
       dislikesCountWithBanned: dislikesCountWithBanned,
     };
   }
+  async foundBlogId(postId: string): Promise<null | string> {
+    try {
+      const foundPost = await this.postModel.findOne({ _id: postId });
+      if (!foundPost) {
+        return null;
+      }
+      return foundPost.blogId;
+    } catch (err) {
+      console.log(err);
+      return null;
+    }
+  }
+  /*  async isPostExist(postId: string): Promise<null | string> {
+    try {
+      const foundPost = await this.postModel.findById({ postId });
+      if (!foundPost) {
+        return null;
+      }
+      return foundPost.blogId;
+    } catch (err) {
+      console.log(err);
+      return null;
+    }
+  }*/
 }
