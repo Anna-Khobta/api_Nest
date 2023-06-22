@@ -78,7 +78,6 @@ export class BloggerUsersController {
     return await this.blogsQueryRepository.findAllBannedUsersForSpecialBlog(
       blogId,
       queryPagination,
-      currentUserId,
     );
   }
 }
