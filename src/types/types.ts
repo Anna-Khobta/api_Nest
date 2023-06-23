@@ -8,12 +8,29 @@ export type BlogViewType = {
   isMembership: boolean;
 };
 
+export type BlogViewWithOwnerAndBannedInfoType = {
+  id: string;
+  name: string;
+  description: string;
+  websiteUrl: string;
+  createdAt: string;
+  isMembership: boolean;
+  blogOwnerInfo: {
+    userId: string;
+    userLogin: string;
+  };
+  banInfo: {
+    isBanned: boolean;
+    banDate: Date;
+  };
+};
+
 export type BlogsWithPagination = {
   pagesCount: number;
   page: number;
   pageSize: number;
   totalCount: number;
-  items: BlogViewType[];
+  items: BlogViewType[] | BlogViewWithOwnerAndBannedInfoType;
 };
 
 export type BannedUsersViewType = {

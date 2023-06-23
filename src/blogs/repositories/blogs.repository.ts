@@ -101,6 +101,20 @@ export class BlogsRepository {
     }
   }
 
+  async checkIsBlogBanned(blogId: string): Promise<boolean> {
+    try {
+      const blog = await this.blogModel.findById(blogId).lean();
+
+      if (blog.banInfo.isBanned === true) {
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.log(err);
+      return true;
+    }
+  }
+
   async foundBlogName(blogId: string): Promise<string | null> {
     try {
       const blog = await this.blogModel.findById(blogId).lean();
@@ -202,5 +216,41 @@ export class BlogsRepository {
       .findOne({ _id: blogId }, { _id: 0 })
       .lean();
     return foundBlogName || null;
+  }
+  async checkIsUserWasBannedInThisBlog(
+    blogId: string,
+    userId: string,
+  ): Promise<boolean> {
+    try {
+      const blog = await this.blogModel.findOne({
+        $and: [{ _id: blogId }, { 'usersWereBanned.userId': userId }],
+      });
+
+      if (!blog) {
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+  async findAllBlogsUserOwner(userId: string): Promise<any> {
+    const findBlogs = await this.blogModel
+      .find(
+        {
+          $and: [
+            { 'banInfo.isBanned': false },
+            { 'blogOwnerInfo.userId': userId },
+          ],
+        },
+        { _id: 1, __v: 0 },
+      )
+      .lean();
+    const blogIds = findBlogs.map((blog) => ({
+      id: blog._id.toString(),
+    }));
+    console.log(blogIds);
+    return blogIds;
   }
 }

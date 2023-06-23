@@ -42,34 +42,6 @@ export class CommentsService {
     };
   }
 
-  async createComment(
-    postId: string,
-    content: string,
-    userId: string,
-  ): Promise<CommentViewType> {
-    const userInfo = await this.usersQueryRepository.findUserById(userId);
-
-    const commentatorInfo = {
-      userId: userInfo.id,
-      userLogin: userInfo.login,
-    };
-
-    const newComment: CommentDBType = {
-      postId: postId,
-      content: content,
-      createdAt: new Date().toISOString(),
-      commentatorInfo: commentatorInfo,
-      likesCount: 0,
-      dislikesCount: 0,
-      usersEngagement: [],
-    };
-
-    const commentInstance = new this.commentModel(newComment);
-    await this.commentsRepository.saveComment(commentInstance);
-
-    return this._mapCommentFromDBToViewType(commentInstance);
-  }
-
   async updateComment(id: string, content: string): Promise<boolean> {
     const foundCommentById = await this.commentsRepository.findCommentById(id);
 

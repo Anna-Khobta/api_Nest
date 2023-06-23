@@ -41,4 +41,16 @@ export class BlogsService {
   async deleteBlog(id: string): Promise<boolean> {
     return await this.blogsRepository.deleteBlog(id);
   }
+
+  async isBlogWasBannedBySa(blogId: string): Promise<boolean> {
+    const result = await this.blogsRepository.checkIsBlogBanned(blogId);
+    return result;
+  }
+
+  async isBlogExistInDb(blogId: string): Promise<boolean> {
+    return await this.blogsRepository.checkIsBlogExist(blogId);
+  }
+  async isUserOwnBlog(blogId: string, userId: string): Promise<boolean> {
+    return await this.blogsRepository.checkIsUserOwnBlog(blogId, userId);
+  }
 }

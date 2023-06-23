@@ -10,6 +10,12 @@ import { BlogsQueryRepository } from '../blogs/repositories/blogs.query.reposito
 import { LikeStatusesEnum, PostViewType, UserLikeInfo } from '../types/types';
 import { CreatePostInputModel } from './input-models/create-post-input-model.dto';
 import { BlogsRepository } from '../blogs/repositories/blogs.repository';
+import {
+  ExceptionCodesType,
+  ResultCode,
+  SuccesCodeType,
+} from '../functions/exception-handler';
+import { UsersRepository } from '../users/users-repositories/users.repository';
 
 @Injectable()
 export class PostsService {
@@ -20,6 +26,7 @@ export class PostsService {
     protected postsDbRepository: PostsRepository,
     protected blogsQueryRepository: BlogsQueryRepository,
     protected blogsRepository: BlogsRepository,
+    protected usersRepository: UsersRepository,
     @InjectModel(Post.name) protected postModel: Model<PostDocument>,
   ) {}
 
@@ -50,6 +57,7 @@ export class PostsService {
 
     return postInstance._id.toString();
   }
+
   async updatePost(
     postId: string,
     inputModel: CreatePostInputModel,
@@ -76,6 +84,7 @@ export class PostsService {
 
     return updatedPostId;
   }
+
   async deletePost(id: string): Promise<boolean> {
     return this.postsDbRepository.deletePost(id);
   }
@@ -158,5 +167,33 @@ export class PostsService {
         dislikes,
       );
     }
+  }
+
+  async checkIsBlogWasBannedBySa(postId: string): Promise<SuccesCodeType> {
+    const foundBlogId = await this.postsDbRepository.foundBlogId(postId);
+    if (!foundBlogId) {
+      return { data: null, code: ResultCode.NotFound };
+    }
+    const checkBlogIsBanned = await this.blogsRepository.checkIsBlogBanned(
+      foundBlogId,
+    );
+
+    if (!checkBlogIsBanned) {
+      return { data: foundBlogId, code: ResultCode.Success };
+    }
+    return { data: null, code: ResultCode.NotFound };
+  }
+
+  async checkIsUserWasBanned(
+    userId: string,
+    blogId: string,
+  ): Promise<ExceptionCodesType> {
+    const isOwnerAlreadyBanned =
+      await this.usersRepository.isBlogOrPostOwnerBanned(blogId);
+
+    if (isOwnerAlreadyBanned) {
+      return { code: ResultCode.NotFound };
+    }
+    return { code: ResultCode.Success };
   }
 }

@@ -28,6 +28,7 @@ import {
   exceptionHandler,
   ResultCode,
 } from '../../../functions/exception-handler';
+import { FindAllCommentsOfAllBlogsCommand } from './blogger-blogs.use.cases/find-all-comments-of-all-blogs.use.case';
 
 @Controller('blogger/blogs')
 export class BloggerBlogsController {
@@ -111,6 +112,7 @@ export class BloggerBlogsController {
     return isDeleted;
   }
 
+  // blog + post
   @Post(':blogId/posts')
   @HttpCode(201)
   @UseGuards(JwtAccessGuard)
@@ -167,6 +169,7 @@ export class BloggerBlogsController {
 
     return;
   }
+
   @Delete(':blogId/posts/:postId')
   @UseGuards(JwtAccessGuard)
   @HttpCode(204)
@@ -184,5 +187,22 @@ export class BloggerBlogsController {
     }
 
     return;
+  }
+
+  @Get('comments')
+  @UseGuards(JwtAccessGuard)
+  async getAllCommentsWhichInsideBlogsCurrentUserOwner(
+    @Query() queryPagination: QueryPaginationInputModel,
+    @CurrentUserId() currentUserId: string,
+  ) {
+    const findComments = await this.commandBus.execute(
+      new FindAllCommentsOfAllBlogsCommand(currentUserId, queryPagination),
+    );
+
+    if (findComments.code !== ResultCode.Success) {
+      return exceptionHandler(findComments.code);
+    }
+
+    return findComments.data;
   }
 }

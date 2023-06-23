@@ -25,6 +25,9 @@ import { BasicAuthGuard } from '../auth-guards/basic-auth.guard';
 import { QueryPaginationInputModel } from '../blogs/blogs-input-models/query-pagination-input-model.dto';
 import { CreatePostInputModel } from './input-models/create-post-input-model.dto';
 import { CreateCommentInputModelDto } from '../comments/input-models/create-comment-input-model.dto';
+import { exceptionHandler, ResultCode } from '../functions/exception-handler';
+import { CreateCommentForPostCommand } from './posts.use.cases/create-comment-for-post.use.case';
+import { CommandBus } from '@nestjs/cqrs';
 
 @Controller('posts')
 export class PostsController {
@@ -33,6 +36,7 @@ export class PostsController {
     protected postsQueryRepository: PostsQueryRepository,
     protected commentsService: CommentsService,
     protected commentsQueryRepository: CommentsQueryRepository,
+    private commandBus: CommandBus,
   ) {}
 
   @Post()
@@ -69,13 +73,31 @@ export class PostsController {
   @Get(':id')
   @UseGuards(IfHaveUserJwtAccessGuard)
   async getPostById(
-    @Param('id') id: string,
+    @Param('id') postId: string,
     @CurrentUserId() currentUserId: string,
   ) {
-    //isValid(id);
+    isValid(postId);
+
+    const checkIsBlogBanned = await this.postsService.checkIsBlogWasBannedBySa(
+      postId,
+    );
+
+    if (checkIsBlogBanned.code !== ResultCode.Success) {
+      return exceptionHandler(checkIsBlogBanned.code);
+    }
+
+    const checkIfUserOwnerBanned = await this.postsService.checkIsUserWasBanned(
+      currentUserId,
+      checkIsBlogBanned.data,
+    );
+
+    if (checkIfUserOwnerBanned.code !== ResultCode.Success) {
+      return exceptionHandler(checkIfUserOwnerBanned.code);
+    }
+
     const foundPost =
       await this.postsQueryRepository.findPostByIdWithWithoutUser(
-        id,
+        postId,
         currentUserId,
       );
 
@@ -123,19 +145,22 @@ export class PostsController {
     @Body() inputModel: CreateCommentInputModelDto,
     @CurrentUserId() currentUserId: string,
   ) {
-    const post = await this.postsQueryRepository.findPostById(postId);
-
-    if (!post) {
-      throw new CustomException('Post not found', HttpStatus.NOT_FOUND);
-    }
-
-    const newComment = await this.commentsService.createComment(
-      postId,
-      inputModel.content,
-      currentUserId,
+    const newCommentId = await this.commandBus.execute(
+      new CreateCommentForPostCommand(
+        currentUserId,
+        postId,
+        inputModel.content,
+      ),
     );
 
-    return newComment;
+    if (newCommentId.code !== ResultCode.Success) {
+      return exceptionHandler(newCommentId.code);
+    }
+
+    const newCommentViewType =
+      await this.commentsQueryRepository.findCommentById(newCommentId.data);
+
+    return newCommentViewType;
   }
   @Get(':postId/comments')
   @HttpCode(200)

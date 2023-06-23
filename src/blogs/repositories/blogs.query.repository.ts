@@ -3,12 +3,12 @@ import {
   BannedUsersWithPagination,
   BlogsWithPagination,
   BlogViewType,
+  BlogViewWithOwnerAndBannedInfoType,
 } from '../../types/types';
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog, BlogDocument } from '../db/blogs-schema';
 import { getPagination } from '../../functions/pagination';
 import { QueryPaginationInputModel } from '../blogs-input-models/query-pagination-input-model.dto';
-import { UsersRepository } from '../../users/users-repositories/users.repository';
 import { User, UserDocument } from '../../users/users-schema';
 
 export class BlogsQueryRepository {
@@ -134,18 +134,24 @@ export class BlogsQueryRepository {
       .sort({ [myPagination.sortBy]: myPagination.sortDirection })
       .lean();
 
-    const items: BlogViewType[] = findBlogs.map((blog) => ({
-      id: blog._id.toString(),
-      name: blog.name,
-      description: blog.description,
-      websiteUrl: blog.websiteUrl,
-      createdAt: blog.createdAt,
-      isMembership: blog.isMembership,
-      blogOwnerInfo: {
-        userId: blog.blogOwnerInfo.userId,
-        userLogin: blog.blogOwnerInfo.userLogin,
-      },
-    }));
+    const items: BlogViewWithOwnerAndBannedInfoType[] = findBlogs.map(
+      (blog) => ({
+        id: blog._id.toString(),
+        name: blog.name,
+        description: blog.description,
+        websiteUrl: blog.websiteUrl,
+        createdAt: blog.createdAt,
+        isMembership: blog.isMembership,
+        blogOwnerInfo: {
+          userId: blog.blogOwnerInfo.userId,
+          userLogin: blog.blogOwnerInfo.userLogin,
+        },
+        banInfo: {
+          isBanned: blog.banInfo.isBanned,
+          banDate: blog.banInfo.banDate,
+        },
+      }),
+    );
 
     const total = await this.blogModel.countDocuments(filter);
 
@@ -183,15 +189,12 @@ export class BlogsQueryRepository {
   async findAllBannedUsersForSpecialBlog(
     blogId: string,
     queryPagination: QueryPaginationInputModel,
-    userId: string,
   ): Promise<BannedUsersWithPagination> {
     const myPagination = getPagination(queryPagination);
 
     let filter: any = {};
 
-    filter = { _id: blogId };
-
-    /* if (myPagination.searchLoginTerm) {
+    if (myPagination.searchLoginTerm) {
       filter = {
         $and: [
           { _id: blogId },
@@ -205,18 +208,15 @@ export class BlogsQueryRepository {
       };
     } else {
       filter = { _id: blogId };
-    }*/
+    }
 
     const blog = await this.blogModel
-      .find(
-        { _id: blogId },
-        {
-          'usersWereBanned.userId': 1,
-          'usersWereBanned.isBanned': 1,
-          'usersWereBanned.banReason': 1,
-          'usersWereBanned.banDate': 1,
-        },
-      )
+      .find(filter, {
+        'usersWereBanned.userId': 1,
+        'usersWereBanned.isBanned': 1,
+        'usersWereBanned.banReason': 1,
+        'usersWereBanned.banDate': 1,
+      })
       .skip(myPagination.skip)
       .limit(myPagination.limit)
       .sort({ [myPagination.sortBy]: myPagination.sortDirection })

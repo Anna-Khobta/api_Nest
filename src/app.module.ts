@@ -64,6 +64,8 @@ import { BanUserByBloggerUseCase } from './users/apis/blogger-api/blogger-user.u
 import { BloggerUsersController } from './users/apis/blogger-api/blogger-users.controller';
 import { UsersRepository } from './users/users-repositories/users.repository';
 import { BlogsQueryRepository } from './blogs/repositories/blogs.query.repository';
+import { CreateCommentForPostUseCase } from './posts/posts.use.cases/create-comment-for-post.use.case';
+import { FindAllCommentsOfAllBlogsUseCase } from './blogs/apis/blogger-api/blogger-blogs.use.cases/find-all-comments-of-all-blogs.use.case';
 export const configModule = ConfigModule.forRoot({
   isGlobal: true,
   envFilePath: '.env',
@@ -83,6 +85,8 @@ const useCases = [
   DeleteBlogByBloggerUseCase,
   BanBlogBySaUseCase,
   BanUserByBloggerUseCase,
+  CreateCommentForPostUseCase,
+  FindAllCommentsOfAllBlogsUseCase,
 ];
 
 @Module({

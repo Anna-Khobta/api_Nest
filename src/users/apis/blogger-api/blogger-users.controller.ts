@@ -21,12 +21,15 @@ import { BlogsQueryRepository } from '../../../blogs/repositories/blogs.query.re
 import { BanUserByBlogerInputModel } from '../../input-models/ban-user-by-bloger.dto';
 import { BanUserByBloggerCommand } from './blogger-user.use.cases/ban-user-by-blogger-use-case';
 import { QueryPaginationInputModel } from '../../../blogs/blogs-input-models/query-pagination-input-model.dto';
+import { BlogsService } from '../../../blogs/blogs.service';
 
 @Controller('blogger/users')
 export class BloggerUsersController {
   constructor(
     protected blogsQueryRepository: BlogsQueryRepository,
     private commandBus: CommandBus,
+
+    protected blogsService: BlogsService,
   ) {}
 
   @Put(':id/ban')
@@ -52,15 +55,27 @@ export class BloggerUsersController {
 
   @Get('blog/:id')
   @UseGuards(JwtAccessGuard)
-  async getAllBlogsWhichBloggerIsOwner(
+  async getAllBannedUsersForBlog(
     @Param('id') blogId: string,
     @Query() queryPagination: QueryPaginationInputModel,
     @CurrentUserId() currentUserId: string,
   ) {
+    const isBlogExist = await this.blogsService.isBlogExistInDb(blogId);
+    if (!isBlogExist) {
+      return exceptionHandler(ResultCode.NotFound);
+    }
+
+    const isUserOwner = await this.blogsService.isUserOwnBlog(
+      blogId,
+      currentUserId,
+    );
+    if (!isUserOwner) {
+      return exceptionHandler(ResultCode.Forbidden);
+    }
+
     return await this.blogsQueryRepository.findAllBannedUsersForSpecialBlog(
       blogId,
       queryPagination,
-      currentUserId,
     );
   }
 }
