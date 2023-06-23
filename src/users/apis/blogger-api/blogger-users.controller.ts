@@ -61,7 +61,6 @@ export class BloggerUsersController {
     @CurrentUserId() currentUserId: string,
   ) {
     const isBlogExist = await this.blogsService.isBlogExistInDb(blogId);
-
     if (!isBlogExist) {
       return exceptionHandler(ResultCode.NotFound);
     }
@@ -70,7 +69,6 @@ export class BloggerUsersController {
       blogId,
       currentUserId,
     );
-
     if (!isUserOwner) {
       return exceptionHandler(ResultCode.Forbidden);
     }
