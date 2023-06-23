@@ -189,8 +189,6 @@ export class BloggerBlogsController {
     return;
   }
 
-  // blogger + comments
-
   @Get('comments')
   @UseGuards(JwtAccessGuard)
   async getAllCommentsWhichInsideBlogsCurrentUserOwner(
