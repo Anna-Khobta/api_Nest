@@ -279,6 +279,7 @@ export class CommentsRepository {
     } else {
       filter = { $or: filterIds };
     }
+
     const foundComments = await this.commentModel
       .find(filter)
       .sort({ [myPagination.sortBy]: myPagination.sortDirection })
