@@ -1,12 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogsRepository } from '../../../repositories/blogs.repository';
 import { BlogClassDbType } from '../../../db/blogs-class';
-import { Blog, BlogDocument } from '../../../db/blogs-schema';
 import { BlogsQueryRepository } from '../../../repositories/blogs.query.repository';
 import { BlogViewType } from '../../../../types/types';
 import { UsersRepository } from '../../../../users/users-repositories/users.repository';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 
 export class CreateBlogByBloggerCommand {
   constructor(
@@ -25,7 +22,6 @@ export class CreateBlogByBloggerUseCase
     protected blogsRepository: BlogsRepository,
     protected blogsQueryRepository: BlogsQueryRepository,
     protected usersRepository: UsersRepository,
-    @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
   ) {}
 
   async execute(
