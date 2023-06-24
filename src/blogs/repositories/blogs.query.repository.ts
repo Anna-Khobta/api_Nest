@@ -201,6 +201,7 @@ export class BlogsQueryRepository {
     let bannedUsers = [];
     let bannedUsersArrayMapped = [];
 
+    /*
     if (myPagination.searchLoginTerm) {
       bannedUsers = await this.blogModel.aggregate([
         { $match: { _id: blogIdMongo } },
@@ -237,33 +238,33 @@ export class BlogsQueryRepository {
           },
         }));
       }
-    } else {
-      bannedUsers = await this.blogModel.aggregate([
-        { $match: { _id: blogIdMongo } },
-        {
-          $project: {
-            _id: 0,
-            usersWereBanned: 1,
-            result: {
-              $sortArray: {
-                input: '$usersWereBanned',
-                sortBy: { sorting: direction },
-              },
+    } else {*/
+    bannedUsers = await this.blogModel.aggregate([
+      { $match: { _id: blogIdMongo } },
+      {
+        $project: {
+          _id: 0,
+          usersWereBanned: 1,
+          result: {
+            $sortArray: {
+              input: '$usersWereBanned',
+              sortBy: { [myPagination.sortBy]: myPagination.sortDirection },
             },
           },
         },
-      ]);
+      },
+    ]);
 
-      bannedUsersArrayMapped = bannedUsers[0].result.map((user) => ({
-        id: user.userId,
-        login: user.login,
-        banInfo: {
-          isBanned: user.isBanned,
-          banDate: user.banDate,
-          banReason: user.banReason,
-        },
-      }));
-    }
+    bannedUsersArrayMapped = bannedUsers[0].result.map((user) => ({
+      id: user.userId,
+      login: user.login,
+      banInfo: {
+        isBanned: user.isBanned,
+        banDate: user.banDate,
+        banReason: user.banReason,
+      },
+    }));
+    //}
 
     // console.log('bannedUsers', bannedUsers);
 
@@ -295,7 +296,7 @@ export class BlogsQueryRepository {
       },
     }));*/
 
-    if (myPagination.searchLoginTerm) {
+    /* if (myPagination.searchLoginTerm) {
       filter = {
         $and: [
           { _id: blogId },
@@ -307,9 +308,9 @@ export class BlogsQueryRepository {
           },
         ],
       };
-    } else {
-      filter = { _id: blogId };
-    }
+    } else {*/
+    filter = { _id: blogId };
+    //}
 
     const paginatedUsersWereBanned = bannedUsersArrayMapped.slice(
       myPagination.skip,
