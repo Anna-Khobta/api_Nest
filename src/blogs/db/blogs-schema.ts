@@ -32,6 +32,8 @@ export class UsersWereBanned {
   @Prop()
   userId: string;
   @Prop()
+  login: string;
+  @Prop()
   isBanned: boolean;
   @Prop()
   banReason: string | null;
