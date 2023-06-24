@@ -5,11 +5,14 @@ import { Injectable } from '@nestjs/common';
 import {
   countBannedEngagement,
   LikeStatusesEnum,
+  NewestLikesType,
+  PostViewType,
   UserLikeInfo,
 } from '../../types/types';
 import { PostClassDbType } from '../posts-class';
 import { UsersRepository } from '../../users/users-repositories/users.repository';
 import { BlogsQueryRepository } from '../../blogs/repositories/blogs.query.repository';
+import { User, UserDocument } from '../../users/users-schema';
 
 @Injectable()
 export class PostsRepository {
@@ -17,6 +20,7 @@ export class PostsRepository {
     protected usersRepository: UsersRepository,
     protected blogsQueryRepository: BlogsQueryRepository,
     @InjectModel(Post.name) private postModel: Model<PostDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
 
   async save(postInstance: PostDocument): Promise<boolean> {
@@ -211,16 +215,102 @@ export class PostsRepository {
       return null;
     }
   }
-  /*  async isPostExist(postId: string): Promise<null | string> {
+  async findAllPostsUserOwner(blogIds: { id: string }[]): Promise<any> {
+    const postsIds = [];
+    for (let i = 0; i < blogIds.length; i++) {
+      const foundPosts = await this.postModel.find({ blogId: blogIds[i].id });
+      const ids = foundPosts.map((post) => post._id.toString());
+      postsIds.push(...ids);
+    }
+    return postsIds;
+  }
+
+  async findPostByIdWhenAddToComments(
+    createdId: string,
+  ): Promise<PostViewType | null> {
     try {
-      const foundPost = await this.postModel.findById({ postId });
-      if (!foundPost) {
+      const post = await this.postModel.findById(createdId).lean();
+
+      if (!post) {
         return null;
       }
-      return foundPost.blogId;
-    } catch (err) {
-      console.log(err);
+
+      const likers = await this.last3UsersLikes(post._id.toString());
+
+      const postView = {
+        id: post._id.toString(),
+        title: post.title,
+        shortDescription: post.shortDescription,
+        content: post.content,
+        blogId: post.blogId,
+        blogName: post.blogName,
+        createdAt: post.createdAt,
+        extendedLikesInfo: {
+          likesCount: post.likesCount,
+          dislikesCount: post.dislikesCount,
+          myStatus: LikeStatusesEnum.None,
+          newestLikes: likers,
+        },
+      };
+
+      return postView;
+    } catch (error) {
       return null;
     }
-  }*/
+  }
+  async last3UsersLikes(postId: string) {
+    const bannedUserIds = await this.usersRepository.getAllBannedUsersIds();
+
+    const postWithLikes = await this.postModel
+      .find(
+        {
+          $and: [
+            { _id: postId },
+            {
+              usersEngagement: {
+                $not: {
+                  $elemMatch: {
+                    userId: { $in: bannedUserIds },
+                  },
+                },
+              },
+            },
+            { 'usersEngagement.userStatus': LikeStatusesEnum.Like },
+          ],
+        },
+        { _id: 0, __v: 0 },
+      )
+      .sort({ 'usersEngagement.createdAt': 'asc' })
+      .lean();
+
+    let mappedLikes: NewestLikesType[] = [];
+
+    if (postWithLikes.length > 0) {
+      if (postWithLikes[0].usersEngagement.length > 0) {
+        const filteredLikes = postWithLikes[0].usersEngagement.filter(
+          (user) => user.userStatus === 'Like',
+        );
+        const last3Likes = filteredLikes.slice(-3);
+        const reverse = last3Likes.reverse();
+
+        mappedLikes = await Promise.all(
+          reverse.map(async (element) => {
+            const foundLogins = await this.userModel.find(
+              { _id: element.userId },
+              { 'accountData.login': 1 },
+            );
+
+            return {
+              addedAt: element.createdAt,
+              userId: element.userId,
+              login: foundLogins[0]?.accountData?.login,
+            };
+          }),
+        );
+      }
+      return mappedLikes;
+    } else {
+      return mappedLikes;
+    }
+  }
 }

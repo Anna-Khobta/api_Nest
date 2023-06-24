@@ -7,6 +7,7 @@ import { UserViewType, UserWithMongoId } from '../types/types';
 import { UsersQueryRepository } from './users-repositories/users.query.repository';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateUserInputModel } from './input-models/create-user-input-model.dto';
+import { BlogsRepository } from '../blogs/repositories/blogs.repository';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const bcrypt = require('bcrypt');
@@ -16,6 +17,7 @@ export class UsersService {
   constructor(
     protected usersRepository: UsersRepository,
     protected usersQueryRepository: UsersQueryRepository,
+    protected blogsRepository: BlogsRepository,
     @InjectModel(User.name) protected userModel: Model<UserDocument>,
   ) {}
 
@@ -129,5 +131,17 @@ export class UsersService {
       console.log(error);
       return null;
     }
+  }
+  async isBlogOrPostOwnerBanned(blogId: string): Promise<boolean> {
+    const foundBlogOwnerId =
+      await this.blogsRepository.findBlogOwnerUserByBlogId(blogId);
+
+    const isUserOwnerBanned =
+      await this.usersRepository.isBlogOrPostOwnerBanned(foundBlogOwnerId);
+
+    if (isUserOwnerBanned) {
+      return true;
+    }
+    return false;
   }
 }

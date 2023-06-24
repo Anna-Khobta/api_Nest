@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-
+import { LikeStatusesEnum } from '../src/types/types';
 import {
   basicAuth,
   blogDescription,
@@ -14,7 +14,6 @@ import {
   fourthLogin,
   myEmail,
   myLogin,
-  myPassword,
   postContent,
   postShortDescription,
   postTitle,
@@ -22,8 +21,7 @@ import {
   secondLogin,
   thirdEmail,
   thirdLogin,
-} from './tests-functions';
-import { LikeStatusesEnum } from '../src/types/types';
+} from './tests-objects';
 
 // const users = () => {
 //   getUser1: () => expect.getState().user1;
@@ -75,7 +73,7 @@ describe('Comments (e2e)', () => {
     const createUser1 = await request(app.getHttpServer())
       .post('/sa/users')
       .set('Authorization', basicAuth)
-      .send({ login: myLogin, password: myPassword, email: myEmail })
+      .send({ login: myLogin, password: myLogin, email: myEmail })
       .expect(201);
     expect.setState({ user: createUser1 });
 
@@ -101,7 +99,7 @@ describe('Comments (e2e)', () => {
       .post('/auth/login')
       .send({
         loginOrEmail: myLogin,
-        password: myPassword,
+        password: myLogin,
       })
       .expect(200);
 

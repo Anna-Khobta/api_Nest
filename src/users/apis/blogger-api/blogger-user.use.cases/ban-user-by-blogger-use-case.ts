@@ -1,8 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepository } from '../../../users-repositories/users.repository';
-import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from '../../../users-schema';
-import { Model } from 'mongoose';
+
 import {
   ExceptionCodesType,
   ResultCode,
@@ -25,7 +23,6 @@ export class BanUserByBloggerUseCase
   constructor(
     protected blogsRepository: BlogsRepository,
     protected usersRepository: UsersRepository,
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
 
   async execute(command: BanUserByBloggerCommand): Promise<ExceptionCodesType> {

@@ -47,6 +47,7 @@ export type BannedUsersWithPagination = {
   page: number;
   pageSize: number;
   totalCount: number;
+
   items: BannedUsersViewType[];
 };
 
