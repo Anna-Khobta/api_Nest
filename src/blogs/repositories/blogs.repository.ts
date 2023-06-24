@@ -4,15 +4,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { BlogClassDbType } from '../db/blogs-class';
 import { BanUserByBlogerInputModel } from '../../users/input-models/ban-user-by-bloger.dto';
 import { BlogViewType } from '../../types/types';
-import { UsersRepository } from '../../users/users-repositories/users.repository';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class BlogsRepository {
-  constructor(
-    @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
-    protected usersRepository: UsersRepository,
-  ) {}
+  constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
   async save(blogInstance: BlogDocument): Promise<boolean> {
     try {
       await blogInstance.save();
@@ -170,10 +166,9 @@ export class BlogsRepository {
   async updateUsersWereBannedInfo(
     userId: string,
     inputModel: BanUserByBlogerInputModel,
+    foundLogin: string,
   ): Promise<boolean> {
     try {
-      const foundLogin = await this.usersRepository.findUserLogin(userId);
-
       const userBannedToAdd: UsersWereBanned = {
         userId: userId,
         login: foundLogin,

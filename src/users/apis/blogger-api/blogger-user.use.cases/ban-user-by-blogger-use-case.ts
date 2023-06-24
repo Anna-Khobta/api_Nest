@@ -7,6 +7,7 @@ import {
 } from '../../../../functions/exception-handler';
 import { BanUserByBlogerInputModel } from '../../../input-models/ban-user-by-bloger.dto';
 import { BlogsRepository } from '../../../../blogs/repositories/blogs.repository';
+import { UsersService } from '../../../users.service';
 
 export class BanUserByBloggerCommand {
   constructor(
@@ -23,6 +24,7 @@ export class BanUserByBloggerUseCase
   constructor(
     protected blogsRepository: BlogsRepository,
     protected usersRepository: UsersRepository,
+    protected usersService: UsersService,
   ) {}
 
   async execute(command: BanUserByBloggerCommand): Promise<ExceptionCodesType> {
@@ -50,9 +52,14 @@ export class BanUserByBloggerUseCase
       return { code: ResultCode.NotFound };
     }
 
+    const foundLogin = await this.usersService.foundUserLoginById(
+      command.userId,
+    );
+
     const updateBlogInfo = await this.blogsRepository.updateUsersWereBannedInfo(
       command.userId,
       command.inputModel,
+      foundLogin,
     );
 
     if (!updateBlogInfo) {

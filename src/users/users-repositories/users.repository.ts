@@ -196,4 +196,13 @@ export class UsersRepository {
     }
     return false;
   }
+  /*  async findUserLogin(userId: string): Promise<string | null> {
+    try {
+      const foundUser = await this.userModel.findById(userId);
+      return foundUser.accountData.login;
+    } catch (err) {
+      console.log(err);
+      return null;
+    }
+  }*/
 }
