@@ -28,7 +28,6 @@ export class BloggerUsersController {
   constructor(
     protected blogsQueryRepository: BlogsQueryRepository,
     private commandBus: CommandBus,
-
     protected blogsService: BlogsService,
   ) {}
 
@@ -50,7 +49,7 @@ export class BloggerUsersController {
       return exceptionHandler(updateBanBlog.code);
     }
 
-    return;
+    return updateBanBlog;
   }
 
   @Get('blog/:id')

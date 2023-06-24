@@ -89,7 +89,7 @@ export class BloggerBlogsController {
       return exceptionHandler(isUpdated.code);
     }
 
-    return isUpdated;
+    return;
   }
 
   @Delete(':id')
@@ -151,7 +151,7 @@ export class BloggerBlogsController {
   ) {
     isValid(blogId);
     isValid(postId);
-    // * ??
+
     const postUpdated = await this.commandBus.execute(
       new UpdateExistingPostForBlogCommand(
         blogId,
