@@ -15,7 +15,7 @@ import { ObjectId } from 'mongodb';
 export class BlogsQueryRepository {
   constructor(
     @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
-    @InjectModel(User.name) private userModel: Model<UserDocument>, //protected usersRepository: UsersRepository,
+    @InjectModel(User.name) private userModel: Model<UserDocument>, // TODO сервис сделать вместо protected usersRepository: UsersRepository,
   ) {}
   async findBlogs(
     queryPagination: QueryPaginationInputModel,

@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../users-schema';
 import * as bcrypt from 'bcrypt';
-import { BlogsRepository } from '../../blogs/repositories/blogs.repository';
 import { BlogsQueryRepository } from '../../blogs/repositories/blogs.query.repository';
 
 const salt = bcrypt.genSaltSync(5);
@@ -12,7 +11,6 @@ const salt = bcrypt.genSaltSync(5);
 export class UsersRepository {
   constructor(
     protected blogsQueryRepository: BlogsQueryRepository,
-    protected blogsRepository: BlogsRepository,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
 
@@ -187,13 +185,10 @@ export class UsersRepository {
       return false;
     }
   }
-  async isBlogOrPostOwnerBanned(blogId: string): Promise<boolean> {
-    const foundBlogOwner = await this.blogsRepository.findBlogOwnerUserByBlogId(
-      blogId,
-    );
 
+  async isBlogOrPostOwnerBanned(userId: string): Promise<boolean> {
     const isUserOwnerBanned = await this.userModel.findOne({
-      $and: [{ _id: foundBlogOwner }, { 'banInfo.isBanned': true }],
+      $and: [{ _id: userId }, { 'banInfo.isBanned': true }],
     });
 
     if (isUserOwnerBanned) {

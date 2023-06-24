@@ -7,12 +7,12 @@ export type UserDocument = HydratedDocument<User>;
 export class AccountDataSchema {
   @Prop({
     required: true,
-    unique: true,
+    //unique: true,
   })
   login: string;
   @Prop({
     required: true,
-    unique: true,
+    //unique: true,
   })
   email: string;
   @Prop({

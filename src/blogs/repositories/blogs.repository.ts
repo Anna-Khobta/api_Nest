@@ -4,9 +4,15 @@ import { InjectModel } from '@nestjs/mongoose';
 import { BlogClassDbType } from '../db/blogs-class';
 import { BanUserByBlogerInputModel } from '../../users/input-models/ban-user-by-bloger.dto';
 import { BlogViewType } from '../../types/types';
+import { UsersRepository } from '../../users/users-repositories/users.repository';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class BlogsRepository {
-  constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
+  constructor(
+    @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
+    protected usersRepository: UsersRepository,
+  ) {}
   async save(blogInstance: BlogDocument): Promise<boolean> {
     try {
       await blogInstance.save();
@@ -166,8 +172,11 @@ export class BlogsRepository {
     inputModel: BanUserByBlogerInputModel,
   ): Promise<boolean> {
     try {
+      const foundLogin = await this.usersRepository.findUserLogin(userId);
+
       const userBannedToAdd: UsersWereBanned = {
         userId: userId,
+        login: foundLogin,
         isBanned: inputModel.isBanned,
         banReason: inputModel.banReason,
         banDate: new Date(),
@@ -201,7 +210,10 @@ export class BlogsRepository {
 
       // разбаненых удаляем из БД
       if (checkIfUserInBannedGroup && inputModel.isBanned === false) {
-        blog.usersWereBanned.filter((user) => user.userId !== userId);
+        const sortedUser = blog.usersWereBanned.filter(
+          (user) => user.userId !== userId,
+        );
+        blog.usersWereBanned = sortedUser;
       }
 
       await blog.save();
