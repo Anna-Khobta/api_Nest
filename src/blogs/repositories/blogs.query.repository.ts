@@ -1,6 +1,5 @@
 import { Model } from 'mongoose';
 import {
-  BannedUsersWithPagination,
   BlogsWithPagination,
   BlogViewType,
   BlogViewWithOwnerAndBannedInfoType,
@@ -10,6 +9,7 @@ import { Blog, BlogDocument } from '../db/blogs-schema';
 import { getPagination } from '../../functions/pagination';
 import { QueryPaginationInputModel } from '../blogs-input-models/query-pagination-input-model.dto';
 import { User, UserDocument } from '../../users/users-schema';
+import { getPaginationBanUsers } from '../../functions/pagination-ban-users';
 
 export class BlogsQueryRepository {
   constructor(
@@ -189,11 +189,10 @@ export class BlogsQueryRepository {
   async findAllBannedUsersForSpecialBlog(
     blogId: string,
     queryPagination: QueryPaginationInputModel,
-  ): Promise<BannedUsersWithPagination> {
-    const myPagination = getPagination(queryPagination);
+  ): Promise<any> {
+    const myPagination = getPaginationBanUsers(queryPagination);
 
     let filter: any = {};
-
     if (myPagination.searchLoginTerm) {
       filter = {
         $and: [
@@ -210,36 +209,38 @@ export class BlogsQueryRepository {
       filter = { _id: blogId };
     }
 
-    const blog = await this.blogModel
-      .find(filter, {
-        'usersWereBanned.userId': 1,
-        'usersWereBanned.isBanned': 1,
-        'usersWereBanned.banReason': 1,
-        'usersWereBanned.banDate': 1,
-      })
-      .skip(myPagination.skip)
-      .limit(myPagination.limit)
-      .sort({ [myPagination.sortBy]: myPagination.sortDirection })
-      .lean();
-
-    const bannedUsers = blog[0].usersWereBanned;
-
-    const items = await Promise.all(
-      bannedUsers.map(async (user) => {
-        const login = await this.findUserLogin(user.userId);
-        return {
-          id: user.userId,
-          login: login,
-          banInfo: {
-            isBanned: user.isBanned,
-            banDate: user.banDate,
-            banReason: user.banReason,
+    const bannedUsers = await this.blogModel.aggregate([
+      {
+        $project: {
+          _id: 0,
+          usersWereBanned: 1,
+          result: {
+            $sortArray: { input: '$usersWereBanned', sortBy: { login: 1 } },
           },
-        };
-      }),
+        },
+      },
+    ]);
+
+    const bannedUsersArrayMapped = bannedUsers[0].result.map((user) => ({
+      id: user.userId,
+      login: user.login,
+      banInfo: {
+        isBanned: user.isBanned,
+        banDate: user.banDate,
+        banReason: user.banReason,
+      },
+    }));
+
+    const paginatedUsersWereBanned = bannedUsersArrayMapped.slice(
+      myPagination.skip,
+      myPagination.skip + myPagination.limit,
     );
 
-    const total = await this.blogModel.countDocuments(filter);
+    const allBannedUsers = await this.blogModel.find(filter, {
+      usersWereBanned: 1,
+      _id: 0,
+    });
+    const total = allBannedUsers[0].usersWereBanned.length;
 
     const pagesCount = Math.ceil(total / myPagination.limit);
 
@@ -247,8 +248,8 @@ export class BlogsQueryRepository {
       pagesCount: pagesCount,
       page: myPagination.page,
       pageSize: myPagination.limit,
-      totalCount: bannedUsers.length,
-      items: items,
+      totalCount: total,
+      items: paginatedUsersWereBanned,
     };
   }
 
