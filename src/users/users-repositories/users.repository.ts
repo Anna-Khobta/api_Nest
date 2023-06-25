@@ -80,7 +80,6 @@ export class UsersRepository {
 
     userInstance.emailConfirmation.confirmationCode = generateConfirmationCode;
     userInstance.emailConfirmation.expirationDate = generateExpirationDate;
-
     await userInstance.save();
     return true;
   }
