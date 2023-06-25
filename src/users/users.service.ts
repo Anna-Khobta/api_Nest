@@ -18,6 +18,7 @@ export class UsersService {
     protected usersRepository: UsersRepository,
     protected usersQueryRepository: UsersQueryRepository,
     protected blogsRepository: BlogsRepository,
+
     @InjectModel(User.name) protected userModel: Model<UserDocument>,
   ) {}
 
@@ -143,5 +144,9 @@ export class UsersService {
       return true;
     }
     return false;
+  }
+
+  async foundUserLoginById(userId: string): Promise<string | null> {
+    return await this.usersRepository.findUserLogin(userId);
   }
 }

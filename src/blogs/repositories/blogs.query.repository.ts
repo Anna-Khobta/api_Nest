@@ -8,15 +8,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Blog, BlogDocument } from '../db/blogs-schema';
 import { getPagination } from '../../functions/pagination';
 import { QueryPaginationInputModel } from '../blogs-input-models/query-pagination-input-model.dto';
-import { User, UserDocument } from '../../users/users-schema';
 import { getPaginationBanUsers } from '../../functions/pagination-ban-users';
 import { ObjectId } from 'mongodb';
 
 export class BlogsQueryRepository {
-  constructor(
-    @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
-    @InjectModel(User.name) private userModel: Model<UserDocument>, // TODO сервис сделать вместо protected usersRepository: UsersRepository,
-  ) {}
+  constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
   async findBlogs(
     queryPagination: QueryPaginationInputModel,
   ): Promise<BlogsWithPagination> {
@@ -300,15 +296,5 @@ export class BlogsQueryRepository {
       totalCount: total,
       items: paginatedUsersWereBanned,
     };
-  }
-
-  async findUserLogin(userId: string): Promise<string | null> {
-    try {
-      const foundUser = await this.userModel.findById(userId);
-      return foundUser.accountData.login;
-    } catch (err) {
-      console.log(err);
-      return null;
-    }
   }
 }
