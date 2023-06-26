@@ -4,7 +4,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../users-schema';
 import {
   UserDbType,
-  UserInfoForEmail,
   UsersWithPagination,
   UserViewType,
   UserWithMongoId,
@@ -177,22 +176,6 @@ export class UsersQueryRepository {
       pageSize: myPagination.limit,
       totalCount: total,
       items: items,
-    };
-  }
-
-  async findUserInfoForEmailSend(
-    userId: string,
-  ): Promise<UserInfoForEmail | null> {
-    const user = await this.userModel.findById(userId).lean();
-
-    if (!user) {
-      return null;
-    }
-
-    return {
-      id: user._id.toString(),
-      email: user.accountData.email,
-      confirmationCode: user.emailConfirmation.confirmationCode,
     };
   }
 

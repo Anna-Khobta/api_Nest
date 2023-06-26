@@ -8,6 +8,7 @@ import { UsersRepository } from '../users/users-repositories/users.repository';
 import { UsersQueryRepository } from '../users/users-repositories/users.query.repository';
 import { ConfigService } from '@nestjs/config';
 import { DeviceRepository } from '../devices/device.repository';
+import { UserWithMongoId } from '../types/types';
 @Injectable()
 export class AuthService {
   constructor(
@@ -19,6 +20,7 @@ export class AuthService {
     private configService: ConfigService,
     protected deviceRepository: DeviceRepository,
   ) {}
+
   async validateUser(username: string, password: string): Promise<any> {
     const auth = { login: 'admin', password: 'qwerty' };
     if (
@@ -120,6 +122,7 @@ export class AuthService {
       newPassword,
     );
   }
+
   async createNewAccessRefreshTokens(userId: string, deviceId: string) {
     //const decodedRefreshToken = this.jwtService.decode(refreshToken);
 
@@ -151,5 +154,31 @@ export class AuthService {
       return false;
     }
     return true;
+  }
+
+  async checkUserByLoginOrEmail(login: string | null, email: string | null) {
+    return await this.usersRepository.findUserByLoginOrEmail(login, email);
+  }
+  async emailSending(newUserId: string) {
+    const userConfirmationCode =
+      await this.usersRepository.findUserInfoForEmailSend(newUserId);
+
+    try {
+      // в сервис
+      await this.emailsManager.sendEmailConfirmationMessage(
+        userConfirmationCode!.id,
+        userConfirmationCode!.email,
+        userConfirmationCode!.confirmationCode,
+      );
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+  async emailResending(foundUserByEmail: UserWithMongoId) {
+    return await this.emailsManager.resendEmailConfirmationMessage(
+      foundUserByEmail,
+    );
   }
 }

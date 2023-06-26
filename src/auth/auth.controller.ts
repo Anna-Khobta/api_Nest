@@ -9,7 +9,6 @@ import {
   Headers,
   Res,
   HttpCode,
-  BadRequestException,
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { UsersQueryRepository } from '../users/users-repositories/users.query.repository';
@@ -33,6 +32,11 @@ import { CreateUserInputModel } from '../users/input-models/create-user-input-mo
 import { JwtPayload } from '../decorators/JwtPayload.param.decorator';
 import { IfRefreshTokenInDbGuard } from '../auth-guards/if.Refresh.Token.In.Db.guard';
 import { LoginPasswordGuard } from '../auth-guards/login-password.guard';
+import {
+  customMessageEmail,
+  customMessageLogin,
+  customMessageRecoveryCode,
+} from '../functions/customMessageErrors/custom-messages';
 
 const httpOnlyTrue = {
   httpOnly: true,
@@ -90,55 +94,15 @@ export class AuthController {
   async registerUser(@Body() inputModel: CreateUserInputModel) {
     const newUserId = await this.usersService.createUser(inputModel, false);
 
-    // TODO вынести в сервис
-
     if (newUserId === 'login') {
-      throw new CustomException(
-        {
-          errorsMessages: [
-            {
-              message: 'This login is already exist ',
-              field: 'login',
-            },
-          ],
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new CustomException(customMessageLogin, HttpStatus.BAD_REQUEST);
     }
-
     if (newUserId === 'email') {
       {
-        throw new CustomException(
-          {
-            errorsMessages: [
-              {
-                message: 'This email is already exist ',
-                field: 'email',
-              },
-            ],
-          },
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new CustomException(customMessageEmail, HttpStatus.BAD_REQUEST);
       }
     }
-
-    const userConfirmationCode =
-      await this.usersQueryRepository.findUserInfoForEmailSend(newUserId);
-
-    try {
-      // в сервис
-      await this.emailsManager.sendEmailConfirmationMessage(
-        userConfirmationCode!.id,
-        userConfirmationCode!.email,
-        userConfirmationCode!.confirmationCode,
-      );
-      return true;
-    } catch (error) {
-      console.log(error);
-      throw new BadRequestException([
-        { message: 'Something went wrong with email sending', field: 'email' },
-      ]);
-    }
+    return await this.authService.emailSending(newUserId);
   }
 
   @Post('registration-confirmation')
@@ -151,11 +115,7 @@ export class AuthController {
 
     if (!isEmailConfirmed) {
       throw new CustomException(
-        {
-          errorsMessages: [
-            { message: 'Incorrect code or it was already used', field: 'code' },
-          ],
-        },
+        customMessageRecoveryCode,
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -166,44 +126,21 @@ export class AuthController {
   @HttpCode(204)
   //@UseGuards(IpLimitGuard)
   async resendEmail(@Body() email: inputModelEmail) {
-    // TODO проверку перенести в сервис  ?
-    const foundUserByEmail =
-      await this.usersQueryRepository.findUserByLoginOrEmail(null, email.email);
-    // перенести в репозиторий
-    if (!foundUserByEmail) {
-      throw new CustomException(
-        {
-          errorsMessages: [
-            { message: "Such email doesn't exist", field: 'email' },
-          ],
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    if (foundUserByEmail.emailConfirmation.isConfirmed === true) {
-      throw new CustomException(
-        {
-          errorsMessages: [
-            { message: 'This email was already confirmed', field: 'email' },
-          ],
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    const resendEmail = await this.emailsManager.resendEmailConfirmationMessage(
-      foundUserByEmail,
+    const foundUserByEmail = await this.authService.checkUserByLoginOrEmail(
+      null,
+      email.email,
     );
+
+    if (
+      !foundUserByEmail ||
+      foundUserByEmail.emailConfirmation.isConfirmed === true
+    ) {
+      throw new CustomException(customMessageEmail, HttpStatus.BAD_REQUEST);
+    }
+
+    const resendEmail = await this.authService.emailResending(foundUserByEmail);
     if (!resendEmail) {
-      throw new CustomException(
-        {
-          errorsMessages: [
-            { message: 'Some problems with email send', field: 'email' },
-          ],
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new CustomException(customMessageEmail, HttpStatus.BAD_REQUEST);
     }
     return true;
   }
@@ -216,11 +153,6 @@ export class AuthController {
     @JwtPayload() jwtPayload: JwtPayloadClass,
     @Res({ passthrough: true }) response: Response,
   ) {
-    /* const checkJwtInDb = await this.authService.ifTokenInfoInDb(jwtPayload);
-    if (!checkJwtInDb) {
-      throw new CustomException('Blog not found', HttpStatus.UNAUTHORIZED);
-    }*/
-
     const createNewTokens = await this.authService.createNewAccessRefreshTokens(
       jwtPayload.userId,
       jwtPayload.deviceId,
@@ -241,11 +173,7 @@ export class AuthController {
     @Ip() ip: string,
     @JwtPayload() jwtPayload: JwtPayloadClass,
   ) {
-    const isTokenDeleted = await this.deviceService.deleteDeviceInfo(
-      jwtPayload,
-    );
-
-    return true;
+    return await this.deviceService.deleteDeviceInfo(jwtPayload);
   }
   @Post('password-recovery')
   @HttpCode(204)
@@ -266,14 +194,7 @@ export class AuthController {
 
     if (!result) {
       throw new CustomException(
-        {
-          errorsMessages: [
-            {
-              message: 'Incorrect recoveryCode or it was already used',
-              field: 'code',
-            },
-          ],
-        },
+        customMessageRecoveryCode,
         HttpStatus.BAD_REQUEST,
       );
     }
