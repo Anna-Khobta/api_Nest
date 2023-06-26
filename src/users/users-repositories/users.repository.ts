@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../users-schema';
 import * as bcrypt from 'bcrypt';
 import { BlogsQueryRepository } from '../../blogs/repositories/blogs.query.repository';
+import { UserInfoForEmail, UserWithMongoId } from '../../types/types';
 
 const salt = bcrypt.genSaltSync(5);
 
@@ -195,13 +196,34 @@ export class UsersRepository {
     }
     return false;
   }
-  /*  async findUserLogin(userId: string): Promise<string | null> {
+  async findUserByLoginOrEmail(
+    login: string | null,
+    email: string | null,
+  ): Promise<UserWithMongoId | null> {
     try {
-      const foundUser = await this.userModel.findById(userId);
-      return foundUser.accountData.login;
-    } catch (err) {
-      console.log(err);
+      return await this.userModel
+        .findOne({
+          $or: [{ 'accountData.login': login }, { 'accountData.email': email }],
+        })
+        .lean();
+    } catch (error) {
+      console.log(error);
       return null;
     }
-  }*/
+  }
+  async findUserInfoForEmailSend(
+    userId: string,
+  ): Promise<UserInfoForEmail | null> {
+    const user = await this.userModel.findById(userId).lean();
+
+    if (!user) {
+      return null;
+    }
+
+    return {
+      id: user._id.toString(),
+      email: user.accountData.email,
+      confirmationCode: user.emailConfirmation.confirmationCode,
+    };
+  }
 }
