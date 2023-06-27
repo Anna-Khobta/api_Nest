@@ -1,14 +1,14 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { UsersQueryRepository } from '../users/users-repositories/users.query.repository';
+import { UsersRepository } from '../users/users-repositories/users.repository';
 
 @Injectable()
 export class RecoveryCodeGuard implements CanActivate {
-  constructor(private usersQueryRepository: UsersQueryRepository) {}
+  constructor(private usersRepository: UsersRepository) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const recoveryCode = request.body.recoveryCode;
 
-    const user = await this.usersQueryRepository.findUserByRecoveryCode(
+    const user = await this.usersRepository.findUserByRecoveryCode(
       recoveryCode,
     );
 

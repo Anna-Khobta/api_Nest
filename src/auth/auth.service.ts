@@ -47,7 +47,7 @@ export class AuthService {
 
   async confirmEmail(code: string): Promise<boolean> {
     const foundUserByCode =
-      await this.usersQueryRepository.findUserByConfirmationCode(code);
+      await this.usersRepository.findUserByConfirmationCode(code);
 
     if (!foundUserByCode) return false;
 
@@ -98,8 +98,9 @@ export class AuthService {
     newPassword: string,
     recoveryCode: string,
   ): Promise<string | null> {
-    const foundUserByCode =
-      await this.usersQueryRepository.findUserByRecoveryCode(recoveryCode);
+    const foundUserByCode = await this.usersRepository.findUserByRecoveryCode(
+      recoveryCode,
+    );
 
     if (!foundUserByCode) {
       return null;

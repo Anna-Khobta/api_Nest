@@ -226,4 +226,29 @@ export class UsersRepository {
       confirmationCode: user.emailConfirmation.confirmationCode,
     };
   }
+  async findUserByRecoveryCode(
+    recoveryCode: string,
+  ): Promise<UserWithMongoId | null> {
+    const foundUser = await this.userModel
+      .findOne({
+        'passwordRecovery.recoveryCode': recoveryCode,
+      })
+      .lean();
+
+    if (!foundUser) {
+      return null;
+    } else {
+      return foundUser;
+    }
+  }
+  async findUserByConfirmationCode(
+    code: string,
+  ): Promise<UserWithMongoId | null> {
+    const foundUser = await this.userModel.findOne(
+      { 'emailConfirmation.confirmationCode': code },
+      { __v: 0 },
+    );
+
+    return foundUser || null;
+  }
 }
