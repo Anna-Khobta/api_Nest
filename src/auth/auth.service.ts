@@ -9,6 +9,7 @@ import { UsersQueryRepository } from '../users/users-repositories/users.query.re
 import { ConfigService } from '@nestjs/config';
 import { DeviceRepository } from '../devices/device.repository';
 import { UserWithMongoId } from '../types/types';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -20,19 +21,6 @@ export class AuthService {
     private configService: ConfigService,
     protected deviceRepository: DeviceRepository,
   ) {}
-
-  async validateUser(username: string, password: string): Promise<any> {
-    const auth = { login: 'admin', password: 'qwerty' };
-    if (
-      username &&
-      password &&
-      username === auth.login &&
-      password === auth.password
-    ) {
-      return { username };
-    }
-    return null;
-  }
 
   async getTokens(id: string) {
     const accessToken = this.jwtService.sign(
