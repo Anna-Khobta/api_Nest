@@ -18,7 +18,6 @@ import { DeviceService } from '../devices/device.service';
 import { CurrentUserId } from '../decorators/current-user-id.param.decorator';
 import { JwtAccessGuard } from '../auth-guards/jwt-access.guard';
 import { Response } from 'express';
-import { EmailsManager } from '../managers/emails-manager';
 import { JwtRefreshGuard } from '../auth-guards/jwt-refresh.guard';
 import { RecoveryCodeGuard } from '../auth-guards/recoveryCode.guard';
 import {
@@ -50,7 +49,6 @@ export class AuthController {
     protected usersQueryRepository: UsersQueryRepository,
     protected authService: AuthService,
     protected deviceService: DeviceService,
-    protected emailsManager: EmailsManager,
   ) {}
 
   @Post('login')
