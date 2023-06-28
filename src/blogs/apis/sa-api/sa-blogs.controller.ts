@@ -8,9 +8,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { BlogsService } from '../../blogs.service';
 import { BlogsQueryRepository } from '../../repositories/blogs.query.repository';
-import { PostsService } from '../../../posts/posts.service';
 import { BasicAuthGuard } from '../../../auth-guards/basic-auth.guard';
 import { QueryPaginationInputModel } from '../../blogs-input-models/query-pagination-input-model.dto';
 import { BindBlogWithUserCommand } from './sa-blogs.use.cases/bind-blog-with-user-use-case';
@@ -26,9 +24,7 @@ import {
 @Controller('sa/blogs')
 export class SaBlogsController {
   constructor(
-    protected blogsService: BlogsService,
     protected blogsQueryRepository: BlogsQueryRepository,
-    protected postsService: PostsService,
     private commandBus: CommandBus,
   ) {}
 
