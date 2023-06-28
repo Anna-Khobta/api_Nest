@@ -3,21 +3,16 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../users-schema';
 import {
-  UserDbType,
   UsersWithPagination,
   UserViewType,
   UserWithMongoId,
 } from '../../types/types';
-import { Post, PostDocument } from '../../posts/posts-schema';
 import { getUsersPagination } from '../users-pagination';
 import { QueryPaginationInputModel } from '../../blogs/blogs-input-models/query-pagination-input-model.dto';
 
 @Injectable()
 export class UsersQueryRepository {
-  constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
-    @InjectModel(Post.name) protected postModel: Model<PostDocument>,
-  ) {}
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async findUserByLoginOrEmail(
     login: string | null,
@@ -53,36 +48,6 @@ export class UsersQueryRepository {
         banReason: user.banInfo.banReason,
       },
     };
-  }
-
-  async findUserByCode(code: string): Promise<UserDbType | null> {
-    const foundUser = await this.userModel
-      .findOne({
-        'emailConfirmation.confirmationCode': code,
-      })
-      .lean();
-
-    if (!foundUser) {
-      return null;
-    } else {
-      return foundUser;
-    }
-  }
-
-  async findUserByRecoveryCode(
-    recoveryCode: string,
-  ): Promise<UserWithMongoId | null> {
-    const foundUser = await this.userModel
-      .findOne({
-        'passwordRecovery.recoveryCode': recoveryCode,
-      })
-      .lean();
-
-    if (!foundUser) {
-      return null;
-    } else {
-      return foundUser;
-    }
   }
 
   async findUsers(
@@ -177,16 +142,5 @@ export class UsersQueryRepository {
       totalCount: total,
       items: items,
     };
-  }
-
-  async findUserByConfirmationCode(
-    code: string,
-  ): Promise<UserWithMongoId | null> {
-    const foundUser = await this.userModel.findOne(
-      { 'emailConfirmation.confirmationCode': code },
-      { __v: 0 },
-    );
-
-    return foundUser || null;
   }
 }
