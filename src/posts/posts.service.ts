@@ -3,9 +3,8 @@ import { Model } from 'mongoose';
 import { PostClassDbType } from './posts-class';
 import { PostsRepository } from './repositories/posts.repository';
 import { PostsQueryRepository } from './repositories/posts.query.repository';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { BlogsQueryRepository } from '../blogs/repositories/blogs.query.repository';
 
 import { LikeStatusesEnum, PostViewType, UserLikeInfo } from '../types/types';
 import { CreatePostInputModel } from './input-models/create-post-input-model.dto';
@@ -20,11 +19,8 @@ import { UsersRepository } from '../users/users-repositories/users.repository';
 @Injectable()
 export class PostsService {
   constructor(
-    @Inject(PostsQueryRepository)
     protected postQueryRepository: PostsQueryRepository,
-    @Inject(PostsRepository)
-    protected postsDbRepository: PostsRepository,
-    protected blogsQueryRepository: BlogsQueryRepository,
+    protected postsRepository: PostsRepository,
     protected blogsRepository: BlogsRepository,
     protected usersRepository: UsersRepository,
     @InjectModel(Post.name) protected postModel: Model<PostDocument>,
@@ -52,10 +48,9 @@ export class PostsService {
       null,
     );
 
-    const postInstance = new this.postModel(newPost);
-    await this.postsDbRepository.save(postInstance);
+    const newPostId = await this.postsRepository.createAndSave(newPost);
 
-    return postInstance._id.toString();
+    return newPostId;
   }
 
   async updatePost(
@@ -71,7 +66,7 @@ export class PostsService {
       return null;
     }
 
-    const updatedPostId = await this.postsDbRepository.updatePost(
+    const updatedPostId = await this.postsRepository.updatePost(
       postId,
       inputModel.title,
       inputModel.shortDescription,
@@ -86,11 +81,11 @@ export class PostsService {
   }
 
   async deletePost(id: string): Promise<boolean> {
-    return this.postsDbRepository.deletePost(id);
+    return this.postsRepository.deletePost(id);
   }
 
   async deleteAllPosts(): Promise<number> {
-    return this.postsDbRepository.deleteAllPosts();
+    return this.postsRepository.deleteAllPosts();
   }
 
   async createLikeStatus(
@@ -100,7 +95,7 @@ export class PostsService {
     likeStatus: LikeStatusesEnum,
   ): Promise<boolean> {
     const checkIfUserHaveAlreadyPutLike: LikeStatusesEnum | null =
-      await this.postQueryRepository.checkUserLike(postId, userId);
+      await this.postsRepository.checkUserLike(postId, userId);
 
     const userLikeInfo: UserLikeInfo = {
       userId: userId,
@@ -113,7 +108,7 @@ export class PostsService {
 
     //если пользователь ранее не лайкал вообще этот пост
     if (!checkIfUserHaveAlreadyPutLike) {
-      return await this.postsDbRepository.createUserLikeInfoInDb(
+      return await this.postsRepository.createUserLikeInfoInDb(
         postId,
         userLikeInfo,
         likeStatus,
@@ -159,7 +154,7 @@ export class PostsService {
         }
       }
 
-      return await this.postsDbRepository.updateUserLikeInfo(
+      return await this.postsRepository.updateUserLikeInfo(
         postId,
         userLikeInfo,
         likeStatus,
@@ -170,7 +165,7 @@ export class PostsService {
   }
 
   async checkIsBlogWasBannedBySa(postId: string): Promise<SuccesCodeType> {
-    const foundBlogId = await this.postsDbRepository.foundBlogId(postId);
+    const foundBlogId = await this.postsRepository.foundBlogId(postId);
     if (!foundBlogId) {
       return { data: null, code: ResultCode.NotFound };
     }

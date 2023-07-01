@@ -1,17 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from '../users/users-schema';
-import { Model } from 'mongoose';
 import { DeviceRepository } from './device.repository';
 import { DeviceDBType } from '../types/types';
 import { JwtPayloadClass } from '../auth/auth-input-classes';
 
 @Injectable()
 export class DeviceService {
-  constructor(
-    protected deviceRepository: DeviceRepository,
-    @InjectModel(User.name) protected userModel: Model<UserDocument>,
-  ) {}
+  constructor(protected deviceRepository: DeviceRepository) {}
 
   async createDeviceInfoInDB(
     decodedRefreshToken: any,
