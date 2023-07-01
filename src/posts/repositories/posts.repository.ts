@@ -23,7 +23,7 @@ export class PostsRepository {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
 
-  async save(postInstance: PostDocument): Promise<boolean> {
+  /*async save(postInstance: PostDocument): Promise<boolean> {
     try {
       await postInstance.save();
       return true;
@@ -31,7 +31,7 @@ export class PostsRepository {
       console.log(error);
       return false;
     }
-  }
+  }*/
 
   async createAndSave(newPost: PostClassDbType): Promise<string | null> {
     try {
@@ -311,6 +311,30 @@ export class PostsRepository {
       return mappedLikes;
     } else {
       return mappedLikes;
+    }
+  }
+  async checkUserLike(
+    postId: string,
+    userId: string,
+  ): Promise<LikeStatusesEnum | null> {
+    try {
+      const postInstance = await this.postModel.findOne({ _id: postId });
+
+      if (!postInstance) {
+        return null;
+      }
+
+      const userLikeInfo = postInstance.usersEngagement.find(
+        (user) => user.userId === userId,
+      );
+
+      if (!userLikeInfo) {
+        return null;
+      }
+      return userLikeInfo.userStatus;
+    } catch (error) {
+      console.log(error);
+      return null;
     }
   }
 }

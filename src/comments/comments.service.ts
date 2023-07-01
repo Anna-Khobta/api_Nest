@@ -103,25 +103,24 @@ export class CommentsService {
       userLogin: findUserLogin.login,
     };
 
-    const foundCommentOwner = await this.commentModel
-      .findOne({
-        _id: commentId,
-      })
-      .lean();
+    const foundCommentOwnerInfo = await this.commentOwnerIdAndLogin(commentId);
 
-    if (!foundCommentOwner) {
+    if (!foundCommentOwnerInfo) {
       return 'NotFound';
     }
 
-    if (foundCommentOwner) {
+    if (foundCommentOwnerInfo) {
       if (
-        foundCommentOwner.commentatorInfo.userId === commentatorInfo.userId &&
-        foundCommentOwner.commentatorInfo.userLogin ===
-          commentatorInfo.userLogin
+        foundCommentOwnerInfo.userId === commentatorInfo.userId &&
+        foundCommentOwnerInfo.userLogin === commentatorInfo.userLogin
       ) {
         return true;
       }
     }
+  }
+
+  async commentOwnerIdAndLogin(commentId: string) {
+    return await this.commentsRepository.findCommentOwner(commentId);
   }
 
   async deleteAllComments(): Promise<number> {
