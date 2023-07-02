@@ -251,4 +251,12 @@ export class UsersRepository {
 
     return foundUser || null;
   }
+
+  async findLogin(userId: string) {
+    const foundLogin = this.userModel.find(
+      { _id: userId },
+      { 'accountData.login': 1 },
+    );
+    return foundLogin[0]?.accountData?.login;
+  }
 }
