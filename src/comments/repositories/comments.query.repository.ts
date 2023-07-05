@@ -141,6 +141,7 @@ export class CommentsQueryRepository {
     }
   }
 
+  // перенести в репозиторий
   async checkUserLike(
     commentId: string,
     userId: string,
