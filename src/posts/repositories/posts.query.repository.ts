@@ -46,7 +46,9 @@ export class PostsQueryRepository {
 
     const mappedPosts = await Promise.all(
       foundPosts.map(async (post) => {
-        const likers = await this.last3UsersLikes(post._id.toString());
+        const likers = await this.postsRepository.last3UsersLikes(
+          post._id.toString(),
+        );
 
         const countingWithBanned =
           await this.postsRepository.countingLikesDislikesOnPostMinusBanned(
@@ -108,7 +110,9 @@ export class PostsQueryRepository {
 
     const mappedPosts = await Promise.all(
       foundPosts.map(async (post) => {
-        const likers = await this.last3UsersLikes(post._id.toString());
+        const likers = await this.postsRepository.last3UsersLikes(
+          post._id.toString(),
+        );
 
         const countingWithBanned =
           await this.postsRepository.countingLikesDislikesOnPostMinusBanned(
@@ -165,7 +169,9 @@ export class PostsQueryRepository {
         return null;
       }
 
-      const likers = await this.last3UsersLikes(post._id.toString());
+      const likers = await this.postsRepository.last3UsersLikes(
+        post._id.toString(),
+      );
 
       const postView = {
         id: post._id.toString(),
@@ -220,7 +226,7 @@ export class PostsQueryRepository {
     const countingWithBanned =
       await this.postsRepository.countingLikesDislikesOnPostMinusBanned(postId);
 
-    const likers = await this.last3UsersLikes(postId);
+    const likers = await this.postsRepository.last3UsersLikes(postId);
 
     const postView = {
       id: postId,
@@ -239,8 +245,8 @@ export class PostsQueryRepository {
     };
     return postView;
   }
-
-  async checkUserLike(
+}
+/*async checkUserLike(
     postId: string,
     userId: string,
   ): Promise<LikeStatusesEnum | null> {
@@ -262,10 +268,9 @@ export class PostsQueryRepository {
     } catch (error) {
       console.log(error);
       return null;
-    }
-  }
+    }*/
 
-  async last3UsersLikes(postId: string) {
+/*async last3UsersLikes(postId: string) {
     const bannedUserIds = await this.usersRepository.getAllBannedUsersIds();
 
     const postWithLikes = await this.postModel
@@ -319,5 +324,4 @@ export class PostsQueryRepository {
     } else {
       return mappedLikes;
     }
-  }
-}
+  }*/

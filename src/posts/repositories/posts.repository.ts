@@ -12,7 +12,6 @@ import {
 import { PostClassDbType } from '../posts-class';
 import { UsersRepository } from '../../users/users-repositories/users.repository';
 import { BlogsQueryRepository } from '../../blogs/repositories/blogs.query.repository';
-import { User, UserDocument } from '../../users/users-schema';
 
 @Injectable()
 export class PostsRepository {
@@ -20,18 +19,7 @@ export class PostsRepository {
     protected usersRepository: UsersRepository,
     protected blogsQueryRepository: BlogsQueryRepository,
     @InjectModel(Post.name) private postModel: Model<PostDocument>,
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
-
-  /*async save(postInstance: PostDocument): Promise<boolean> {
-    try {
-      await postInstance.save();
-      return true;
-    } catch (error) {
-      console.log(error);
-      return false;
-    }
-  }*/
 
   async createAndSave(newPost: PostClassDbType): Promise<string | null> {
     try {
@@ -295,9 +283,12 @@ export class PostsRepository {
 
         mappedLikes = await Promise.all(
           reverse.map(async (element) => {
-            const foundLogins = await this.userModel.find(
+            /*const foundLogins = await this.userModel.find(
               { _id: element.userId },
               { 'accountData.login': 1 },
+            );*/
+            const foundLogins = await this.usersRepository.findLogin(
+              element.userId,
             );
 
             return {

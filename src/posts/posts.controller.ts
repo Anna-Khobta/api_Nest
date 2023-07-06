@@ -34,7 +34,6 @@ export class PostsController {
   constructor(
     protected postsService: PostsService,
     protected postsQueryRepository: PostsQueryRepository,
-    protected commentsService: CommentsService,
     protected commentsQueryRepository: CommentsQueryRepository,
     private commandBus: CommandBus,
   ) {}
