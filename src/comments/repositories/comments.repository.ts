@@ -338,6 +338,26 @@ export class CommentsRepository {
       items: mappedComments,
     };
   }
+  async findCommentOwner(commentId: string) {
+    try {
+      const foundCommentOwner = await this.commentModel
+        .findOne({
+          _id: commentId,
+        })
+        .lean();
+
+      if (!foundCommentOwner) {
+        return null;
+      }
+      return {
+        userId: foundCommentOwner.commentatorInfo.userId,
+        userLogin: foundCommentOwner.commentatorInfo.userLogin,
+      };
+    } catch (err) {
+      console.log(err);
+      return null;
+    }
+  }
 }
 
 /* const comments = [];
