@@ -17,7 +17,6 @@ import { CustomException } from '../functions/custom-exception';
 import { isValid } from '../functions/isValid-Id';
 import { LikeStatusInputModel } from './input-models/like-status-input-model.dto';
 import { CurrentUserId } from '../decorators/current-user-id.param.decorator';
-import { CommentsService } from '../comments/comments.service';
 import { IfHaveUserJwtAccessGuard } from '../auth-guards/if.have.user.jwt-access.guard';
 import { CommentsQueryRepository } from '../comments/repositories/comments.query.repository';
 import { JwtAccessGuard } from '../auth-guards/jwt-access.guard';
