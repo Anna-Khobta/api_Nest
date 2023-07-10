@@ -23,7 +23,6 @@ export class PostsService {
     protected postsRepository: PostsRepository,
     protected blogsRepository: BlogsRepository,
     protected usersRepository: UsersRepository,
-    @InjectModel(Post.name) protected postModel: Model<PostDocument>,
   ) {}
 
   async createPost(
