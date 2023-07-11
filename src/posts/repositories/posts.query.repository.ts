@@ -4,7 +4,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Post, PostDocument } from '../posts-schema';
 import {
   LikeStatusesEnum,
-  NewestLikesType,
   PostsWithPagination,
   PostViewType,
 } from '../../types/types';
