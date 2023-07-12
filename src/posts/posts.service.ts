@@ -1,5 +1,3 @@
-import { Post, PostDocument } from './posts-schema';
-import { Model } from 'mongoose';
 import { PostClassDbType } from './posts-class';
 import { PostsRepository } from './repositories/posts.repository';
 import { PostsQueryRepository } from './repositories/posts.query.repository';
