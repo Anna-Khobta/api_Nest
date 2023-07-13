@@ -2,7 +2,6 @@ import { PostClassDbType } from './posts-class';
 import { PostsRepository } from './repositories/posts.repository';
 import { PostsQueryRepository } from './repositories/posts.query.repository';
 import { Injectable } from '@nestjs/common';
-
 import { LikeStatusesEnum, PostViewType, UserLikeInfo } from '../types/types';
 import { CreatePostInputModel } from './input-models/create-post-input-model.dto';
 import { BlogsRepository } from '../blogs/repositories/blogs.repository';
