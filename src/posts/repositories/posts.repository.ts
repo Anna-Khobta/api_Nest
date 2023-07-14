@@ -45,7 +45,6 @@ export class PostsRepository {
     }
 
     //postInstance.updatePost()
-
     postInstance.title = title;
     postInstance.shortDescription = shortDescription;
     postInstance.content = content;
@@ -62,11 +61,6 @@ export class PostsRepository {
   async deletePost(id: string): Promise<boolean> {
     const result = await this.postModel.findOneAndDelete({ _id: id });
     return result !== null;
-  }
-
-  async deleteAllPosts(): Promise<number> {
-    const result = await this.postModel.deleteMany({});
-    return result.deletedCount;
   }
 
   async createUserLikeInfoInDb(
