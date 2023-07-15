@@ -79,10 +79,6 @@ export class PostsService {
     return this.postsRepository.deletePost(id);
   }
 
-  async deleteAllPosts(): Promise<number> {
-    return this.postsRepository.deleteAllPosts();
-  }
-
   async createLikeStatus(
     userId: string,
     foundPost: PostViewType,
