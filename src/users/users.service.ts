@@ -92,10 +92,6 @@ export class UsersService {
     return await this.usersRepository.deleteUser(id);
   }
 
-  async deleteAllUsers(): Promise<number> {
-    return this.usersRepository.deleteAllUsers();
-  }
-
   async findUserById(userId: string): Promise<UserViewType | null> {
     return await this.usersQueryRepository.findUserById(userId);
   }
