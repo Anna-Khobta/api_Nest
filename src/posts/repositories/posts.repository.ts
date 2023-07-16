@@ -45,7 +45,6 @@ export class PostsRepository {
     }
 
     //postInstance.updatePost()
-
     postInstance.title = title;
     postInstance.shortDescription = shortDescription;
     postInstance.content = content;
@@ -62,11 +61,6 @@ export class PostsRepository {
   async deletePost(id: string): Promise<boolean> {
     const result = await this.postModel.findOneAndDelete({ _id: id });
     return result !== null;
-  }
-
-  async deleteAllPosts(): Promise<number> {
-    const result = await this.postModel.deleteMany({});
-    return result.deletedCount;
   }
 
   async createUserLikeInfoInDb(
@@ -115,12 +109,6 @@ export class PostsRepository {
     likes: number,
     dislikes: number,
   ): Promise<boolean> {
-    /* const userLikeInfoToAdd: UserLikeInfo = {
-      userId: userLikeInfo.userId,
-      createdAt: userLikeInfo.createdAt,
-      userStatus: likeStatus,
-    };*/
-
     try {
       const updateResult = await this.postModel.updateOne(
         {
@@ -283,10 +271,6 @@ export class PostsRepository {
 
         mappedLikes = await Promise.all(
           reverse.map(async (element) => {
-            /*const foundLogins = await this.userModel.find(
-              { _id: element.userId },
-              { 'accountData.login': 1 },
-            );*/
             const foundLogins = await this.usersRepository.findLogin(
               element.userId,
             );
