@@ -109,12 +109,6 @@ export class PostsRepository {
     likes: number,
     dislikes: number,
   ): Promise<boolean> {
-    /* const userLikeInfoToAdd: UserLikeInfo = {
-      userId: userLikeInfo.userId,
-      createdAt: userLikeInfo.createdAt,
-      userStatus: likeStatus,
-    };*/
-
     try {
       const updateResult = await this.postModel.updateOne(
         {
@@ -277,10 +271,6 @@ export class PostsRepository {
 
         mappedLikes = await Promise.all(
           reverse.map(async (element) => {
-            /*const foundLogins = await this.userModel.find(
-              { _id: element.userId },
-              { 'accountData.login': 1 },
-            );*/
             const foundLogins = await this.usersRepository.findLogin(
               element.userId,
             );
