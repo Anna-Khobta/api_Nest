@@ -155,10 +155,9 @@ export class PostsController {
       return exceptionHandler(newCommentId.code);
     }
 
-    const newCommentViewType =
-      await this.commentsQueryRepository.findCommentById(newCommentId.data);
-
-    return newCommentViewType;
+    return await this.commentsQueryRepository.findCommentById(
+      newCommentId.data,
+    );
   }
   @Get(':postId/comments')
   @HttpCode(200)
