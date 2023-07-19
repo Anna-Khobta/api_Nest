@@ -21,10 +21,6 @@ export class DeviceRepository {
       console.log(error);
       return false;
     }
-
-    /*
-    const insertNewTokenToDb = await this.deviceModel.insertMany(newRefTokenDb);
-    if (insertNewTokenToDb) return true;*/
   }
 
   async findToken(
@@ -59,10 +55,6 @@ export class DeviceRepository {
           {
             projection: {
               _id: 0,
-              //ip: 1,
-              //deviceTitle: 1,
-              //iat: 1,
-              //deviceId: 1,
             },
           },
         )
