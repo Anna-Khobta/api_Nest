@@ -42,14 +42,6 @@ export type BannedUsersViewType = {
     banReason: string;
   };
 };
-export type BannedUsersWithPagination = {
-  pagesCount: number;
-  page: number;
-  pageSize: number;
-  totalCount: number;
-
-  items: BannedUsersViewType[];
-};
 
 export type PostViewType = {
   id: string;
