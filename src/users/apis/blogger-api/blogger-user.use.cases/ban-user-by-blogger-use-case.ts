@@ -1,6 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepository } from '../../../users-repositories/users.repository';
-
 import {
   ExceptionCodesType,
   ResultCode,
