@@ -359,11 +359,3 @@ export class CommentsRepository {
     }
   }
 }
-
-/* const comments = [];
-    for (let i = 0; i < postIds.length; i++) {
-      const foundComments = await this.commentModel.find({
-        postId: postIds[i],
-      });
-      comments.push(foundComments);
-    }*/
