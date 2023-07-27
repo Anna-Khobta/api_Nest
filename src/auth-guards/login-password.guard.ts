@@ -20,8 +20,6 @@ export class LoginPasswordGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
 
-    //const auth = request.headers.authorization;
-
     const foundUserInDb =
       await this.usersQueryRepository.findUserByLoginOrEmail(
         request.body.loginOrEmail,
