@@ -6,12 +6,12 @@ export type BlogDocument = HydratedDocument<Blog>;
 @Schema()
 export class BlogOwnerInfo {
   @Prop({
-    //required: true,
+    required: true,
     type: SchemaTypes.Mixed,
   })
   userId: string | null;
   @Prop({
-    //required: true,
+    required: true,
     type: SchemaTypes.Mixed,
   })
   userLogin: string | null;
