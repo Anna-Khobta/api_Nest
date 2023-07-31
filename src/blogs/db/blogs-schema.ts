@@ -82,9 +82,9 @@ export class Blog {
   })
   usersWereBanned: UsersWereBanned[];
 
-  setName(newName1: string) {
+  /*setName(newName1: string) {
     this.name = newName1;
-  }
+  }*/
 }
 
 export const BlogSchema = SchemaFactory.createForClass(Blog);

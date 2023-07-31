@@ -125,7 +125,6 @@ export class BlogsController {
       throw new CustomException('Blog not found', HttpStatus.NOT_FOUND);
     }
 
-    //currentUserId
     return await this.postsQueryRepository.findPosts(
       blogId,
       queryPagination,
