@@ -153,7 +153,6 @@ export class AuthService {
       await this.usersRepository.findUserInfoForEmailSend(newUserId);
 
     try {
-      // в сервис
       await this.emailsManager.sendEmailConfirmationMessage(
         userConfirmationCode!.id,
         userConfirmationCode!.email,
