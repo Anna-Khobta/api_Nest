@@ -68,7 +68,6 @@ export type PostsWithPagination = {
 };
 
 export type CommentDBType = {
-  //id: string,
   postId: string;
   content: string;
   createdAt: string;
@@ -139,7 +138,6 @@ export type UsersWithPagination = {
 };
 
 export type UserDbType = {
-  //id: string,
   accountData: {
     login: string;
     email: string;
