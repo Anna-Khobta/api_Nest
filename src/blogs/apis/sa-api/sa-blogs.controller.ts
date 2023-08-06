@@ -31,7 +31,7 @@ export class SaBlogsController {
   @Put(':id/bind-with-user/:userId')
   @UseGuards(BasicAuthGuard)
   async updateBlogOwner(
-    @Param('id') blogId: string, //  ParamBlogIdInputModel ?
+    @Param('id') blogId: string,
     @Param('userId') userId: string,
   ) {
     const updateOwner = await this.commandBus.execute(
