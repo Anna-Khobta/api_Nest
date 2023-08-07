@@ -113,8 +113,6 @@ export class AuthService {
   }
 
   async createNewAccessRefreshTokens(userId: string, deviceId: string) {
-    //const decodedRefreshToken = this.jwtService.decode(refreshToken);
-
     const newAccessToken = this.jwtService.sign(
       { userId: userId },
       { expiresIn: this.configService.get('ACCESS_TOKEN_LIFE_TIME') },
