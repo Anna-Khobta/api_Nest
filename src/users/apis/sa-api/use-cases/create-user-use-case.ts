@@ -33,21 +33,6 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
         command.inputModel.email,
       );
 
-    /* if (checkIsLoginOrEmailAlreadyUsed) {
-      if (
-        checkIsLoginOrEmailAlreadyUsed.accountData.login ===
-        command.inputModel.login
-      ) {
-        return 'login';
-      }
-      if (
-        checkIsLoginOrEmailAlreadyUsed.accountData.email ===
-        command.inputModel.email
-      ) {
-        return 'email';
-      }
-    }*/
-
     // create new user
     const salt = await bcrypt.genSalt(5);
 
