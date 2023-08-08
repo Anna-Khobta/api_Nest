@@ -188,12 +188,6 @@ export class BlogsRepository {
         (user) => user.userId === userId,
       );
 
-      /*if (!checkIfUserInBannedGroup) {
-        if (inputModel.isBanned === true) {
-          blog.usersWereBanned.push(userBannedToAdd);
-        }
-      }*/
-
       if (!checkIfUserInBannedGroup && inputModel.isBanned === true) {
         // add in db
         blog.usersWereBanned.push(userBannedToAdd);
