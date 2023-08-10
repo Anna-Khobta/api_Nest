@@ -45,8 +45,4 @@ export class BloggerBlogsService {
       websiteUrl,
     );
   }*/
-
-  /*  async deleteBlog(id: string): Promise<boolean> {
-    return await this.blogsRepository.deleteBlog(id);
-  }*/
 }
