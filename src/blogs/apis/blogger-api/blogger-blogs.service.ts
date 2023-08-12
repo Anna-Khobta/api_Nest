@@ -31,18 +31,4 @@ export class BloggerBlogsService {
 
     return blogInstance._id.toString();
   }*/
-
-  /*async updateBlog(
-    id: string,
-    name: string,
-    description: string,
-    websiteUrl: string,
-  ): Promise<boolean> {
-    return await this.blogsRepository.updateBlog(
-      id,
-      name,
-      description,
-      websiteUrl,
-    );
-  }*/
 }
