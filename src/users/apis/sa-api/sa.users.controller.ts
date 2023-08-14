@@ -54,21 +54,6 @@ export class SaUsersController {
   @HttpCode(201)
   @UseGuards(BasicAuthGuard)
   async createUser(@Body() inputModel: CreateUserInputModel) {
-    /*
-    старый код, пока оставила для сравнений
-    const checkUserIsAlreadyInDb = await this.usersService.checkUserExist(
-      inputModel.login,
-      inputModel.email,
-    );
-
-    if (checkUserIsAlreadyInDb === 'login') {
-      throw new CustomException(messageLogin, HttpStatus.BAD_REQUEST);
-    }
-
-    if (checkUserIsAlreadyInDb === 'email') {
-      throw new CustomException(messageEmail, HttpStatus.BAD_REQUEST);
-    }*/
-
     const createdUserId = await this.commandBus.execute(
       new CreateUserCommand(inputModel, true),
     );
