@@ -67,10 +67,6 @@ describe('blogger/users (e2e)', () => {
 
     const createUser1 = await createUserBySa(app, registrationData1);
 
-    /*    const createUser2 = await createUserBySa(app, registrationData2);
-
-    const createUser3 = await createUserBySa(app, registrationData3);*/
-
     const loginUser1 = await loginUser(app, registrationData1);
     const user1AT = loginUser1.body.accessToken;
 
