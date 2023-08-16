@@ -65,8 +65,7 @@ describe('blogger/users (e2e)', () => {
   it('ban/unban blog by sa, get blogs by different apis', async () => {
     await deleteAll(app);
 
-    const createUser1 = await createUserBySa(app, registrationData1);
-
+    await createUserBySa(app, registrationData1);
     const loginUser1 = await loginUser(app, registrationData1);
     const user1AT = loginUser1.body.accessToken;
 
