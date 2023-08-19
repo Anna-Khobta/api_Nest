@@ -81,7 +81,7 @@ describe('blogger/users (e2e)', () => {
     const getAllBlogsBySa = await getBlogsBySa(app, blogId);
     expect(getAllBlogsBySa.status).toBe(200);
 
-    const banBlogBySa = await banUnbanBlogBySa(app, blogId);
+    await banUnbanBlogBySa(app, blogId);
 
     const getBlogsAfterBanPublic = await getBlogsPublicApi(app);
     expect(getBlogsAfterBanPublic.status).toBe(200);
