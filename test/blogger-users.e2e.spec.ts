@@ -130,7 +130,7 @@ describe('blogger/users (e2e)', () => {
   it('GET "blogger/users/blog/:id": should return error if :id from uri param not found', async () => {
     await deleteAll(app);
 
-    const createUser1 = await createUserBySa(app, registrationData1);
+    await createUserBySa(app, registrationData1);
     const createUser2 = await createUserBySa(app, registrationData2);
 
     const loginUser1 = await loginUser(app, registrationData1);
