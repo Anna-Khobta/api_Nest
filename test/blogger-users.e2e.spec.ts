@@ -171,7 +171,7 @@ describe('blogger/users (e2e)', () => {
   it('create 12 users, ban, return bannedUsers with pagination', async () => {
     await deleteAll(app);
 
-    const createUser1 = await createUserBySa(app, registrationData1);
+    await createUserBySa(app, registrationData1);
 
     const create12Users = await createSeveralUserBySa(
       app,
