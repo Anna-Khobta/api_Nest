@@ -243,7 +243,7 @@ describe('blogger/users (e2e)', () => {
   it('PUT -> "/blogger/users/:id/ban', async () => {
     await deleteAll(app);
 
-    const createUser1 = await createUserBySa(app, registrationData1);
+    await createUserBySa(app, registrationData1);
     const createUser2 = await createUserBySa(app, registrationData2);
 
     const loginUser1 = await loginUser(app, registrationData1);
