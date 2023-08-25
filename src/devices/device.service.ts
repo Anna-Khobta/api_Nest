@@ -21,10 +21,7 @@ export class DeviceService {
       userId: decodedRefreshToken.userId,
     };
 
-    const addNewDeviceInfoToDb = await this.deviceRepository.addToken(
-      newDeviceInfoFromRT,
-    );
-    return addNewDeviceInfoToDb;
+    return await this.deviceRepository.addToken(newDeviceInfoFromRT);
 
     /*  так пока что не нужно в дз делать
     if (!checkDeviceInDb) {
