@@ -157,24 +157,6 @@ export type UserDbType = {
 
 export type UserWithMongoId = UserDbType & { _id: ObjectId };
 
-export type UserTypeWiithoutIds = {
-  accountData: {
-    login: string;
-    email: string;
-    hashPassword: string;
-    createdAt: string;
-  };
-  emailConfirmation: {
-    confirmationCode: string;
-    expirationDate: Date;
-    isConfirmed: boolean;
-  };
-  passwordRecovery: {
-    recoveryCode: string | null;
-    exp: Date | null;
-  };
-};
-
 export type UserInfoForEmail = {
   id: string;
   email: string;
