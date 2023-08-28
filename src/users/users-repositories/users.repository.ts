@@ -45,11 +45,6 @@ export class UsersRepository {
     return true;
   }
 
-  async deleteAllUsers(): Promise<number> {
-    const result = await this.userModel.deleteMany({});
-    return result.deletedCount;
-  }
-
   async updateConfirmation(userId: string): Promise<string | null> {
     const userInstance = await this.userModel.findOne({ _id: userId });
 

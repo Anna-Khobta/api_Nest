@@ -1,5 +1,4 @@
 import { UserLikeInfo } from '../types/types';
-// n
 export class PostClassDbType {
   createdAt: string;
   likesCount: number;

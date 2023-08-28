@@ -2,8 +2,6 @@ import { IsString, IsUrl, Length } from 'class-validator';
 import { IsNotEmptyString } from '../../decorators/IsNotEmptyString.validator';
 
 export class CreateBlogInputModel {
-  //@Trim() почему-то не сработало
-  //@IsNotEmpty()
   @IsNotEmptyString()
   @IsString()
   @Length(3, 15)

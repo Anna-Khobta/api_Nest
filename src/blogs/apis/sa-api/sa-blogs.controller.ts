@@ -31,7 +31,7 @@ export class SaBlogsController {
   @Put(':id/bind-with-user/:userId')
   @UseGuards(BasicAuthGuard)
   async updateBlogOwner(
-    @Param('id') blogId: string, //  ParamBlogIdInputModel ?
+    @Param('id') blogId: string,
     @Param('userId') userId: string,
   ) {
     const updateOwner = await this.commandBus.execute(
@@ -43,7 +43,6 @@ export class SaBlogsController {
         HttpStatus.NOT_FOUND,
       );
     }
-
     return true;
   }
 
@@ -61,11 +60,9 @@ export class SaBlogsController {
     const updateBanBlog = await this.commandBus.execute(
       new BanBlogBySaCommand(blogId, inputModel.isBanned),
     );
-
     if (updateBanBlog.code !== ResultCode.Success) {
       return exceptionHandler(updateBanBlog.code);
     }
-
     return;
   }
 }

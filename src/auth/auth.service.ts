@@ -113,8 +113,6 @@ export class AuthService {
   }
 
   async createNewAccessRefreshTokens(userId: string, deviceId: string) {
-    //const decodedRefreshToken = this.jwtService.decode(refreshToken);
-
     const newAccessToken = this.jwtService.sign(
       { userId: userId },
       { expiresIn: this.configService.get('ACCESS_TOKEN_LIFE_TIME') },
@@ -153,7 +151,6 @@ export class AuthService {
       await this.usersRepository.findUserInfoForEmailSend(newUserId);
 
     try {
-      // в сервис
       await this.emailsManager.sendEmailConfirmationMessage(
         userConfirmationCode!.id,
         userConfirmationCode!.email,

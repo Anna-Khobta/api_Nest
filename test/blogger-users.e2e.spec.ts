@@ -65,12 +65,7 @@ describe('blogger/users (e2e)', () => {
   it('ban/unban blog by sa, get blogs by different apis', async () => {
     await deleteAll(app);
 
-    const createUser1 = await createUserBySa(app, registrationData1);
-
-    /*    const createUser2 = await createUserBySa(app, registrationData2);
-
-    const createUser3 = await createUserBySa(app, registrationData3);*/
-
+    await createUserBySa(app, registrationData1);
     const loginUser1 = await loginUser(app, registrationData1);
     const user1AT = loginUser1.body.accessToken;
 
@@ -86,7 +81,7 @@ describe('blogger/users (e2e)', () => {
     const getAllBlogsBySa = await getBlogsBySa(app, blogId);
     expect(getAllBlogsBySa.status).toBe(200);
 
-    const banBlogBySa = await banUnbanBlogBySa(app, blogId);
+    await banUnbanBlogBySa(app, blogId);
 
     const getBlogsAfterBanPublic = await getBlogsPublicApi(app);
     expect(getBlogsAfterBanPublic.status).toBe(200);
@@ -101,7 +96,7 @@ describe('blogger/users (e2e)', () => {
   it('return post of ban/unban blog by different apis', async () => {
     await deleteAll(app);
 
-    const createUser1 = await createUserBySa(app, registrationData1);
+    await createUserBySa(app, registrationData1);
 
     const loginUser1 = await loginUser(app, registrationData1);
     const user1AT = loginUser1.body.accessToken;
@@ -123,7 +118,7 @@ describe('blogger/users (e2e)', () => {
     const getPostById = await getPostByIdPublicApi(app, postId);
     expect(getPostById.status).toBe(200);
 
-    const banBlogBySa = await banUnbanBlogBySa(app, blogId);
+    await banUnbanBlogBySa(app, blogId);
 
     const getPostsPublicAfterBan = await getPostsPublicApi(app);
     expect(getPostsPublicAfterBan.status).toBe(200);
@@ -135,7 +130,7 @@ describe('blogger/users (e2e)', () => {
   it('GET "blogger/users/blog/:id": should return error if :id from uri param not found', async () => {
     await deleteAll(app);
 
-    const createUser1 = await createUserBySa(app, registrationData1);
+    await createUserBySa(app, registrationData1);
     const createUser2 = await createUserBySa(app, registrationData2);
 
     const loginUser1 = await loginUser(app, registrationData1);
@@ -176,7 +171,7 @@ describe('blogger/users (e2e)', () => {
   it('create 12 users, ban, return bannedUsers with pagination', async () => {
     await deleteAll(app);
 
-    const createUser1 = await createUserBySa(app, registrationData1);
+    await createUserBySa(app, registrationData1);
 
     const create12Users = await createSeveralUserBySa(
       app,
@@ -248,7 +243,7 @@ describe('blogger/users (e2e)', () => {
   it('PUT -> "/blogger/users/:id/ban', async () => {
     await deleteAll(app);
 
-    const createUser1 = await createUserBySa(app, registrationData1);
+    await createUserBySa(app, registrationData1);
     const createUser2 = await createUserBySa(app, registrationData2);
 
     const loginUser1 = await loginUser(app, registrationData1);

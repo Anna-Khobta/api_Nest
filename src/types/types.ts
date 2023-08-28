@@ -42,14 +42,6 @@ export type BannedUsersViewType = {
     banReason: string;
   };
 };
-export type BannedUsersWithPagination = {
-  pagesCount: number;
-  page: number;
-  pageSize: number;
-  totalCount: number;
-
-  items: BannedUsersViewType[];
-};
 
 export type PostViewType = {
   id: string;
@@ -76,7 +68,6 @@ export type PostsWithPagination = {
 };
 
 export type CommentDBType = {
-  //id: string,
   postId: string;
   content: string;
   createdAt: string;
@@ -147,7 +138,6 @@ export type UsersWithPagination = {
 };
 
 export type UserDbType = {
-  //id: string,
   accountData: {
     login: string;
     email: string;
@@ -166,24 +156,6 @@ export type UserDbType = {
 };
 
 export type UserWithMongoId = UserDbType & { _id: ObjectId };
-
-export type UserTypeWiithoutIds = {
-  accountData: {
-    login: string;
-    email: string;
-    hashPassword: string;
-    createdAt: string;
-  };
-  emailConfirmation: {
-    confirmationCode: string;
-    expirationDate: Date;
-    isConfirmed: boolean;
-  };
-  passwordRecovery: {
-    recoveryCode: string | null;
-    exp: Date | null;
-  };
-};
 
 export type UserInfoForEmail = {
   id: string;

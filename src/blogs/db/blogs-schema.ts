@@ -6,12 +6,12 @@ export type BlogDocument = HydratedDocument<Blog>;
 @Schema()
 export class BlogOwnerInfo {
   @Prop({
-    //required: true,
+    required: true,
     type: SchemaTypes.Mixed,
   })
   userId: string | null;
   @Prop({
-    //required: true,
+    required: true,
     type: SchemaTypes.Mixed,
   })
   userLogin: string | null;
@@ -82,9 +82,9 @@ export class Blog {
   })
   usersWereBanned: UsersWereBanned[];
 
-  setName(newName1: string) {
+  /*setName(newName1: string) {
     this.name = newName1;
-  }
+  }*/
 }
 
 export const BlogSchema = SchemaFactory.createForClass(Blog);

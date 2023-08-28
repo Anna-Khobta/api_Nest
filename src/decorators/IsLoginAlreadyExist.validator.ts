@@ -27,5 +27,3 @@ export class IsLoginAlreadyExist implements ValidatorConstraintInterface {
     return `This login was already registered`;
   }
 }
-
-// TODO положить в модуль
