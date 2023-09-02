@@ -198,11 +198,9 @@ export class BloggerBlogsController {
     const findComments = await this.commandBus.execute(
       new FindAllCommentsOfAllBlogsCommand(currentUserId, queryPagination),
     );
-
     if (findComments.code !== ResultCode.Success) {
       return exceptionHandler(findComments.code);
     }
-
     return findComments.data;
   }
 }
