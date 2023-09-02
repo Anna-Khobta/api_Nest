@@ -50,7 +50,6 @@ export class LoginPasswordGuard implements CanActivate {
       );
     }
     request.user = foundUserInDb._id.toString();
-
     return true;
   }
 }
